@@ -1,8 +1,8 @@
 import { Configuration, OpenAIApi } from 'openai';
 
 const configuration = new Configuration({
-  organization: 'org-N7umWbUcyaPqa8C12MSH4Na5',
-  apiKey: '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',
+  organization: `${process.env.chatOrganization}`,
+  apiKey: `${process.env.chatApiKey}`,
 });
 
 const openai = new OpenAIApi(configuration);

@@ -1,7 +1,9 @@
 import textToSpeech from '@google-cloud/text-to-speech';
-import fs from 'fs';
+import { Storage } from '@google-cloud/storage';
 
 const client = new textToSpeech.TextToSpeechClient();
+const storage = new Storage();
+const bucket = storage.bucket('generated-books');
 
 export default function generateSpeech(text, filename) {
   const request = {
@@ -28,13 +30,21 @@ export default function generateSpeech(text, filename) {
       return;
     }
 
-    fs.writeFile(`${filename}.wav`, response.audioContent, 'binary', (fsErr) => {
-      if (fsErr) {
-        console.error('Error:', fsErr);
-        return;
-      }
-
-      console.log(`Audio content written to file: ${filename}.wav`);
+    const file = bucket.file(`${filename}.wav`);
+    const stream = file.createWriteStream({
+      metadata: {
+        contentType: 'audio/wav',
+      },
     });
+
+    stream.on('error', (streamErr) => {
+      console.error(streamErr);
+    });
+
+    stream.on('finish', () => {
+      console.log('File uploaded successfully.');
+    });
+
+    stream.end(response.audioContent);
   });
 }
