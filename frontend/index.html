@@ -73,7 +73,6 @@
       const provider = new firebase.auth.GoogleAuthProvider();
       // Get the currently signed-in user
       let user = firebase.auth().currentUser;
-      console.log('User signed in:', user);
       if (user) {
         fableForm.classList.remove('hidden');
         signInButton.classList.add('hidden');
@@ -82,12 +81,23 @@
         signInButton.classList.remove('hidden');
       }
 
+      firebase.auth().onAuthStateChanged(stateUser => {
+        if (stateUser) {
+          user = stateUser;
+          fableForm.classList.remove('hidden');
+          signInButton.classList.add('hidden');
+        } else {
+          fableForm.classList.add('hidden');
+          signInButton.classList.remove('hidden');
+        }
+      });
+
       signInButton.addEventListener('click', async () => {
         try {
+          await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION);
           // Sign in with the Google provider
           const result = await firebase.auth().signInWithPopup(provider);
           user = result.user;
-          console.log('User signed in:', user);
           fableForm.classList.remove('hidden');
           signInButton.classList.add('hidden');
         } catch (error) {
@@ -116,7 +126,6 @@
           const checkFile = () => {
             fetch(audioUrl, {method: 'HEAD'})
               .then(response => {
-                console.log('response', response);
                 if (response.ok) {
                   responseContent += `
                     <h2>Chapter ${chapter}</h2>
@@ -131,7 +140,6 @@
                 } else if (maxChecks === 0) {
                   clearTimeout(timerId);
                 } else {
-                  console.warn(`Audio file ${audioUrl} not ready`);
                   timerId = setTimeout(checkFile, checkInterval);
                 }
               })
@@ -189,7 +197,6 @@
         submitButton.parentElement.appendChild(spinner);
 
         const token = await firebase.auth().currentUser.getIdToken();
-        console.log(token);
         fetch(apiUrl + '?' + new URLSearchParams(formData), {
           headers: {
             Authorization: `Bearer ${token}`,
