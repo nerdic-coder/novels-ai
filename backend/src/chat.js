@@ -7,12 +7,12 @@ const configuration = new Configuration({
 
 const openai = new OpenAIApi(configuration);
 
-export default async function createChatResponse(content) {
+export default async function createChatResponse(content, user) {
   return openai.createChatCompletion({
     model: process.env.chatModel || 'gpt-3.5-turbo',
-    user: 'johan',
+    user,
     messages: [{
-      name: 'johan',
+      name: user,
       role: 'user',
       content,
     }],
