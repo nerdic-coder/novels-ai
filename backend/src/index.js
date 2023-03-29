@@ -1,14 +1,10 @@
 import functions from '@google-cloud/functions-framework';
 import { v4 } from 'uuid';
 import Handlebars from 'handlebars';
-import admin from 'firebase-admin';
+import admin from './admin.js';
 import createChatResponse from './chat.js';
 import generateSpeech from './speech.js';
-
-admin.initializeApp({
-  credential: admin.credential.cert(JSON.parse(process.env.ADMIN_SECRET)),
-  databaseURL: 'https://ai-audiobook.firebaseio.com',
-});
+import storeMetadata from './store.js';
 
 functions.http('generate', async (req, res) => {
   try {
@@ -23,8 +19,11 @@ functions.http('generate', async (req, res) => {
     const idToken = req.get('Authorization').split('Bearer ')[1];
     const decodedToken = await admin.auth().verifyIdToken(idToken);
     const { uid } = decodedToken;
-    const chapters = req.query.chapters || req.body.chapters || 3;
+    const chapters = req.query.chapters || req.body.chapters || 1;
     const starring = req.query.starring || req.body.starring ? `Starring ${req.query.starring || req.body.starring}.` : '';
+    const title = req.query.title || req.body.title || '';
+    const genre = req.query.genre || req.body.genre || 'book';
+    const style = req.query.style || req.body.style || 'general';
 
     const story = process.env.chatPrompt || `Write a short story with the title "{{title}}", the genre is "{{genre}}".
     in the style of "{{style}}".
@@ -36,11 +35,11 @@ functions.http('generate', async (req, res) => {
 
     // Fill in the placeholders with values from req.query, req.body, and other variables
     const context = {
-      genre: req.query.genre || req.body.genre || 'book',
-      style: req.query.style || req.body.style || 'general',
+      genre,
+      style,
       starring,
       chapters,
-      title: req.query.title || req.body.title || '',
+      title,
     };
 
     let filledInStory = template(context);
@@ -54,6 +53,8 @@ functions.http('generate', async (req, res) => {
       generateSpeech(completion.data.choices[0].message.content, `${uid}/${requestId}/chapter-${chapter}`);
       filledInStory += `\n${completion.data.choices[0].message.content}\nContinue with Chapter ${chapter + 1}, only 2 paragraphs`;
     }
+
+    storeMetadata(uid, requestId, title, chapters, filledInStory, starring, genre, style);
 
     res.send(requestId);
   } catch (error) {
