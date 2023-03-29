@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Fable AI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-aFq/bzH65dt+w6FI2ooMVUpc+21e0SRygnTpmBvdBgSdnuTN7QbdgL+OapgHtvPp" crossorigin="anonymous">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+      body {
+        background-color: #171822;
+        color: #abfcdd;
+      }
+      input[type="text"],
+      input[type="number"],
+      textarea {
+        background-color: #21474e;
+        color: beige;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+        <img src="https://storage.googleapis.com/ai-audiobook/audiobook_app-logo.png" style="max-width: 100%;" />
+        <p>OBS! Generation can take up to a minute for each chapter.</p>
+        <form method="get" onsubmit="generateAudiobook(); return false;">
+            <div class="mb-3">
+                <label for="chapters" class="form-label">Number of chapters:</label>
+                <input type="number" class="form-control" id="chapters" required min="1" max="6" value="1">
+            </div>
+            <div class="mb-3">
+                <label for="genre" class="form-label">Genre:</label>
+                <input type="text" class="form-control" id="genre">
+            </div>
+            <div class="mb-3">
+                <label for="style" class="form-label">Style:</label>
+                <input type="text" class="form-control" id="style">
+            </div>
+            <div class="mb-3">
+                <label for="title" class="form-label">Title:</label>
+                <input type="text" class="form-control" id="title">
+            </div>
+            <div class="mb-3">
+                <label for="starring" class="form-label">Starring:</label>
+                <input type="text" class="form-control" id="starring">
+            </div>
+            <div class="mb-3">
+              <input type="submit" value="Generate Audiobook" class="btn btn-primary" id="submit-button">
+            </div>
+        </form>
+
+        <div id="response"></div>
+    </div>
+
+    <script>
+
+      const submitButton = document.getElementById('submit-button');
+      const spinner = document.createElement('div');
+      spinner.classList.add('spinner-border', 'text-success');
+      spinner.setAttribute('role', 'status');
+      spinner.innerHTML = '<span class="visually-hidden">Loading...</span>';
+
+      async function createAudioTags(bucketName, requestId, chapters) {
+        const audioBucketUrl = `https://storage.googleapis.com/${bucketName}/${requestId}/`;
+        let responseContent = '';
+
+        const checkFileStatus = (audioUrl, chapter, timeout) => {
+          let timerId;
+          const checkInterval = 5000; // check every 5 seconds
+          let maxChecks = timeout / checkInterval;
+          let fileReady = false;
+
+          const checkFile = () => {
+            fetch(audioUrl, {method: 'HEAD'})
+              .then(response => {
+                console.log('response', response);
+                if (response.ok) {
+                  responseContent += `
+                    <h2>Chapter ${chapter}</h2>
+                    <audio controls>
+                      <source src="${audioUrl}" type="audio/wav">
+                      <p>Your browser does not support the audio element</p>
+                    </audio>
+                    <br>
+                  `;
+                  fileReady = true;
+                  clearTimeout(timerId);
+                } else if (maxChecks === 0) {
+                  clearTimeout(timerId);
+                } else {
+                  console.warn(`Audio file ${audioUrl} not ready`);
+                  timerId = setTimeout(checkFile, checkInterval);
+                }
+              })
+              .catch(error => {
+                console.error(error);
+                console.warn(`Audio file ${audioUrl} not ready`);
+                timerId = setTimeout(checkFile, checkInterval);
+              });
+          };
+
+          timerId = setTimeout(checkFile, checkInterval);
+
+          return new Promise((resolve, reject) => {
+            const checkTimer = setInterval(() => {
+              console.log('fileReady', fileReady);
+              console.log('maxChecks', maxChecks);
+              if (fileReady === true || --maxChecks === 0) {
+                clearInterval(checkTimer);
+                if (fileReady === true) {
+                  resolve();
+                } else {
+                  reject(new Error(`Timeout waiting for audio file ${audioUrl}`));
+                }
+              }
+            }, checkInterval);
+          });
+        };
+
+        for (let index = 1; index <= chapters; index += 1) {
+          try {
+            await checkFileStatus(`${audioBucketUrl}chapter-${index}.wav`, index, 120000); // timeout after 30 seconds
+          } catch (error) {
+            alert('Generating Audiobook failed, please try again!');
+          }
+        }
+        console.log('done!');
+
+        const responseDiv = document.getElementById('response');
+        responseDiv.innerHTML = responseContent;
+        // Re-enable submit button and hide spinner
+        submitButton.disabled = false;
+        submitButton.parentElement.removeChild(spinner);
+      }
+
+      function generateAudiobook() {
+        const apiUrl = 'https://generate-audiobook-i3rsqvn75a-lm.a.run.app/';
+
+        const formData = new FormData();
+        const chapters = document.getElementById('chapters').value;
+        formData.append('chapters', chapters);
+        formData.append('genre', document.getElementById('genre').value);
+        formData.append('title', document.getElementById('title').value);
+        formData.append('style', document.getElementById('style').value);
+        formData.append('starring', document.getElementById('starring').value);
+
+        // Disable submit button and show spinner
+        submitButton.disabled = true;
+        submitButton.parentElement.appendChild(spinner);
+
+        fetch(apiUrl + '?' + new URLSearchParams(formData))
+          .then(response => response.text())
+          .then(data => {
+            createAudioTags('generated-books', data, chapters);
+          })
+          .catch(error => {
+            console.error(error);
+          });
+      }
+    </script>
+  </body>
+</html>
