@@ -31,7 +31,7 @@ export default async function storeMetadata(
   const audiobooksRef = userRef.collection('audiobooks');
 
   // Add the new audiobook to the audiobooks collection
-  await audiobooksRef.add({
+  return audiobooksRef.add({
     requestId,
     title,
     chapters: chaptersData,

@@ -19,7 +19,8 @@ functions.http('generate', async (req, res) => {
     const idToken = req.get('Authorization').split('Bearer ')[1];
     const decodedToken = await admin.auth().verifyIdToken(idToken);
     const { uid } = decodedToken;
-    const chapters = req.query.chapters || req.body.chapters || 1;
+    const voice = req.query.voice || req.body.voice || 'en-US-Neural2-J';
+    const chapters = parseInt(req.query.chapters, 10) || parseInt(req.body.chapters, 10) || 1;
     const starring = req.query.starring || req.body.starring ? `Starring ${req.query.starring || req.body.starring}.` : '';
     const title = req.query.title || req.body.title || '';
     const genre = req.query.genre || req.body.genre || 'book';
@@ -44,17 +45,35 @@ functions.http('generate', async (req, res) => {
 
     let filledInStory = template(context);
 
+    const metadata = await storeMetadata(
+      uid,
+      requestId,
+      title,
+      chapters,
+      filledInStory,
+      starring,
+      genre,
+      style,
+    );
+
+    let lastChapter = false;
     for (let chapter = 1; chapter <= chapters; chapter += 1) {
       if (chapter === chapters) {
         filledInStory += ', the ending';
+        lastChapter = true;
       }
       // eslint-disable-next-line no-await-in-loop
       const completion = await createChatResponse(filledInStory, uid);
-      generateSpeech(completion.data.choices[0].message.content, `${uid}/${requestId}/chapter-${chapter}`);
+      generateSpeech(
+        completion.data.choices[0].message.content,
+        `${uid}/${requestId}/chapter-${chapter}`,
+        metadata,
+        lastChapter,
+        filledInStory,
+        voice,
+      );
       filledInStory += `\n${completion.data.choices[0].message.content}\nContinue with Chapter ${chapter + 1}, only 2 paragraphs`;
     }
-
-    storeMetadata(uid, requestId, title, chapters, filledInStory, starring, genre, style);
 
     res.send(requestId);
   } catch (error) {
