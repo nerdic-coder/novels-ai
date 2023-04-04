@@ -22,9 +22,10 @@
   </head>
   <body>
     <div class="container">
-        <img src="https://storage.googleapis.com/ai-audiobook/audiobook_app-logo.png" style="max-width: 100%;" />
+      <img src="https://storage.googleapis.com/ai-audiobook/audiobook_app-logo.png" style="max-width: 100%;" />
+      <div id="fable-page" class="hidden">
         <p>OBS! Generation can take up to a minute for each chapter.</p>
-        <form id="fable-form" method="get" onsubmit="generateAudiobook(); return false;" class="hidden">
+        <form id="fable-form" method="get" onsubmit="generateAudiobook(); return false;">
           <div class="mb-3">
               <label for="chapters" class="form-label">Number of chapters:</label>
               <input type="number" class="form-control" id="chapters" required min="1" max="6" value="1">
@@ -46,17 +47,32 @@
               <input type="text" class="form-control" id="starring">
           </div>
           <div class="mb-3">
-            <input type="submit" value="Generate Audiobook" class="btn btn-primary" id="submit-button">
+            <input type="submit" value="Generate fable" class="btn btn-primary" id="submit-button">
           </div>
         </form>
 
-        <input type="button" value="Google Signin" class="btn btn-primary" id="sign-in-button">
-
         <div id="response"></div>
+
+        <h2>Generated fables</h2>
+        <table class="table table-dark table-striped table-bordered table-sm">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Genre</th>
+              <th>Chapters</th>
+            </tr>
+          </thead>
+          <tbody id="audiobooks-list">
+
+          </tbody>
+        </table>
+      </div>
+      <input type="button" value="Google Signin" class="btn btn-primary" id="sign-in-button">
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script>
       const firebaseConfig = {
         apiKey: 'AIzaSyBzegpGaNrC-KHupiuNXnjI2XxkoaXzm2o',
@@ -67,27 +83,80 @@
       firebase.initializeApp(firebaseConfig);
       
       const signInButton = document.getElementById('sign-in-button');
-      const fableForm = document.getElementById('fable-form');
+      const fablePage = document.getElementById('fable-page');
 
       // Create a Google sign-in provider
       const provider = new firebase.auth.GoogleAuthProvider();
       // Get the currently signed-in user
       let user = firebase.auth().currentUser;
       if (user) {
-        fableForm.classList.remove('hidden');
+        fablePage.classList.remove('hidden');
         signInButton.classList.add('hidden');
       } else {
-        fableForm.classList.add('hidden');
+        fablePage.classList.add('hidden');
         signInButton.classList.remove('hidden');
       }
 
       firebase.auth().onAuthStateChanged(stateUser => {
         if (stateUser) {
           user = stateUser;
-          fableForm.classList.remove('hidden');
+          fablePage.classList.remove('hidden');
           signInButton.classList.add('hidden');
+          // Get the audiobooks collection for the current user
+          const audiobooksRef = firebase.firestore().collection('users').doc(user.uid).collection('audiobooks');
+
+          // Listen for changes to the audiobooks collection
+          audiobooksRef.orderBy('createdDate', 'desc').onSnapshot((snapshot) => {
+            // Clear the existing list of audiobooks
+            const audiobooksList = document.getElementById('audiobooks-list');
+            audiobooksList.innerHTML = '';
+
+            // Loop through the audiobook documents in the snapshot
+            snapshot.forEach((doc) => {
+              // Get the audiobook data from the document
+              const audiobookData = doc.data();
+
+              // Create a new list item for the audiobook
+              const audiobookRow = document.createElement('tr');
+              const audiobookTitle = document.createElement('td');
+              audiobookTitle.textContent = audiobookData.title;
+
+              const audiobookGenre = document.createElement('td');
+              audiobookGenre.textContent = audiobookData.genre;
+
+              let audioContent = '';
+              // console.log(audiobookData.chapters);
+              for (let index = 0; index < audiobookData.chapters.length; index += 1) {
+                audioContent += `
+                  <p>Chapter ${index + 1}</p>
+                  <audio controls>
+                    <source src="${audiobookData.chapters[index].chapterUrl}" type="audio/wav">
+                    <p>Your browser does not support the audio element</p>
+                  </audio>
+                  <br>
+                `;
+              }
+
+              const audiobookLoading = document.createElement('td');
+              if (audiobookData.status === 'progress') {
+                const spinner = document.createElement('div');
+                spinner.classList.add('spinner-border', 'text-success');
+                spinner.setAttribute('role', 'status');
+                spinner.innerHTML = '<span class="visually-hidden">Loading...</span>';
+                audiobookLoading.appendChild(spinner);
+              } else {
+                audiobookLoading.innerHTML = audioContent;
+              }
+
+              audiobookRow.appendChild(audiobookTitle);
+              audiobookRow.appendChild(audiobookGenre);
+              audiobookRow.appendChild(audiobookLoading);
+              // Add the new list item to the list of audiobooks
+              audiobooksList.appendChild(audiobookRow);
+            });
+          });
         } else {
-          fableForm.classList.add('hidden');
+          fablePage.classList.add('hidden');
           signInButton.classList.remove('hidden');
         }
       });
@@ -98,88 +167,14 @@
           // Sign in with the Google provider
           const result = await firebase.auth().signInWithPopup(provider);
           user = result.user;
-          fableForm.classList.remove('hidden');
+          fablePage.classList.remove('hidden');
           signInButton.classList.add('hidden');
         } catch (error) {
           console.error('Error signing in:', error);
-          fableForm.classList.add('hidden');
+          fablePage.classList.add('hidden');
           signInButton.classList.remove('hidden');
         }
       });
-
-      const submitButton = document.getElementById('submit-button');
-      const spinner = document.createElement('div');
-      spinner.classList.add('spinner-border', 'text-success');
-      spinner.setAttribute('role', 'status');
-      spinner.innerHTML = '<span class="visually-hidden">Loading...</span>';
-
-      async function createAudioTags(bucketName, requestId, chapters) {
-        const audioBucketUrl = `https://storage.googleapis.com/${bucketName}/${user.uid}/${requestId}/`;
-        let responseContent = '';
-
-        const checkFileStatus = (audioUrl, chapter, timeout) => {
-          let timerId;
-          const checkInterval = 5000; // check every 5 seconds
-          let maxChecks = timeout / checkInterval;
-          let fileReady = false;
-
-          const checkFile = () => {
-            fetch(audioUrl, {method: 'HEAD'})
-              .then(response => {
-                if (response.ok) {
-                  responseContent += `
-                    <h2>Chapter ${chapter}</h2>
-                    <audio controls>
-                      <source src="${audioUrl}" type="audio/wav">
-                      <p>Your browser does not support the audio element</p>
-                    </audio>
-                    <br>
-                  `;
-                  fileReady = true;
-                  clearTimeout(timerId);
-                } else if (maxChecks === 0) {
-                  clearTimeout(timerId);
-                } else {
-                  timerId = setTimeout(checkFile, checkInterval);
-                }
-              })
-              .catch(error => {
-                console.error(error);
-                console.warn(`Audio file ${audioUrl} not ready`);
-                timerId = setTimeout(checkFile, checkInterval);
-              });
-          };
-
-          timerId = setTimeout(checkFile, checkInterval);
-
-          return new Promise((resolve, reject) => {
-            const checkTimer = setInterval(() => {
-              if (fileReady === true || --maxChecks === 0) {
-                clearInterval(checkTimer);
-                if (fileReady === true) {
-                  resolve();
-                } else {
-                  reject(new Error(`Timeout waiting for audio file ${audioUrl}`));
-                }
-              }
-            }, checkInterval);
-          });
-        };
-
-        for (let index = 1; index <= chapters; index += 1) {
-          try {
-            await checkFileStatus(`${audioBucketUrl}chapter-${index}.wav`, index, 120000); // timeout after 30 seconds
-          } catch (error) {
-            alert('Generating Audiobook failed, please try again!');
-          }
-        }
-
-        const responseDiv = document.getElementById('response');
-        responseDiv.innerHTML = responseContent;
-        // Re-enable submit button and hide spinner
-        submitButton.disabled = false;
-        submitButton.parentElement.removeChild(spinner);
-      }
 
       async function generateAudiobook() {
         const apiUrl = 'https://generate-audiobook-i3rsqvn75a-lm.a.run.app/';
@@ -192,9 +187,9 @@
         formData.append('style', document.getElementById('style').value);
         formData.append('starring', document.getElementById('starring').value);
 
-        // Disable submit button and show spinner
+        // Disable submit button
+        const submitButton = document.getElementById('submit-button');
         submitButton.disabled = true;
-        submitButton.parentElement.appendChild(spinner);
 
         const token = await firebase.auth().currentUser.getIdToken();
         fetch(apiUrl + '?' + new URLSearchParams(formData), {
@@ -204,20 +199,18 @@
         })
           .then(response => response.text())
           .then(data => {
+            submitButton.disabled = false;
             if (data === 'Unauthorized') {
               alert('Your session have expired!');
-              submitButton.disabled = false;
-              submitButton.parentElement.removeChild(spinner);
-            } else {
-              createAudioTags('generated-books', data, chapters);
+              fablePage.classList.add('hidden');
+              signInButton.classList.remove('hidden');
             }
           })
           .catch(error => {
             console.error(error);
             alert('Generating Audiobook failed, please try again!');
-            // Re-enable submit button and hide spinner
+            // Re-enable submit button
             submitButton.disabled = false;
-            submitButton.parentElement.removeChild(spinner);
           });
       }
     </script>
