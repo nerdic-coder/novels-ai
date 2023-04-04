@@ -7,6 +7,7 @@ import generateSpeech from './speech.js';
 import storeMetadata from './store.js';
 
 functions.http('generate', async (req, res) => {
+  let metadata;
   try {
     res.set('Access-Control-Allow-Origin', '*');
     res.set('Access-Control-Allow-Headers', 'Authorization');
@@ -43,14 +44,24 @@ functions.http('generate', async (req, res) => {
       title,
     };
 
-    let filledInStory = template(context);
+    const messages = [];
+    messages.push({
+      role: 'system',
+      content: `: You are a ${genre} author. Your task is to
+      write ${genre} stories in a rich and intriguing language in a very slow pace building the
+      story.`,
+    });
+    messages.push({
+      role: 'user',
+      content: template(context),
+    });
 
-    const metadata = await storeMetadata(
+    metadata = await storeMetadata(
       uid,
       requestId,
       title,
       chapters,
-      filledInStory,
+      messages,
       starring,
       genre,
       style,
@@ -58,26 +69,39 @@ functions.http('generate', async (req, res) => {
 
     let lastChapter = false;
     for (let chapter = 1; chapter <= chapters; chapter += 1) {
+      if (chapter !== 1) {
+        messages.push({
+          role: 'user',
+          content: `Now write chapter ${chapter} of the story`,
+        });
+      }
       if (chapter === chapters) {
-        filledInStory += ', the ending';
         lastChapter = true;
       }
       // eslint-disable-next-line no-await-in-loop
-      const completion = await createChatResponse(filledInStory, uid);
+      const completion = await createChatResponse(messages, uid);
+      messages.push({
+        role: 'assistant',
+        content: completion.data.choices[0].message.content,
+      });
       generateSpeech(
         completion.data.choices[0].message.content,
         `${uid}/${requestId}/chapter-${chapter}`,
         metadata,
         lastChapter,
-        filledInStory,
+        messages,
         voice,
       );
-      filledInStory += `\n${completion.data.choices[0].message.content}\nContinue with Chapter ${chapter + 1}, only 2 paragraphs`;
     }
 
     res.send(requestId);
   } catch (error) {
     console.error('Error:', error);
+    if (metadata) {
+      metadata.update({
+        status: 'error',
+      });
+    }
     res.status(401).send('Unauthorized');
   }
 });

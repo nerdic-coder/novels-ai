@@ -5,7 +5,7 @@ export default async function storeMetadata(
   requestId,
   title,
   chapters,
-  filledInStory,
+  messages,
   starring,
   genre,
   style,
@@ -35,10 +35,11 @@ export default async function storeMetadata(
     requestId,
     title,
     chapters: chaptersData,
-    filledInStory,
+    messages,
     starring,
     genre,
     style,
     status: 'progress',
+    createdDate: new Date(),
   });
 }

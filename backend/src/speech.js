@@ -5,7 +5,7 @@ const client = new textToSpeech.TextToSpeechClient();
 const storage = new Storage();
 const bucket = storage.bucket('generated-books');
 
-export default function generateSpeech(text, filename, metadata, last, filledInStory, voice) {
+export default function generateSpeech(text, filename, metadata, last, messages, voice) {
   const request = {
     input: {
       text,
@@ -27,6 +27,10 @@ export default function generateSpeech(text, filename, metadata, last, filledInS
   client.synthesizeSpeech(request, (err, response) => {
     if (err) {
       console.error('Error:', err);
+      metadata.update({
+        status: 'error',
+        messages,
+      });
       return;
     }
 
@@ -39,6 +43,10 @@ export default function generateSpeech(text, filename, metadata, last, filledInS
 
     stream.on('error', (streamErr) => {
       console.error(streamErr);
+      metadata.update({
+        status: 'error',
+        messages,
+      });
     });
 
     stream.on('finish', () => {
@@ -47,7 +55,7 @@ export default function generateSpeech(text, filename, metadata, last, filledInS
         console.log('Last file uploaded successfully.');
         metadata.update({
           status: 'completed',
-          filledInStory,
+          messages,
         });
       }
     });
