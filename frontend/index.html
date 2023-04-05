@@ -35,7 +35,7 @@
       <img src="/header.png" alt="Novels AI" style="max-width: 100%; min-width: 100%;" />
       <div id="novels-page" class="hidden">
         <form id="novels-form" method="get" onsubmit="generateAudiobook(); return false;" class="hidden">
-          <h2>Create novels</h2>
+          <h2>Create novel</h2>
           <div class="mb-3">
               <label for="chapters" class="form-label">Number of chapters:</label>
               <input type="number" class="form-control" id="chapters" required min="1" max="6" value="1">
@@ -57,7 +57,7 @@
               <input type="text" class="form-control" id="starring">
           </div>
           <div class="mb-3 d-grid gap-2">
-            <input type="submit" value="Create novels" class="btn btn-primary" id="submit-button">
+            <input type="submit" value="Create novel" class="btn btn-primary" id="submit-button">
             <input type="button" value="Cancel" class="btn btn-secondary" id="cancel-button">
           </div>
           <img src="/ai-reader.png" alt="AI audiobook reader" style="max-width: 100%; min-width: 100%; margin-bottom: 15px;" />
@@ -65,7 +65,7 @@
         <div id="novels-list">
           <h2>Novelss</h2>
           <div class="mb-3 d-grid gap-2">
-            <input type="submit" value="Create new novels" class="btn btn-primary" id="create-new-button">
+            <input type="submit" value="Create new novel" class="btn btn-primary" id="create-new-button">
           </div>
           <table class="table table-dark table-striped table-bordered table-sm">
             <thead>
