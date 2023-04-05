@@ -22,10 +22,10 @@
   </head>
   <body>
     <div class="container">
-      <img src="https://storage.googleapis.com/ai-audiobook/audiobook_app-logo.png" style="max-width: 100%;" />
+      <img src="https://storage.googleapis.com/ai-audiobook/audiobook_app-logo.png" alt="Fable AI" style="max-width: 100%; min-width: 100%;" />
       <div id="fable-page" class="hidden">
-        <p>OBS! Generation can take up to a minute for each chapter.</p>
-        <form id="fable-form" method="get" onsubmit="generateAudiobook(); return false;">
+        <form id="fable-form" method="get" onsubmit="generateAudiobook(); return false;" class="hidden">
+          <h2>Create fable</h2>
           <div class="mb-3">
               <label for="chapters" class="form-label">Number of chapters:</label>
               <input type="number" class="form-control" id="chapters" required min="1" max="6" value="1">
@@ -46,28 +46,35 @@
               <label for="starring" class="form-label">Starring:</label>
               <input type="text" class="form-control" id="starring">
           </div>
-          <div class="mb-3">
-            <input type="submit" value="Generate fable" class="btn btn-primary" id="submit-button">
+          <div class="mb-3 d-grid gap-2">
+            <input type="submit" value="Create fable" class="btn btn-primary" id="submit-button">
+            <input type="button" value="Cancel" class="btn btn-secondary" id="cancel-button">
           </div>
+          <img src="https://storage.googleapis.com/ai-audiobook/ai-reader.png" alt="AI audiobook reader" style="max-width: 100%; min-width: 100%; margin-bottom: 15px;" />
         </form>
+        <div id="fable-list">
+          <h2>Fables</h2>
+          <div class="mb-3 d-grid gap-2">
+            <input type="submit" value="Create new fable" class="btn btn-primary" id="create-new-button">
+          </div>
+          <table class="table table-dark table-striped table-bordered table-sm">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Genre</th>
+                <th>Chapters</th>
+              </tr>
+            </thead>
+            <tbody id="audiobooks-list">
 
-        <div id="response"></div>
-
-        <h2>Generated fables</h2>
-        <table class="table table-dark table-striped table-bordered table-sm">
-          <thead>
-            <tr>
-              <th>Title</th>
-              <th>Genre</th>
-              <th>Chapters</th>
-            </tr>
-          </thead>
-          <tbody id="audiobooks-list">
-
-          </tbody>
-        </table>
+            </tbody>
+          </table>
+          <img src="https://storage.googleapis.com/ai-audiobook/listeners.png" alt="Listeners" style="max-width: 100%; min-width: 100%; margin-bottom: 15px;" />
+        </div>
       </div>
-      <input type="button" value="Google Signin" class="btn btn-primary" id="sign-in-button">
+      <div class="d-grid gap-2" style="margin-bottom: 15px;">
+        <input type="button" value="Google Signin" class="btn btn-primary" id="sign-in-button">
+      </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -84,6 +91,10 @@
       
       const signInButton = document.getElementById('sign-in-button');
       const fablePage = document.getElementById('fable-page');
+      const fableForm = document.getElementById('fable-form');
+      const fableList = document.getElementById('fable-list');
+      const createNewButton = document.getElementById('create-new-button');
+      const cancelButton = document.getElementById('cancel-button');
 
       // Create a Google sign-in provider
       const provider = new firebase.auth.GoogleAuthProvider();
@@ -176,6 +187,17 @@
         }
       });
 
+      createNewButton.addEventListener('click', async () => {
+        fableForm.classList.remove('hidden');
+        fableList.classList.add('hidden');
+      });
+
+      cancelButton.addEventListener('click', async () => {
+        fableList.classList.remove('hidden');
+        fableForm.classList.add('hidden');
+        fableForm.reset();
+      });
+
       async function generateAudiobook() {
         const apiUrl = 'https://generate-audiobook-i3rsqvn75a-lm.a.run.app/';
 
@@ -190,6 +212,10 @@
         // Disable submit button
         const submitButton = document.getElementById('submit-button');
         submitButton.disabled = true;
+
+        fableList.classList.remove('hidden');
+        fableForm.classList.add('hidden');
+        fableForm.reset();
 
         const token = await firebase.auth().currentUser.getIdToken();
         fetch(apiUrl + '?' + new URLSearchParams(formData), {
