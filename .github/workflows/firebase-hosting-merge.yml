@@ -7,7 +7,7 @@ name: Deploy to Firebase Hosting on merge
     branches:
       - main
 jobs:
-  build_and_deploy:
+  deploy_frontend:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -17,15 +17,17 @@ jobs:
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_AI_AUDIOBOOK }}'
           channelId: live
           projectId: ai-audiobook
-  deploy:
+  deploy_backend:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Set up Google Cloud SDK
-        uses: google-github-actions/setup-gcloud@v1
+      - id: 'auth'
+        uses: 'google-github-actions/auth@v1'
         with:
-          project_id: ai-audiobook
-          service_account_key: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_AI_AUDIOBOOK }}
-      - name: Deploy Google Cloud Function
-        run: |
-          gcloud functions deploy generate-audiobook --runtime nodejs18 --trigger-http --entry-point generate --allow-unauthenticated
+          credentials_json: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_AI_AUDIOBOOK }}'
+
+      - id: 'deploy'
+        uses: 'google-github-actions/deploy-cloud-functions@v1'
+        with:
+          name: 'generate-audiobook'
+          runtime: 'nodejs18'
