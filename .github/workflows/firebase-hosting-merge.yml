@@ -31,3 +31,4 @@ jobs:
         with:
           name: 'generate-audiobook'
           runtime: 'nodejs18'
+          region: europe-central2
