@@ -17,3 +17,15 @@ jobs:
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_AI_AUDIOBOOK }}'
           channelId: live
           projectId: ai-audiobook
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          project_id: ai-audiobook
+          service_account_key: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_AI_AUDIOBOOK }}
+      - name: Deploy Google Cloud Function
+        run: |
+          gcloud functions deploy generate-audiobook --runtime nodejs18 --trigger-http --entry-point generate --allow-unauthenticated
