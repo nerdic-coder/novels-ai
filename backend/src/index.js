@@ -1,4 +1,5 @@
 import functions from '@google-cloud/functions-framework';
+import { Storage } from '@google-cloud/storage';
 import { v4 } from 'uuid';
 import Handlebars from 'handlebars';
 import admin from './admin.js';
@@ -12,7 +13,7 @@ functions.http('generate', async (req, res) => {
     res.set('Access-Control-Allow-Origin', '*');
     res.set('Access-Control-Allow-Headers', 'Authorization');
     if (!req.get('Authorization')) {
-      res.send('');
+      res.status(401).send('Unauthorized');
       return;
     }
     const requestId = v4();
@@ -104,4 +105,57 @@ functions.http('generate', async (req, res) => {
     }
     res.status(401).send('Unauthorized');
   }
+});
+
+functions.http('delete', async (req, res) => {
+  res.set('Access-Control-Allow-Origin', '*');
+  res.set('Access-Control-Allow-Headers', 'Authorization');
+
+  if (!req.get('Authorization')) {
+    res.status(401).send('Unauthorized');
+    return;
+  }
+
+  // Get the ID token from the Authorization header
+  const idToken = req.get('Authorization').split('Bearer ')[1];
+  const decodedToken = await admin.auth().verifyIdToken(idToken);
+  const { uid } = decodedToken;
+
+  const audiobookId = req.query.audiobookId || req.body.audiobookId;
+
+  if (!audiobookId) {
+    res.status(400).send('Missing audiobookId');
+    return;
+  }
+
+  // Get reference to audiobook document
+  const audiobookRef = admin.firestore().collection('users').doc(uid).collection('audiobooks')
+    .doc(audiobookId);
+
+  // Get audiobook data and verify it exists
+  const audiobookData = (await audiobookRef.get()).data();
+  if (!audiobookData) {
+    res.status(404).send(`Audiobook ${audiobookId} not found`);
+    return;
+  }
+
+  // Delete audiobook document
+  await audiobookRef.delete();
+
+  // Delete chapter files from Cloud Storage
+  const storage = new Storage();
+  const bucket = storage.bucket('generated-books');
+  // Delete the chapter files from Cloud Storage
+  const filesToDelete = [];
+
+  audiobookData.chapters.forEach((chapter) => {
+    filesToDelete.push(chapter.chapterPath);
+  });
+
+  await Promise.all(filesToDelete.map((filePath) => {
+    const file = bucket.file(filePath);
+    return file.delete();
+  }));
+
+  res.send(audiobookId);
 });
