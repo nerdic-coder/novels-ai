@@ -22,7 +22,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Set up Google Cloud SDK
-        uses: google-github-actions/setup-gcloud@master
+        uses: google-github-actions/setup-gcloud@v1
         with:
           project_id: ai-audiobook
           service_account_key: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_AI_AUDIOBOOK }}
