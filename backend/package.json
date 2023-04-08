@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node src/index.js",
+    "start": "functions-framework --target=generate",
+    "start:delete": "functions-framework --target=delete --port 8081",
     "lint": "eslint src/**/*.js"
   },
   "author": "The Nerdic Coder",
@@ -15,12 +16,14 @@
     "@google-cloud/functions-framework": "^3.1.3",
     "@google-cloud/storage": "^6.9.4",
     "@google-cloud/text-to-speech": "^4.2.1",
+    "express": "^4.18.2",
     "firebase-admin": "^11.5.0",
     "handlebars": "^4.7.7",
     "openai": "^3.2.1",
     "uuid": "^9.0.0"
   },
   "devDependencies": {
+    "env-cmd": "^10.1.0",
     "eslint": "^8.36.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.27.5"

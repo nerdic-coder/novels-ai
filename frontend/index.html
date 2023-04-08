@@ -70,8 +70,7 @@
           <table class="table table-dark table-striped table-bordered table-sm">
             <thead>
               <tr>
-                <th>Title</th>
-                <th>Genre</th>
+                <th>Novel</th>
                 <th>Chapters</th>
               </tr>
             </thead>
@@ -83,10 +82,26 @@
             <input type="button" value="Load more" class="btn btn-primary" id="load-more-button">
           </div>
           <img src="/listeners.png" alt="Listeners" style="max-width: 100%; min-width: 100%; margin-bottom: 15px;" />
+          <div class="d-grid gap-2" style="margin-bottom: 15px;">
+            <input type="button" value="Log out" class="btn btn-warning" id="log-out-button">
+          </div>
         </div>
       </div>
-      <div class="d-grid gap-2" style="margin-bottom: 15px;">
-        <input type="button" value="Google Signin" class="btn btn-primary" id="sign-in-button">
+      <div id="login-page" class="hidden">
+        <div class="d-grid gap-2" style="margin-bottom: 15px;">
+          <input type="button" value="Google Signin" class="btn btn-primary" id="sign-in-button">
+        </div>
+        <h1>Welcome to Novels AI</h1>
+        <p>
+            Immerse yourself in the world of personalized AI-generated audiobooks with <strong>Novels AI</strong>. Our innovative app harnesses the power of artificial intelligence to create captivating stories with you as the main character! Experience your own adventures as the star of your unique novel, brought to life by state-of-the-art AI narration and voice synthesis technology.
+        </p>
+        <p>
+            With <strong>Novels AI</strong>, you can explore endless storytelling possibilities across various genres, from romance and mystery to science fiction and fantasy. Customize your character, make choices that shape the plot, and dive into a one-of-a-kind listening experience tailored just for you.
+        </p>
+        <p>
+            Whether you're looking to unwind with an engaging story, fuel your imagination, or simply experience the future of audiobooks, <strong>Novels AI</strong> is your gateway to an entirely new world of AI-powered storytelling. Embrace the magic of AI, and let the adventure begin!
+        </p>
+        <img src="/start.png" alt="Walking into Sci-fi world" style="max-width: 100%; min-width: 100%; margin-bottom: 15px;" />
       </div>
     </div>
 
@@ -103,12 +118,14 @@
       firebase.initializeApp(firebaseConfig);
       
       const signInButton = document.getElementById('sign-in-button');
+      const loginPage = document.getElementById('login-page');
       const novelsPage = document.getElementById('novels-page');
       const novelsForm = document.getElementById('novels-form');
       const novelsList = document.getElementById('novels-list');
       const createNewButton = document.getElementById('create-new-button');
       const cancelButton = document.getElementById('cancel-button');
       const loadMoreButton = document.getElementById('load-more-button');
+      const logOutButton = document.getElementById('log-out-button');
       let limit = 5;
 
       // Create a Google sign-in provider
@@ -117,10 +134,10 @@
       let user = firebase.auth().currentUser;
       if (user) {
         novelsPage.classList.remove('hidden');
-        signInButton.classList.add('hidden');
+        loginPage.classList.add('hidden');
       } else {
         novelsPage.classList.add('hidden');
-        signInButton.classList.remove('hidden');
+        loginPage.classList.remove('hidden');
       }
 
       function loadNovels() {
@@ -129,7 +146,6 @@
 
         // Listen for changes to the audiobooks collection
         audiobooksRef.orderBy('createdDate', 'desc').limit(limit).onSnapshot((snapshot) => {
-          console.log(snapshot.size);
           if (snapshot.size < limit) {
             loadMoreButton.classList.add('hidden');
           } else {
@@ -143,14 +159,17 @@
           snapshot.forEach((doc) => {
             // Get the audiobook data from the document
             const audiobookData = doc.data();
+            const audiobookId = doc.id;
 
             // Create a new list item for the audiobook
             const audiobookRow = document.createElement('tr');
             const audiobookTitle = document.createElement('td');
+            let audiobookContent = `<strong>${audiobookData.title}</strong><br/>
+              Genre: ${audiobookData.genre}<br/>
+              Author: ${audiobookData.style}<br/>
+              ${audiobookData.starring}
+            `;
             audiobookTitle.textContent = audiobookData.title;
-
-            const audiobookGenre = document.createElement('td');
-            audiobookGenre.textContent = audiobookData.genre;
 
             let audioContent = '';
             // console.log(audiobookData.chapters);
@@ -165,20 +184,26 @@
               `;
             }
 
-            const audiobookLoading = document.createElement('td');
+            const audiobookAudio = document.createElement('td');
             if (audiobookData.status === 'progress') {
               const spinner = document.createElement('div');
               spinner.classList.add('spinner-border', 'text-success');
               spinner.setAttribute('role', 'status');
               spinner.innerHTML = '<span class="visually-hidden">Loading...</span>';
-              audiobookLoading.appendChild(spinner);
+              audiobookAudio.appendChild(spinner);
             } else {
-              audiobookLoading.innerHTML = audioContent;
+              audiobookAudio.innerHTML = audioContent;
+              audiobookContent += `
+                <div class="gap-2" style="margin-top: 15px; margin-bottom: 15px;">
+                  <input type="button" value="Delete" class="btn btn-warning" onclick="deleteAudiobook('${audiobookId}')">
+                </div>
+              `;
             }
+            
+            audiobookTitle.innerHTML = audiobookContent;
 
             audiobookRow.appendChild(audiobookTitle);
-            audiobookRow.appendChild(audiobookGenre);
-            audiobookRow.appendChild(audiobookLoading);
+            audiobookRow.appendChild(audiobookAudio);
             // Add the new list item to the list of audiobooks
             audiobooksList.appendChild(audiobookRow);
           });
@@ -189,26 +214,42 @@
         if (stateUser) {
           user = stateUser;
           novelsPage.classList.remove('hidden');
-          signInButton.classList.add('hidden');
+          loginPage.classList.add('hidden');
           loadNovels();
         } else {
           novelsPage.classList.add('hidden');
-          signInButton.classList.remove('hidden');
+          loginPage.classList.remove('hidden');
         }
+      });
+
+      logOutButton.addEventListener('click', async () => {
+        firebase.auth().signOut().then(() => {
+          novelsPage.classList.add('hidden');
+          loginPage.classList.remove('hidden');
+        }).catch((error) => {
+          novelsPage.classList.add('hidden');
+          loginPage.classList.remove('hidden');
+        });
       });
 
       signInButton.addEventListener('click', async () => {
         try {
+          signInButton.disabled = true;
+          signInButton.value = 'Loading...';
           await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION);
           // Sign in with the Google provider
           const result = await firebase.auth().signInWithPopup(provider);
           user = result.user;
           novelsPage.classList.remove('hidden');
-          signInButton.classList.add('hidden');
+          loginPage.classList.add('hidden');
+          signInButton.disabled = false;
+          signInButton.value = 'Google Signin';
         } catch (error) {
           console.error('Error signing in:', error);
           novelsPage.classList.add('hidden');
-          signInButton.classList.remove('hidden');
+          loginPage.classList.remove('hidden');
+          signInButton.disabled = false;
+          signInButton.value = 'Google Signin';
         }
       });
 
@@ -227,6 +268,33 @@
         novelsForm.classList.add('hidden');
         novelsForm.reset();
       });
+
+      async function deleteAudiobook(audiobookId) {
+        const apiUrl = 'https://delete-audiobook-i3rsqvn75a-lm.a.run.app/';
+        const formData = new FormData();
+        formData.append('audiobookId', audiobookId);
+
+        const token = await firebase.auth().currentUser.getIdToken();
+        fetch(apiUrl + '?' + new URLSearchParams(formData), {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+          .then(response => response.text())
+          .then(data => {
+            if (data === 'Unauthorized') {
+              alert('Your session have expired!');
+              novelsPage.classList.add('hidden');
+              loginPage.classList.remove('hidden');
+            } else if (data === 'Internal Server Error') {
+              alert('Deleting Audiobook failed, please try again!');
+            }
+          })
+          .catch(error => {
+            console.error(error);
+            alert('Deleting Audiobook failed, please try again!');
+          });
+      }
 
       async function generateAudiobook() {
         const apiUrl = 'https://generate-audiobook-i3rsqvn75a-lm.a.run.app/';
@@ -259,7 +327,7 @@
             if (data === 'Unauthorized') {
               alert('Your session have expired!');
               novelsPage.classList.add('hidden');
-              signInButton.classList.remove('hidden');
+              loginPage.classList.remove('hidden');
             }
           })
           .catch(error => {

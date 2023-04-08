@@ -17,18 +17,18 @@ jobs:
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_AI_AUDIOBOOK }}'
           channelId: live
           projectId: ai-audiobook
-  deploy_backend:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - id: 'auth'
-        uses: 'google-github-actions/auth@v1'
-        with:
-          credentials_json: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_AI_AUDIOBOOK }}'
+  # deploy_backend:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - id: 'auth'
+  #       uses: 'google-github-actions/auth@v1'
+  #       with:
+  #         credentials_json: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_AI_AUDIOBOOK }}'
 
-      - id: 'deploy'
-        uses: 'google-github-actions/deploy-cloud-functions@v1'
-        with:
-          name: 'generate-audiobook'
-          runtime: 'nodejs18'
-          region: europe-central2
+  #     - id: 'deploy'
+  #       uses: 'google-github-actions/deploy-cloud-functions@v1'
+  #       with:
+  #         name: 'generate-audiobook'
+  #         runtime: 'nodejs18'
+  #         region: europe-central2
