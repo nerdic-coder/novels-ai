@@ -12,8 +12,8 @@ functions.http('generate', async (req, res) => {
   try {
     res.set('Access-Control-Allow-Origin', '*');
     res.set('Access-Control-Allow-Headers', 'Authorization');
-    if (!req.get('Authorization')) {
-      res.status(401).send('Unauthorized');
+    if (req.method === 'OPTIONS') {
+      res.status(204).send('');
       return;
     }
     const requestId = v4();
@@ -110,12 +110,10 @@ functions.http('generate', async (req, res) => {
 functions.http('delete', async (req, res) => {
   res.set('Access-Control-Allow-Origin', '*');
   res.set('Access-Control-Allow-Headers', 'Authorization');
-
-  if (!req.get('Authorization')) {
-    res.status(401).send('Unauthorized');
+  if (req.method === 'OPTIONS') {
+    res.status(204).send('');
     return;
   }
-
   // Get the ID token from the Authorization header
   const idToken = req.get('Authorization').split('Bearer ')[1];
   const decodedToken = await admin.auth().verifyIdToken(idToken);
@@ -139,20 +137,23 @@ functions.http('delete', async (req, res) => {
     return;
   }
 
+  // Delete the chapter files from Cloud Storage
+  const filesToDelete = [];
+  audiobookData.chapters.forEach((chapter) => {
+    filesToDelete.push(chapter.chapterUrl);
+  });
+
   // Delete audiobook document
   await audiobookRef.delete();
 
   // Delete chapter files from Cloud Storage
   const storage = new Storage();
   const bucket = storage.bucket('generated-books');
-  // Delete the chapter files from Cloud Storage
-  const filesToDelete = [];
 
-  audiobookData.chapters.forEach((chapter) => {
-    filesToDelete.push(chapter.chapterPath);
-  });
-
-  await Promise.all(filesToDelete.map((filePath) => {
+  console.log('filesToDelete', filesToDelete);
+  await Promise.all(filesToDelete.map((fileUrl) => {
+    const parts = fileUrl.split('generated-books/');
+    const filePath = parts[1];
     const file = bucket.file(filePath);
     return file.delete();
   }));
