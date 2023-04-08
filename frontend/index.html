@@ -21,6 +21,8 @@
       }
       input[type="text"],
       input[type="number"],
+      input[type="email"],
+      input[type="password"],
       textarea {
         background-color: #21474e;
         color: beige;
@@ -91,6 +93,25 @@
         <div class="d-grid gap-2" style="margin-bottom: 15px;">
           <input type="button" value="Google Signin" class="btn btn-primary" id="sign-in-button">
         </div>
+        <div class="card text-bg-dark mb-3">
+          <div class="card-header">Classic Signin</div>
+          <form class="card-body" id="login-form" onsubmit="signin(); return false;">
+            <div class="mb-3">
+              <label for="input-email" class="form-label">Email address</label>
+              <input type="email" class="form-control" id="input-email" aria-describedby="emailHelp">
+            </div>
+            <div class="mb-3">
+              <label for="input-password" class="form-label">Password</label>
+              <input type="password" class="form-control" id="input-password">
+            </div>
+            <div class="d-grid gap-2" style="margin-bottom: 15px;">
+              <button type="submit" class="btn btn-primary">Signin</button>
+            </div>
+            <div class="d-grid gap-2" style="margin-bottom: 15px;">
+              <button type="button" class="btn btn-secondary" id="register-button">Register</button>
+            </div>
+          </form>
+        </div>
         <h1>Welcome to Novels AI</h1>
         <p>
             Immerse yourself in the world of personalized AI-generated audiobooks with <strong>Novels AI</strong>. Our innovative app harnesses the power of artificial intelligence to create captivating stories with you as the main character! Experience your own adventures as the star of your unique novel, brought to life by state-of-the-art AI narration and voice synthesis technology.
@@ -118,7 +139,9 @@
       firebase.initializeApp(firebaseConfig);
       
       const signInButton = document.getElementById('sign-in-button');
+      const registerButton = document.getElementById('register-button');
       const loginPage = document.getElementById('login-page');
+      const loginForm = document.getElementById('login-form');
       const novelsPage = document.getElementById('novels-page');
       const novelsForm = document.getElementById('novels-form');
       const novelsList = document.getElementById('novels-list');
@@ -231,6 +254,28 @@
           loginPage.classList.remove('hidden');
         });
       });
+
+      registerButton.addEventListener('click', async () => {
+        window.location.href = 'register.html';
+      });
+
+      async function signin() {
+        const formData = new FormData();
+        const email = document.getElementById('input-email').value;
+        const password = document.getElementById('input-password').value;
+
+        firebase.auth().signInWithEmailAndPassword(email, password)
+          .then(() => {
+            loginForm.reset();
+            novelsPage.classList.remove('hidden');
+            loginPage.classList.add('hidden');
+          })
+          .catch((error) => {
+            loginForm.reset();
+            console.error(error.message);
+            alert('Failed to login! ', error.message);
+          });
+      }
 
       signInButton.addEventListener('click', async () => {
         try {
