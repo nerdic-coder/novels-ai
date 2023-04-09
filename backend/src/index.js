@@ -9,6 +9,11 @@ import storeMetadata from './store.js';
 
 functions.http('generate', async (req, res) => {
   let metadata;
+  let errorAfterPointDeduction = false;
+  let userPoints;
+  let uid;
+  let userRef;
+  let chapters;
   try {
     res.set('Access-Control-Allow-Origin', '*');
     res.set('Access-Control-Allow-Headers', 'Authorization');
@@ -20,13 +25,36 @@ functions.http('generate', async (req, res) => {
     // Get the ID token from the Authorization header
     const idToken = req.get('Authorization').split('Bearer ')[1];
     const decodedToken = await admin.auth().verifyIdToken(idToken);
-    const { uid } = decodedToken;
+    uid = decodedToken.uid;
     const voice = req.query.voice || req.body.voice || 'en-US-Neural2-J';
-    const chapters = parseInt(req.query.chapters, 10) || parseInt(req.body.chapters, 10) || 1;
+    chapters = parseInt(req.query.chapters, 10) || parseInt(req.body.chapters, 10) || 1;
+
+    userRef = admin.firestore().collection('users').doc(uid);
+
+    // Check if user has enough points
+    const userSnapshot = await userRef.get();
+
+    userPoints = userSnapshot.data().points || 0;
+    // If user does not exist, create with default points
+    if (!userSnapshot.exists || !Object.prototype.hasOwnProperty.call(userSnapshot.data(), 'points')) {
+      await userRef.set({
+        points: 10,
+      });
+      userPoints = 10;
+    }
+
+    if (userPoints < chapters) {
+      res.status(400).send('Insufficient points');
+      return;
+    }
+
+    await userRef.update({ points: userPoints - chapters });
+    errorAfterPointDeduction = true;
+
     const starring = req.query.starring || req.body.starring ? `Starring ${req.query.starring || req.body.starring}.` : '';
     const title = req.query.title || req.body.title || '';
-    const genre = req.query.genre || req.body.genre || 'book';
-    const style = req.query.style || req.body.style || 'general';
+    const genre = req.query.genre || req.body.genre || 'General';
+    const style = req.query.style || req.body.style || 'General';
 
     const story = process.env.chatPrompt || `Write a short story with the title "{{title}}", the genre is "{{genre}}".
     in the style of "{{style}}".
@@ -102,6 +130,9 @@ functions.http('generate', async (req, res) => {
       metadata.update({
         status: 'error',
       });
+    }
+    if (errorAfterPointDeduction) {
+      await userRef.update({ points: userPoints + chapters });
     }
     res.status(401).send('Unauthorized');
   }

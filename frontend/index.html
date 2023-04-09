@@ -34,29 +34,48 @@
   </head>
   <body>
     <div class="container">
-      <img src="/header.png" alt="Novels AI" style="max-width: 100%; min-width: 100%;" />
       <div id="novels-page" class="hidden">
+        <img src="/small-header.png" alt="Novels AI" style="max-width: 100%;" />
         <form id="novels-form" method="get" onsubmit="generateAudiobook(); return false;" class="hidden">
           <h2>Create novel</h2>
+          <div class="alert alert-info" role="alert">
+            You have <strong id="point-indicator">-</strong> points left to spend!<hr>
+            Each generated chapter costs 1 point.
+          </div>
           <div class="mb-3">
               <label for="chapters" class="form-label">Number of chapters:</label>
               <input type="number" class="form-control" id="chapters" required min="1" max="6" value="1">
+              <div class="form-text text-light">
+                Enter the number of chapters you want the novel to have. Max 6.
+              </div>
           </div>
           <div class="mb-3">
               <label for="genre" class="form-label">Genre:</label>
               <input type="text" class="form-control" id="genre">
+              <div class="form-text text-light">
+                Enter the genre of your novel (e.g. Fiction, Sci-fi, Mystery, Romance, Action, Horror).
+              </div>
           </div>
           <div class="mb-3">
               <label for="style" class="form-label">Author:</label>
               <input type="text" class="form-control" id="style">
+              <div class="form-text text-light">
+                Enter the name of the author. E.g. J.K. Rowling, David Lynch
+              </div>
           </div>
           <div class="mb-3">
               <label for="title" class="form-label">Title:</label>
               <input type="text" class="form-control" id="title">
+              <div class="form-text text-light">
+                Enter the title of your novel. E.g. Bigfoot visiting New York
+              </div>
           </div>
           <div class="mb-3">
               <label for="starring" class="form-label">Starring:</label>
               <input type="text" class="form-control" id="starring">
+              <div class="form-text text-light">
+                Enter the names of the primary performers of the audiobook. E.g. "Johan Axelsson the main hero of the story"
+              </div>
           </div>
           <div class="mb-3 d-grid gap-2">
             <input type="submit" value="Create novel" class="btn btn-primary" id="submit-button">
@@ -84,6 +103,7 @@
         </div>
       </div>
       <div id="login-page" class="hidden">
+        <img src="/header.png" alt="Novels AI" style="max-width: 100%; min-width: 100%;" />
         <div class="d-grid gap-2" style="margin-bottom: 15px;">
           <input type="button" value="Google Signin" class="btn btn-primary" id="google-sign-in-button">
         </div>
@@ -116,6 +136,9 @@
         <p>
             Whether you're looking to unwind with an engaging story, fuel your imagination, or simply experience the future of audiobooks, <strong>Novels AI</strong> is your gateway to an entirely new world of AI-powered storytelling. Embrace the magic of AI, and let the adventure begin!
         </p>
+        <div class="d-grid gap-2" style="margin-bottom: 15px;">
+          <a class="btn btn-success" href="demo.html">Click here to listen to some Novels AI demos</a>
+        </div>
         <img src="/start.png" alt="Walking into Sci-fi world" style="max-width: 100%; min-width: 100%; margin-bottom: 15px;" />
       </div>
     </div>
@@ -129,6 +152,9 @@
             <ul class="list-unstyled mb-0">
               <li>
                 <a href="index.html" class="text-light">Startpage</a>
+              </li>
+              <li>
+                <a href="demo.html" class="text-light">Demo</a>
               </li>
               <li>
                 <a href="register.html" class="text-light">Register</a>
@@ -202,6 +228,9 @@
           // Clear the existing list of audiobooks
           const audiobooksList = document.getElementById('audiobooks-list');
           audiobooksList.innerHTML = '';
+          if (snapshot.size < 1) {
+            audiobooksList.innerHTML = '<div class="alert alert-info" role="alert">No novels created yet!</div>';
+          }
 
           // Loop through the audiobook documents in the snapshot
           snapshot.forEach((doc) => {
@@ -242,7 +271,7 @@
             } else {
               audiobookContent += audioContent;
               audiobookOptions.innerHTML = `
-                <div class="gap-2" style="margin-top: 15px; margin-bottom: 15px;">
+                <div class="mb-3 d-grid gap-2" style="margin-top: 15px; margin-bottom: 15px;">
                   <input type="button" value="Delete" class="btn btn-warning" onclick="deleteAudiobook('${audiobookId}')">
                 </div>
               `
@@ -330,9 +359,47 @@
         loadNovels();
       });
 
+      const inputElement = document.getElementById('chapters');
+
+      inputElement.addEventListener('input', (event) => {
+        checkPointsLimit();
+      });
+
+      function checkPointsLimit() {
+        const userDocRef = firebase.firestore().collection('users').doc(user.uid);
+        userDocRef.get().then((doc) => {
+          if (doc.exists) {
+            let points = doc.data().points;
+            console.log('points', points);
+            if (points === undefined) {
+              points = 10;
+            }
+            const chapters = document.getElementById('chapters').value;
+            // Display the user's points in the UI
+            document.getElementById('point-indicator').textContent = points;
+
+            if (points < chapters) {
+              // Disable submit button
+              const submitButton = document.getElementById('submit-button');
+              submitButton.disabled = true;
+            } else {
+              const submitButton = document.getElementById('submit-button');
+              submitButton.disabled = false;
+            }
+          } else {
+            console.log('User document does not exist');
+            document.getElementById('point-indicator').textContent = '10';
+          }
+        }).catch((error) => {
+          console.log(`Error getting user document: ${error}`);
+          document.getElementById('point-indicator').textContent = '10';
+        });
+      }
+
       createNewButton.addEventListener('click', async () => {
         novelsForm.classList.remove('hidden');
         novelsList.classList.add('hidden');
+        checkPointsLimit();
       });
 
       cancelButton.addEventListener('click', async () => {
