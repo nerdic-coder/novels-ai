@@ -42,6 +42,9 @@
             You have <strong id="point-indicator">-</strong> points left to spend!<hr>
             Each generated chapter costs 1 point.
           </div>
+          <div class="d-grid gap-2" style="margin-bottom: 15px;">
+            <input type="button" class="btn btn-success" id="buy-points-1" value="Buy 30 points for 5 euro">
+          </div>
           <div class="mb-3">
               <label for="chapters" class="form-label">Number of chapters:</label>
               <input type="number" class="form-control" id="chapters" required min="1" max="6" value="1">
@@ -95,6 +98,9 @@
           </table>
           <div class="d-grid gap-2" style="margin-bottom: 15px;">
             <input type="button" value="Load more" class="btn btn-primary" id="load-more-button">
+          </div>
+          <div class="d-grid gap-2" style="margin-bottom: 15px;">
+            <input type="button" class="btn btn-success" id="buy-points-2" value="Buy 30 points for 5 euro">
           </div>
           <img src="/listeners.png" alt="Listeners" style="max-width: 100%; min-width: 100%; margin-bottom: 15px;" />
           <div class="d-grid gap-2" style="margin-bottom: 15px;">
@@ -200,6 +206,8 @@
       const cancelButton = document.getElementById('cancel-button');
       const loadMoreButton = document.getElementById('load-more-button');
       const logOutButton = document.getElementById('log-out-button');
+      const buyPointsButton1 = document.getElementById('buy-points-1');
+      const buyPointsButton2 = document.getElementById('buy-points-2');
       let limit = 5;
 
       // Create a Google sign-in provider
@@ -213,6 +221,44 @@
         novelsPage.classList.add('hidden');
         loginPage.classList.remove('hidden');
       }
+
+      async function buyPoints() {
+        buyPointsButton1.disabled = true;
+        buyPointsButton2.disabled = true;
+        const paymentRef = await firebase.firestore()
+          .collection('users')
+          .doc(user.uid)
+          .collection("checkout_sessions")
+          .add({
+            mode: "payment",
+            price: "price_1MvLYABPvg43OlrWhK03okqu", // One-time price created in Stripe
+            success_url: window.location.origin,
+            cancel_url: window.location.origin,
+          });
+        // Listen for changes to the document
+        paymentRef.onSnapshot((doc) => {
+          // Check if the URL field exists and is not null
+          if (doc.exists && doc.data().url) {
+            const url = doc.data().url;
+            buyPointsButton1.disabled = false;
+            buyPointsButton2.disabled = false;
+            // Do something with the URL, e.g. open it in a new window
+            window.location.href = url;
+          } else if (doc.exists && doc.data().error) {
+            alert('Payment could not be initiated, if error persist contact us!');
+            buyPointsButton1.disabled = false;
+            buyPointsButton2.disabled = false;
+          }
+        });
+      }
+
+      buyPointsButton1.addEventListener('click', async () => {
+        buyPoints();
+      });
+
+      buyPointsButton2.addEventListener('click', async () => {
+        buyPoints();
+      });
 
       function loadNovels() {
         // Get the audiobooks collection for the current user
@@ -250,7 +296,6 @@
             audiobookTitle.textContent = audiobookData.title;
 
             let audioContent = '';
-            // console.log(audiobookData.chapters);
             for (let index = 0; index < audiobookData.chapters.length; index += 1) {
               audioContent += `
                 <h4>Chapter ${index + 1}</h4>
@@ -370,7 +415,6 @@
         userDocRef.get().then((doc) => {
           if (doc.exists) {
             let points = doc.data().points;
-            console.log('points', points);
             if (points === undefined) {
               points = 10;
             }
