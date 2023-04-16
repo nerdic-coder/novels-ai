@@ -103,7 +103,7 @@
       auth.onAuthStateChanged((user) => {
         if (user) {
           // Query the Firestore database for user's payments collection
-          db.collection('users').doc(user.uid).collection('payments').get().then((querySnapshot) => {
+          db.collection('users').doc(user.uid).collection('payments').orderBy('created', 'desc').get().then((querySnapshot) => {
             // Retrieve the payment data and display it on the frontend
             const tableBody = document.getElementById('payment-table-body');
             querySnapshot.forEach((doc) => {
