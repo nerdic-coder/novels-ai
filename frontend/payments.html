@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Novels AI - Payment History</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-aFq/bzH65dt+w6FI2ooMVUpc+21e0SRygnTpmBvdBgSdnuTN7QbdgL+OapgHtvPp" crossorigin="anonymous">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <meta name="author" content="The Nerdic Coder">
+    <style>
+      body {
+        background-color: #171822;
+        color: #abfcdd;
+      }
+      input[type="text"],
+      input[type="number"],
+      input[type="email"],
+      input[type="password"],
+      textarea {
+        background-color: #21474e;
+        color: beige;
+      }
+      .hidden {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <a href="index.html"><img src="/header.png" alt="Novels AI" style="max-width: 100%; min-width: 100%;" /></a>
+      <div id="register-page">
+        <div class="card text-bg-dark mb-3">
+          <table class="table table-dark table-striped table-bordered table-sm" style="margin-bottom: 0;">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Amount</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="payment-table-body">
+            </tbody>
+          </table>
+        </div>
+        <img src="/payments.png" alt="Walking into Sci-fi world" style="max-width: 100%; min-width: 100%; margin-bottom: 15px;" />
+      </div>
+    </div>
+
+    <footer class="bg-dark text-center text-lg-start">
+      <div class="container p-4">
+        <div class="row">
+          <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
+            <h5 class="text-light">Sitemap</h5>
+    
+            <ul class="list-unstyled mb-0">
+              <li>
+                <a href="index.html" class="text-light">Startpage</a>
+              </li>
+              <li>
+                <a href="payments.html" class="text-light">Payment History</a>
+              </li>
+              <li>
+                <a href="demo.html" class="text-light">Demo</a>
+              </li>
+              <li>
+                <a href="register.html" class="text-light">Register</a>
+              </li>
+              <li>
+                <a href="tos.html" class="text-light">Terms of Service</a>
+              </li>
+              <li>
+                <a href="privacy.html" class="text-light">Privacy Policy</a>
+              </li>
+              <li>
+                <a href="contact.html" class="text-light">Contact Us</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    
+      <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2);">
+        © 2023 Novels AI
+      </div>
+    </footer>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script>
+      const firebaseConfig = {
+        apiKey: 'AIzaSyBzegpGaNrC-KHupiuNXnjI2XxkoaXzm2o',
+        authDomain: 'ai-audiobook.firebaseapp.com',
+        databaseURL: 'https://ai-audiobook.firebaseio.com',
+        projectId: 'ai-audiobook',
+      };
+      firebase.initializeApp(firebaseConfig);
+      const db = firebase.firestore();
+      const auth = firebase.auth();
+      auth.onAuthStateChanged((user) => {
+        if (user) {
+          // Query the Firestore database for user's payments collection
+          db.collection('users').doc(user.uid).collection('payments').get().then((querySnapshot) => {
+            // Retrieve the payment data and display it on the frontend
+            const tableBody = document.getElementById('payment-table-body');
+            querySnapshot.forEach((doc) => {
+              const payment = doc.data();
+              const row = tableBody.insertRow();
+              const dateCell = row.insertCell();
+              const amountCell = row.insertCell();
+              const statusCell = row.insertCell();
+              dateCell.innerHTML = new Date(payment.created * 1000).toLocaleString();
+              amountCell.innerHTML = `${payment.amount / 100} ${payment.currency}`;
+              statusCell.innerHTML = payment.status;
+            });
+          }).catch((error) => {
+            console.error(error);
+          });
+        } else {
+          window.location.href = 'index.html';
+        }
+      });
+    
+    </script>
+  </body>
+</html>
