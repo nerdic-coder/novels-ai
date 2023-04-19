@@ -23,3 +23,8 @@ textarea:disabled {
 .hidden {
     display: none;
 }
+
+iframe { 
+    width: 100%;
+    aspect-ratio: 16 / 9;
+}
