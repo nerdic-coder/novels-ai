@@ -43,3 +43,23 @@ export default async function storeMetadata(
     createdDate: new Date(),
   });
 }
+
+export async function updateUserPoints(userRef, chapters) {
+  let userSnapshot = await userRef.get();
+  let userPoints;
+
+  // If user does not exist, create with default points
+  if (!userSnapshot.exists || !Object.prototype.hasOwnProperty.call(userSnapshot.data(), 'points')) {
+    await userRef.set({
+      points: 10,
+    });
+    userPoints = 10;
+  }
+
+  userSnapshot = await userRef.get();
+  userPoints = userSnapshot.data().points || 0;
+
+  await userRef.update({ points: userPoints - chapters });
+
+  return userPoints;
+}
