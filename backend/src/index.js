@@ -5,7 +5,7 @@ import Handlebars from 'handlebars';
 import admin from './admin.js';
 import createChatResponse from './chat.js';
 import generateSpeech from './speech.js';
-import storeMetadata from './store.js';
+import storeMetadata, { updateUserPoints } from './store.js';
 
 functions.http('generate', async (req, res) => {
   let metadata;
@@ -30,28 +30,14 @@ functions.http('generate', async (req, res) => {
     chapters = parseInt(req.query.chapters, 10) || parseInt(req.body.chapters, 10) || 1;
 
     userRef = admin.firestore().collection('users').doc(uid);
-
+    userPoints = updateUserPoints(userRef, chapters);
+    errorAfterPointDeduction = true;
     // Check if user has enough points
-    let userSnapshot = await userRef.get();
-
-    // If user does not exist, create with default points
-    if (!userSnapshot.exists || !Object.prototype.hasOwnProperty.call(userSnapshot.data(), 'points')) {
-      await userRef.set({
-        points: 10,
-      });
-      userPoints = 10;
-    }
-
-    userSnapshot = await userRef.get();
-    userPoints = userSnapshot.data().points || 0;
-
     if (userPoints < chapters) {
+      await userRef.update({ points: userPoints + chapters });
       res.status(400).send('Insufficient points');
       return;
     }
-
-    await userRef.update({ points: userPoints - chapters });
-    errorAfterPointDeduction = true;
 
     const starring = req.query.starring || req.body.starring ? `Starring ${req.query.starring || req.body.starring}.` : '';
     const title = req.query.title || req.body.title || '';
@@ -192,4 +178,99 @@ functions.http('delete', async (req, res) => {
   }));
 
   res.send(audiobookId);
+});
+
+functions.http('add-chapter', async (req, res) => {
+  console.log('called!', req.method);
+  res.set('Access-Control-Allow-Origin', '*');
+  res.set('Access-Control-Allow-Headers', 'Authorization');
+  if (req.method === 'OPTIONS') {
+    res.status(204).send('');
+    return;
+  }
+  // Get the ID token from the Authorization header
+  const idToken = req.get('Authorization').split('Bearer ')[1];
+  const decodedToken = await admin.auth().verifyIdToken(idToken);
+  const { uid } = decodedToken;
+
+  const audiobookId = req.query.audiobookId || req.body.audiobookId;
+
+  if (!audiobookId) {
+    res.status(400).send('Missing audiobookId');
+    return;
+  }
+
+  let errorAfterPointDeduction = false;
+  const userRef = admin.firestore().collection('users').doc(uid);
+  const userPoints = updateUserPoints(userRef, 1);
+  errorAfterPointDeduction = true;
+  // Check if user has enough points
+  if (userPoints < 1) {
+    await userRef.update({ points: userPoints + 1 });
+    res.status(400).send('Insufficient points');
+    return;
+  }
+  let audiobookRef;
+  try {
+    // Get reference to audiobook document
+    audiobookRef = admin.firestore().collection('users').doc(uid).collection('audiobooks')
+      .doc(audiobookId);
+
+    // Get audiobook data and verify it exists
+    const audiobookData = (await audiobookRef.get()).data();
+    if (!audiobookData) {
+      res.status(404).send(`Audiobook ${audiobookId} not found`);
+      return;
+    }
+    audiobookRef.update({
+      status: 'progress',
+    });
+
+    const voice = req.query.voice || req.body.voice || 'en-US-Neural2-J';
+    const chapter = audiobookData.chapters.length + 1;
+    const { messages } = audiobookData;
+    const { chapters } = audiobookData;
+
+    messages.push({
+      role: 'user',
+      content: `Now write chapter ${chapter} of the story`,
+    });
+
+    const completion = await createChatResponse(messages, uid);
+    messages.push({
+      role: 'assistant',
+      content: completion.data.choices[0].message.content,
+    });
+    generateSpeech(
+      completion.data.choices[0].message.content,
+      `${uid}/${audiobookData.requestId}/chapter-${chapter}`,
+      audiobookRef,
+      true,
+      messages,
+      voice,
+    );
+
+    const audioBucketUrl = `https://storage.googleapis.com/generated-books/${uid}/${audiobookData.requestId}/`;
+    chapters.push({
+      chapterId: chapter,
+      chapterUrl: `${audioBucketUrl}chapter-${chapter}.wav`,
+    });
+
+    audiobookRef.update({
+      chapters,
+    });
+
+    res.send(audiobookId);
+  } catch (error) {
+    console.error('Error:', error);
+    if (audiobookRef) {
+      audiobookRef.update({
+        status: 'error',
+      });
+    }
+    if (errorAfterPointDeduction) {
+      await userRef.update({ points: userPoints + 1 });
+    }
+    res.status(401).send('Unauthorized');
+  }
 });

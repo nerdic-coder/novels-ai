@@ -39,13 +39,13 @@
           <div class="d-grid gap-2" style="margin-bottom: 15px;">
             <input type="button" class="btn btn-success" id="buy-points-1" value="Buy 30 points for 5 euro">
           </div>
-          <div class="mb-3">
+          <!-- <div class="mb-3">
               <label for="chapters" class="form-label">Number of chapters:</label>
               <input type="number" class="form-control" id="chapters" required min="1" max="6" value="1">
               <div class="form-text text-light">
                 Enter the number of chapters you want the novel to have. Max 6.
               </div>
-          </div>
+          </div> -->
           <div class="mb-3">
             <label for="language" class="form-label">Language:</label>
             <input type="text" class="form-control" id="language" value="English" required disabled>
@@ -325,7 +325,8 @@
               audiobookContent += audioContent;
               audiobookOptions.innerHTML = `
                 <div class="mb-3 d-grid gap-2" style="margin-top: 15px; margin-bottom: 15px;">
-                  <input type="button" value="Delete" class="btn btn-warning" onclick="deleteAudiobook('${audiobookId}')">
+                  <input type="button" value="Add chapter" class="btn btn-success" onclick="addChapter('${audiobookId}')">
+                  <input type="button" value="Delete novel" class="btn btn-warning" onclick="deleteAudiobook('${audiobookId}')">
                 </div>
               `
             }
@@ -417,11 +418,11 @@
         loadNovels();
       });
 
-      const inputElement = document.getElementById('chapters');
+      // const inputElement = document.getElementById('chapters');
 
-      inputElement.addEventListener('input', (event) => {
-        checkPointsLimit();
-      });
+      // inputElement.addEventListener('input', (event) => {
+      //   checkPointsLimit();
+      // });
 
       function checkPointsLimit() {
         const userDocRef = firebase.firestore().collection('users').doc(user.uid);
@@ -431,7 +432,7 @@
             if (points === undefined) {
               points = 10;
             }
-            const chapters = document.getElementById('chapters').value;
+            const chapters = 1;
             // Display the user's points in the UI
             document.getElementById('point-indicator').textContent = points;
 
@@ -494,12 +495,41 @@
         }
       }
 
+      async function addChapter(audiobookId) {
+        if (confirm("Are you sure you want to add a new chapter for 1 point?")) {
+          const apiUrl = 'https://add-chapter-i3rsqvn75a-lm.a.run.app/';
+          const formData = new FormData();
+          formData.append('audiobookId', audiobookId);
+
+          const token = await firebase.auth().currentUser.getIdToken();
+          fetch(apiUrl + '?' + new URLSearchParams(formData), {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          })
+            .then(response => response.text())
+            .then(data => {
+              if (data === 'Unauthorized') {
+                alert('Your session have expired!');
+                novelsPage.classList.add('hidden');
+                loginPage.classList.remove('hidden');
+              } else if (data === 'Internal Server Error') {
+                alert('Adding chapter failed, please try again!');
+              }
+            })
+            .catch(error => {
+              console.error(error);
+              alert('Adding chapter failed, please try again!');
+            });
+        }
+      }
+
       async function generateAudiobook() {
         const apiUrl = 'https://generate-audiobook-i3rsqvn75a-lm.a.run.app/';
 
         const formData = new FormData();
-        const chapters = document.getElementById('chapters').value;
-        formData.append('chapters', chapters);
+        // const chapters = document.getElementById('chapters').value;
+        formData.append('chapters', 1);
         formData.append('genre', document.getElementById('genre').value);
         formData.append('title', document.getElementById('title').value);
         formData.append('style', document.getElementById('style').value);
