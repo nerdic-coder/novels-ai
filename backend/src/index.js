@@ -32,9 +32,8 @@ functions.http('generate', async (req, res) => {
     userRef = admin.firestore().collection('users').doc(uid);
 
     // Check if user has enough points
-    const userSnapshot = await userRef.get();
+    let userSnapshot = await userRef.get();
 
-    userPoints = userSnapshot.data().points || 0;
     // If user does not exist, create with default points
     if (!userSnapshot.exists || !Object.prototype.hasOwnProperty.call(userSnapshot.data(), 'points')) {
       await userRef.set({
@@ -42,6 +41,9 @@ functions.http('generate', async (req, res) => {
       });
       userPoints = 10;
     }
+
+    userSnapshot = await userRef.get();
+    userPoints = userSnapshot.data().points || 0;
 
     if (userPoints < chapters) {
       res.status(400).send('Insufficient points');
