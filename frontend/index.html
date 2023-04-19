@@ -12,6 +12,8 @@
     </script>
     <title>Novels AI - Become the Star of Your Own AI-Powered Audio Adventure</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-aFq/bzH65dt+w6FI2ooMVUpc+21e0SRygnTpmBvdBgSdnuTN7QbdgL+OapgHtvPp" crossorigin="anonymous">
+    <link href="style.css" rel="stylesheet">
+    
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" href="/favicon.ico">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
@@ -23,23 +25,6 @@
     <meta name="author" content="The Nerdic Coder">
     <meta property="og:title" content="Novels AI: AI-Powered Audiobooks Starring You">
     <meta property="og:description" content="Step into the spotlight with Novels AI, where you can craft and experience your own AI-generated audiobooks, featuring you as the lead character! Unleash your imagination and ride the wave of immersive storytelling.">
-    <style>
-      body {
-        background-color: #171822;
-        color: #abfcdd;
-      }
-      input[type="text"],
-      input[type="number"],
-      input[type="email"],
-      input[type="password"],
-      textarea {
-        background-color: #21474e;
-        color: beige;
-      }
-      .hidden {
-        display: none;
-      }
-    </style>
   </head>
   <body>
     <div class="container">
@@ -119,42 +104,44 @@
       </div>
       <div id="login-page" class="hidden">
         <img src="/header.png" alt="Novels AI" style="max-width: 100%; min-width: 100%;" />
-        <div class="d-grid gap-2" style="margin-bottom: 15px;">
-          <input type="button" value="Google Signin" class="btn btn-primary" id="google-sign-in-button">
+        <div id="login-content" class="hidden">
+          <div class="d-grid gap-2" style="margin-bottom: 15px;">
+            <input type="button" value="Google Signin" class="btn btn-primary" id="google-sign-in-button">
+          </div>
+          <div class="card text-bg-dark mb-3">
+            <div class="card-header">Classic Signin</div>
+            <form class="card-body" id="login-form" onsubmit="signin(); return false;">
+              <div class="mb-3">
+                <label for="input-email" class="form-label">Email address</label>
+                <input type="email" class="form-control" id="input-email" aria-describedby="emailHelp">
+              </div>
+              <div class="mb-3">
+                <label for="input-password" class="form-label">Password</label>
+                <input type="password" class="form-control" id="input-password">
+              </div>
+              <div class="d-grid gap-2" style="margin-bottom: 15px;">
+                <button type="submit" class="btn btn-primary">Signin</button>
+              </div>
+              <div class="d-grid gap-2" style="margin-bottom: 15px;">
+                <button type="button" class="btn btn-secondary" id="register-button">Register</button>
+              </div>
+            </form>
+          </div>
+          <h1>Welcome to Novels AI</h1>
+          <p>
+              Immerse yourself in the world of personalized AI-generated audiobooks with <strong>Novels AI</strong>. Our innovative app harnesses the power of artificial intelligence to create captivating stories with you as the main character! Experience your own adventures as the star of your unique novel, brought to life by state-of-the-art AI narration and voice synthesis technology.
+          </p>
+          <p>
+              With <strong>Novels AI</strong>, you can explore endless storytelling possibilities across various genres, from romance and mystery to science fiction and fantasy. Customize your character, make choices that shape the plot, and dive into a one-of-a-kind listening experience tailored just for you.
+          </p>
+          <p>
+              Whether you're looking to unwind with an engaging story, fuel your imagination, or simply experience the future of audiobooks, <strong>Novels AI</strong> is your gateway to an entirely new world of AI-powered storytelling. Embrace the magic of AI, and let the adventure begin!
+          </p>
+          <div class="d-grid gap-2" style="margin-bottom: 15px;">
+            <a class="btn btn-success" href="demo.html">Click here to listen to some Novels AI demos</a>
+          </div>
+          <img src="/start.png" alt="Walking into Sci-fi world" style="max-width: 100%; min-width: 100%; margin-bottom: 15px;" />
         </div>
-        <div class="card text-bg-dark mb-3">
-          <div class="card-header">Classic Signin</div>
-          <form class="card-body" id="login-form" onsubmit="signin(); return false;">
-            <div class="mb-3">
-              <label for="input-email" class="form-label">Email address</label>
-              <input type="email" class="form-control" id="input-email" aria-describedby="emailHelp">
-            </div>
-            <div class="mb-3">
-              <label for="input-password" class="form-label">Password</label>
-              <input type="password" class="form-control" id="input-password">
-            </div>
-            <div class="d-grid gap-2" style="margin-bottom: 15px;">
-              <button type="submit" class="btn btn-primary">Signin</button>
-            </div>
-            <div class="d-grid gap-2" style="margin-bottom: 15px;">
-              <button type="button" class="btn btn-secondary" id="register-button">Register</button>
-            </div>
-          </form>
-        </div>
-        <h1>Welcome to Novels AI</h1>
-        <p>
-            Immerse yourself in the world of personalized AI-generated audiobooks with <strong>Novels AI</strong>. Our innovative app harnesses the power of artificial intelligence to create captivating stories with you as the main character! Experience your own adventures as the star of your unique novel, brought to life by state-of-the-art AI narration and voice synthesis technology.
-        </p>
-        <p>
-            With <strong>Novels AI</strong>, you can explore endless storytelling possibilities across various genres, from romance and mystery to science fiction and fantasy. Customize your character, make choices that shape the plot, and dive into a one-of-a-kind listening experience tailored just for you.
-        </p>
-        <p>
-            Whether you're looking to unwind with an engaging story, fuel your imagination, or simply experience the future of audiobooks, <strong>Novels AI</strong> is your gateway to an entirely new world of AI-powered storytelling. Embrace the magic of AI, and let the adventure begin!
-        </p>
-        <div class="d-grid gap-2" style="margin-bottom: 15px;">
-          <a class="btn btn-success" href="demo.html">Click here to listen to some Novels AI demos</a>
-        </div>
-        <img src="/start.png" alt="Walking into Sci-fi world" style="max-width: 100%; min-width: 100%; margin-bottom: 15px;" />
       </div>
     </div>
 
@@ -220,6 +207,7 @@
       const logOutButton = document.getElementById('log-out-button');
       const buyPointsButton1 = document.getElementById('buy-points-1');
       const buyPointsButton2 = document.getElementById('buy-points-2');
+      const loginContent = document.getElementById('login-content');
       let limit = 5;
 
       // Create a Google sign-in provider
@@ -229,6 +217,7 @@
       if (user) {
         novelsPage.classList.remove('hidden');
         loginPage.classList.add('hidden');
+        loginContent.classList.add('hidden');
       } else {
         novelsPage.classList.add('hidden');
         loginPage.classList.remove('hidden');
@@ -349,10 +338,12 @@
           user = stateUser;
           novelsPage.classList.remove('hidden');
           loginPage.classList.add('hidden');
+          loginContent.classList.add('hidden');
           loadNovels();
         } else {
           novelsPage.classList.add('hidden');
           loginPage.classList.remove('hidden');
+          loginContent.classList.remove('hidden');
         }
       });
 
@@ -360,9 +351,11 @@
         firebase.auth().signOut().then(() => {
           novelsPage.classList.add('hidden');
           loginPage.classList.remove('hidden');
+          loginContent.classList.remove('hidden');
         }).catch((error) => {
           novelsPage.classList.add('hidden');
           loginPage.classList.remove('hidden');
+          loginContent.classList.remove('hidden');
         });
       });
 
@@ -406,6 +399,7 @@
           console.error('Error signing in:', error);
           novelsPage.classList.add('hidden');
           loginPage.classList.remove('hidden');
+          loginContent.classList.remove('hidden');
           googleSignInButton.disabled = false;
           googleSignInButton.value = 'Google Signin';
         }
