@@ -430,7 +430,7 @@
           if (doc.exists) {
             let points = doc.data().points;
             if (points === undefined) {
-              points = 10;
+              points = 2;
             }
             const chapters = 1;
             // Display the user's points in the UI
@@ -446,11 +446,11 @@
             }
           } else {
             console.log('User document does not exist');
-            document.getElementById('point-indicator').textContent = '10';
+            document.getElementById('point-indicator').textContent = '2';
           }
         }).catch((error) => {
           console.log(`Error getting user document: ${error}`);
-          document.getElementById('point-indicator').textContent = '10';
+          document.getElementById('point-indicator').textContent = '2';
         });
       }
 
