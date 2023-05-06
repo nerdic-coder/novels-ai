@@ -21,6 +21,9 @@ functions.http('generate', async (req, res) => {
       res.status(204).send('');
       return;
     }
+    if (!req.get('Authorization')) {
+      res.status(401).send('Unauthorized');
+    }
     const requestId = v4();
     // Get the ID token from the Authorization header
     const idToken = req.get('Authorization').split('Bearer ')[1];
@@ -134,6 +137,9 @@ functions.http('delete', async (req, res) => {
     res.status(204).send('');
     return;
   }
+  if (!req.get('Authorization')) {
+    res.status(401).send('Unauthorized');
+  }
   // Get the ID token from the Authorization header
   const idToken = req.get('Authorization').split('Bearer ')[1];
   const decodedToken = await admin.auth().verifyIdToken(idToken);
@@ -188,6 +194,9 @@ functions.http('add-chapter', async (req, res) => {
   if (req.method === 'OPTIONS') {
     res.status(204).send('');
     return;
+  }
+  if (!req.get('Authorization')) {
+    res.status(401).send('Unauthorized');
   }
   // Get the ID token from the Authorization header
   const idToken = req.get('Authorization').split('Bearer ')[1];

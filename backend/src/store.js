@@ -53,9 +53,9 @@ export async function updateUserPoints(userRef, chapters) {
   // If user does not exist, create with default points
   if (!userSnapshot.exists || !Object.prototype.hasOwnProperty.call(userSnapshot.data(), 'points')) {
     await userRef.set({
-      points: 10,
+      points: 2,
     });
-    userPoints = 10;
+    userPoints = 2;
   }
 
   userSnapshot = await userRef.get();
