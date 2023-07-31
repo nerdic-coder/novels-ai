@@ -6,9 +6,10 @@ input[type="text"],
 input[type="number"],
 input[type="email"],
 input[type="password"],
-textarea {
-    background-color: #21474e;
-    color: beige;
+textarea,
+select {
+    background-color: #21474e !important;
+    color: beige !important;
 }
 
 input[type="text"]:disabled,

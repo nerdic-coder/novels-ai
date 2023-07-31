@@ -52,27 +52,37 @@
             <div class="form-text text-light">
               Only english is supported currently.
             </div>
-        </div>
-          <div class="mb-3">
-              <label for="genre" class="form-label">Genre:</label>
-              <input type="text" class="form-control" id="genre">
-              <div class="form-text text-light">
-                Enter the genre of your novel (e.g. Fiction, Sci-fi, Mystery, Romance, Action, Horror).
-              </div>
           </div>
           <div class="mb-3">
-              <label for="style" class="form-label">Author:</label>
-              <input type="text" class="form-control" id="style">
-              <div class="form-text text-light">
-                Enter the name of the author. E.g. J.K. Rowling, David Lynch.
-              </div>
+            <label for="voice" class="form-label">Voice:</label>
+            <select class="form-select" aria-label="Voice" id="voice">
+              <option selected value="en-US-Neural2-D">Male</option>
+              <option value="en-US-Neural2-H">Female</option>
+            </select>
+            <div class="form-text text-light">
+              Pick if you want the story to be read by a man or woman.
+            </div>
           </div>
           <div class="mb-3">
-              <label for="title" class="form-label">Title:</label>
-              <input type="text" class="form-control" id="title">
-              <div class="form-text text-light">
-                Enter the title of your novel. E.g. Bigfoot visiting New York.
-              </div>
+            <label for="genre" class="form-label">Genre:</label>
+            <input type="text" class="form-control" id="genre">
+            <div class="form-text text-light">
+              Enter the genre of your novel (e.g. Fiction, Sci-fi, Mystery, Romance, Action, Horror).
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="style" class="form-label">Author:</label>
+            <input type="text" class="form-control" id="style">
+            <div class="form-text text-light">
+              Enter the name of the author. E.g. J.K. Rowling, David Lynch.
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="title" class="form-label">Title:</label>
+            <input type="text" class="form-control" id="title">
+            <div class="form-text text-light">
+              Enter the title of your novel. E.g. Bigfoot visiting New York.
+            </div>
           </div>
           <div class="mb-3">
             <label for="plot" class="form-label">Main plotline:</label>
@@ -80,13 +90,13 @@
             <div class="form-text text-light">
               Provide a brief plotline to guide the story in a specific direction.
             </div>
-        </div>
+          </div>
           <div class="mb-3">
-              <label for="starring" class="form-label">Starring:</label>
-              <input type="text" class="form-control" id="starring">
-              <div class="form-text text-light">
-                Enter the names of the primary performers of the audiobook, add as many details as you wish for each character. E.g. "Johan Axelsson the main hero of the story"
-              </div>
+            <label for="starring" class="form-label">Starring:</label>
+            <input type="text" class="form-control" id="starring">
+            <div class="form-text text-light">
+              Enter the names of the primary performers of the audiobook, add as many details as you wish for each character. E.g. "Johan Axelsson the main hero of the story"
+            </div>
           </div>
           <div class="mb-3 d-grid gap-2">
             <input type="submit" value="Create novel" class="btn btn-primary" id="submit-button">
@@ -351,6 +361,13 @@
               spinner.setAttribute('role', 'status');
               spinner.innerHTML = '<span class="visually-hidden">Loading...</span>';
               audiobookOptions.appendChild(spinner);
+            } else if (audiobookData.status === 'error') {
+              audiobookContent += '<div class="alert alert-danger" role="alert">Failed to generate!</div>';
+              audiobookOptions.innerHTML = `
+                <div class="mb-3 d-grid gap-2" style="margin-top: 15px; margin-bottom: 15px;">
+                  <input type="button" value="Delete novel" class="btn btn-warning" onclick="deleteAudiobook('${audiobookId}')">
+                </div>
+              `;
             } else {
               audiobookContent += audioContent;
               audiobookOptions.innerHTML = `
@@ -358,7 +375,7 @@
                   <input type="button" value="Add chapter" class="btn btn-success" onclick="addChapter('${audiobookId}')">
                   <input type="button" value="Delete novel" class="btn btn-warning" onclick="deleteAudiobook('${audiobookId}')">
                 </div>
-              `
+              `;
             }
             
             audiobookTitle.innerHTML = audiobookContent;
@@ -557,9 +574,11 @@
       async function generateAudiobook() {
         const apiUrl = 'https://generate-audiobook-i3rsqvn75a-lm.a.run.app/';
 
+        const voiceSelect = document.getElementById('voice');
         const formData = new FormData();
         // const chapters = document.getElementById('chapters').value;
         formData.append('chapters', 1);
+        formData.append('voice', voiceSelect.options[voiceSelect.selectedIndex].value);
         formData.append('genre', document.getElementById('genre').value);
         formData.append('title', document.getElementById('title').value);
         formData.append('style', document.getElementById('style').value);

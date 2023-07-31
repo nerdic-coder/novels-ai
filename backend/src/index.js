@@ -104,6 +104,7 @@ functions.http('generate', async (req, res) => {
       genre,
       style,
       plot,
+      voice,
     );
 
     let lastChapter = false;
@@ -254,10 +255,10 @@ functions.http('add-chapter', async (req, res) => {
       status: 'progress',
     });
 
-    const voice = req.query.voice || req.body.voice || 'en-US-Neural2-J';
     const chapter = audiobookData.chapters.length + 1;
     const { messages } = audiobookData;
     const { chapters } = audiobookData;
+    const { voice } = audiobookData;
 
     messages.push({
       role: 'user',
@@ -275,7 +276,7 @@ functions.http('add-chapter', async (req, res) => {
       audiobookRef,
       true,
       messages,
-      voice,
+      voice || 'en-US-Neural2-J',
     );
 
     const audioBucketUrl = `https://storage.googleapis.com/generated-books/${uid}/${audiobookData.requestId}/`;
