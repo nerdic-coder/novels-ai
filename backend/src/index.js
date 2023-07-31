@@ -42,15 +42,32 @@ functions.http('generate', async (req, res) => {
       return;
     }
 
-    const starring = req.query.starring || req.body.starring ? `Starring ${req.query.starring || req.body.starring}.` : '';
+    const starring = req.query.starring || req.body.starring ? `${req.query.starring || req.body.starring}` : '';
     const title = req.query.title || req.body.title || '';
-    const genre = req.query.genre || req.body.genre || 'General';
-    const style = req.query.style || req.body.style || 'General';
+    const genre = req.query.genre || req.body.genre || '';
+    const style = req.query.style || req.body.style || '';
+    const plot = req.query.plot || req.body.plot || '';
 
-    const story = process.env.chatPrompt || `Write a short story with the title "{{title}}", the genre is "{{genre}}".
-    in the style of "{{style}}".
-    {{starring}}
-    Start with Chapter 1, only 2 paragraphs (a total of {{chapters}} chapters), use present tense, don't write out "Chapter N", add some character dialogs.`;
+    let story = 'Write a story suitable as an audiobook. Start with Chapter 1. Use present tense. Keep in mind good character building and not rushing the main plot. Each chapter can be a maximum of 1250 characters. Don\'t write out "Chapter N"';
+    if (title) {
+      story += 'With the title "{{title}}". ';
+    }
+
+    if (genre) {
+      story += 'The genre is "{{genre}}". ';
+    }
+
+    if (style) {
+      story += 'Should have the same style as the author "{{style}}". ';
+    }
+
+    if (starring) {
+      story += 'The story is starring "{{starring}}". ';
+    }
+
+    if (plot) {
+      story += 'The main plotline of the story is "{{plot}}". ';
+    }
 
     // Compile the template
     const template = Handlebars.compile(story);
@@ -62,6 +79,7 @@ functions.http('generate', async (req, res) => {
       starring,
       chapters,
       title,
+      plot,
     };
 
     const messages = [];
@@ -85,6 +103,7 @@ functions.http('generate', async (req, res) => {
       starring,
       genre,
       style,
+      plot,
     );
 
     let lastChapter = false;
