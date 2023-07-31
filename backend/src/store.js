@@ -9,6 +9,7 @@ export default async function storeMetadata(
   starring,
   genre,
   style,
+  plot,
   voice,
 ) {
   const audioBucketUrl = `https://storage.googleapis.com/generated-books/${uid}/${requestId}/`;
@@ -40,6 +41,7 @@ export default async function storeMetadata(
     starring,
     genre,
     style,
+    plot,
     voice,
     status: 'progress',
     createdDate: new Date(),

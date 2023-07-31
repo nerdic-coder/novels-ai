@@ -85,6 +85,13 @@
             </div>
           </div>
           <div class="mb-3">
+            <label for="plot" class="form-label">Main plotline:</label>
+            <input type="text" class="form-control" id="plot">
+            <div class="form-text text-light">
+              Provide a brief plotline to guide the story in a specific direction.
+            </div>
+          </div>
+          <div class="mb-3">
             <label for="starring" class="form-label">Starring:</label>
             <input type="text" class="form-control" id="starring">
             <div class="form-text text-light">
@@ -307,10 +314,33 @@
             const audiobookTitle = document.createElement('td');
             const audiobookOptions = document.createElement('td');
             let audiobookContent = `<p><strong>${audiobookData.title}</strong><br/>
-              Genre: ${audiobookData.genre}<br/>
-              Author: ${audiobookData.style}<br/>
-              ${audiobookData.starring}</p>
             `;
+
+            if (audiobookData.genre) {
+              audiobookContent += `
+                Genre: ${audiobookData.genre}<br/>
+              `;
+            }
+
+            if (audiobookData.style) {
+              audiobookContent += `
+                Author: ${audiobookData.style}<br/>
+              `;
+            }
+
+            if (audiobookData.plot) {
+              audiobookContent += `
+                Plotline: ${audiobookData.plot}<br/>
+              `;
+            }
+
+            if (audiobookData.starring) {
+              audiobookContent += `
+                Starring: ${audiobookData.starring}
+              `;
+            }
+
+            audiobookContent += '</p>';
             audiobookTitle.textContent = audiobookData.title;
 
             let audioContent = '';
@@ -552,6 +582,7 @@
         formData.append('genre', document.getElementById('genre').value);
         formData.append('title', document.getElementById('title').value);
         formData.append('style', document.getElementById('style').value);
+        formData.append('plot', document.getElementById('plot').value);
         formData.append('starring', document.getElementById('starring').value);
 
         // Disable submit button
