@@ -267,6 +267,11 @@
             const url = doc.data().url;
             buyPointsButton1.disabled = false;
             buyPointsButton2.disabled = false;
+            gtag('event', 'begin_checkout', {
+              'event_category': 'Checkout',
+              'event_label': 'Start of Checkout',
+              'value': 5,
+            });
             // Do something with the URL, e.g. open it in a new window
             window.location.href = url;
           } else if (doc.exists && doc.data().error) {
