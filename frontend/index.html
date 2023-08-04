@@ -247,6 +247,21 @@
         loginPage.classList.remove('hidden');
       }
 
+      function areSuccessOrderParamPresent() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const success = urlParams.get('success');
+        console.log('success', success);
+        // Modify the condition based on the specific parameters you're checking for
+        if (success) {
+          gtag('event', 'conversion', {
+              'send_to': 'AW-987087034/PhTWCPKdl80YELqB19YD',
+              'transaction_id': ''
+          });
+        }
+      }
+
+      areSuccessOrderParamPresent();
+
       async function buyPoints() {
         buyPointsButton1.disabled = true;
         buyPointsButton2.disabled = true;
@@ -257,8 +272,8 @@
           .add({
             mode: "payment",
             price: "price_1MvLYABPvg43OlrWhK03okqu", // One-time price created in Stripe
-            success_url: window.location.origin,
-            cancel_url: window.location.origin,
+            success_url: `${window.location.origin}?success=true`,
+            cancel_url: `${window.location.origin}?cancel=true`,
           });
         // Listen for changes to the document
         paymentRef.onSnapshot((doc) => {
