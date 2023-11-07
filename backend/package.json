@@ -7,6 +7,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "functions-framework --target=generate",
+    "start:chapter": "functions-framework --target=add-chapter --port 8082",
     "start:delete": "functions-framework --target=delete --port 8081",
     "lint": "eslint src/**/*.js"
   },
