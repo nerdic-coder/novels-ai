@@ -12,5 +12,8 @@ module.exports = {
   },
   rules: {
     'import/extensions': 'off',
+    'linebreak-style': 'off',
+    'no-bitwise': 'off',
+    'no-console': 'off',
   },
 };

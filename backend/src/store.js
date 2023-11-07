@@ -17,7 +17,7 @@ export default async function storeMetadata(
   for (let index = 1; index <= chapters; index += 1) {
     chaptersData.push({
       chapterId: index,
-      chapterUrl: `${audioBucketUrl}chapter-${index}.wav`,
+      chapterUrl: `${audioBucketUrl}chapter-${index}.mp3`,
     });
   }
   // Create a reference to the Firestore collection for the user

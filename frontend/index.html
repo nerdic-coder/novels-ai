@@ -56,8 +56,12 @@
           <div class="mb-3">
             <label for="voice" class="form-label">Voice:</label>
             <select class="form-select" aria-label="Voice" id="voice">
-              <option selected value="en-US-Neural2-D">Male</option>
-              <option value="en-US-Neural2-H">Female</option>
+              <option selected value="alloy">Alloy</option>
+              <option value="echo">Echo</option>
+              <option value="fable">Fable</option>
+              <option value="onyx">Onyx</option>
+              <option value="nova">Nova</option>
+              <option value="shimmer">Shimmer</option>
             </select>
             <div class="form-text text-light">
               Pick if you want the story to be read by a man or woman.
@@ -368,7 +372,7 @@
               audioContent += `
                 <h4>Chapter ${index + 1}</h4>
                 <audio controls>
-                  <source src="${audiobookData.chapters[index].chapterUrl}" type="audio/wav">
+                  <source src="${audiobookData.chapters[index].chapterUrl}" type="audio/mpeg">
                   <p>Your browser does not support the audio element</p>
                 </audio>
                 <br>

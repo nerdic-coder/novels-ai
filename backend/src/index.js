@@ -4,7 +4,7 @@ import { v4 } from 'uuid';
 import Handlebars from 'handlebars';
 import admin from './admin.js';
 import createChatResponse from './chat.js';
-import generateSpeech from './speech.js';
+import generateSpeech from './speech2.js';
 import storeMetadata, { updateUserPoints } from './store.js';
 
 functions.http('generate', async (req, res) => {
@@ -29,7 +29,7 @@ functions.http('generate', async (req, res) => {
     const idToken = req.get('Authorization').split('Bearer ')[1];
     const decodedToken = await admin.auth().verifyIdToken(idToken);
     uid = decodedToken.uid;
-    const voice = req.query.voice || req.body.voice || 'en-US-Neural2-J';
+    const voice = req.query.voice || req.body.voice || 'onyx';
     chapters = parseInt(req.query.chapters, 10) || parseInt(req.body.chapters, 10) || 1;
 
     userRef = admin.firestore().collection('users').doc(uid);
@@ -122,10 +122,10 @@ functions.http('generate', async (req, res) => {
       const completion = await createChatResponse(messages, uid);
       messages.push({
         role: 'assistant',
-        content: completion.data.choices[0].message.content,
+        content: completion.choices[0].message.content,
       });
       generateSpeech(
-        completion.data.choices[0].message.content,
+        completion.choices[0].message.content,
         `${uid}/${requestId}/chapter-${chapter}`,
         metadata,
         lastChapter,
@@ -268,21 +268,21 @@ functions.http('add-chapter', async (req, res) => {
     const completion = await createChatResponse(messages, uid);
     messages.push({
       role: 'assistant',
-      content: completion.data.choices[0].message.content,
+      content: completion.choices[0].message.content,
     });
     generateSpeech(
-      completion.data.choices[0].message.content,
+      completion.choices[0].message.content,
       `${uid}/${audiobookData.requestId}/chapter-${chapter}`,
       audiobookRef,
       true,
       messages,
-      voice || 'en-US-Neural2-J',
+      voice || 'onyx',
     );
 
     const audioBucketUrl = `https://storage.googleapis.com/generated-books/${uid}/${audiobookData.requestId}/`;
     chapters.push({
       chapterId: chapter,
-      chapterUrl: `${audioBucketUrl}chapter-${chapter}.wav`,
+      chapterUrl: `${audioBucketUrl}chapter-${chapter}.mp3`,
     });
 
     audiobookRef.update({
