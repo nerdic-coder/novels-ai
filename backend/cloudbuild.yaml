@@ -1,3 +1,6 @@
+options:
+  logging: CLOUD_LOGGING_ONLY
+
 steps:
 # Deploy Function1
 - name: 'gcr.io/cloud-builders/gcloud'
