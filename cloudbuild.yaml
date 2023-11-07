@@ -1,12 +1,13 @@
 options:
   logging: CLOUD_LOGGING_ONLY
+  region: 'europe-central2'
 
 steps:
 # Deploy Function1
 - name: 'gcr.io/cloud-builders/gcloud'
   args: ['functions', 'deploy', 'add-chapter', 
-    '--trigger-http', '--runtime', 'nodejs18', '--source', './backend',
-    '--entry-point', 'add-chapter',
+    '--trigger-http', '--gen2', '--runtime', 'nodejs18', '--source', './backend',
+    '--entry-point', 'add-chapter', '--memory', '1024MB'
   ]
 
 
