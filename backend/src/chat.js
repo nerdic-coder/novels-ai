@@ -7,7 +7,7 @@ const openai = new OpenAI({
 
 export default async function createChatResponse(messages, user) {
   return openai.chat.completions.create({
-    model: process.env.chatModel || 'gpt-3.5-turbo',
+    model: process.env.chatModel || 'gpt-4',
     user,
     messages,
   });
