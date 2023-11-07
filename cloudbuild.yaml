@@ -1,0 +1,13 @@
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+steps:
+# Deploy Function1
+- name: 'gcr.io/cloud-builders/gcloud'
+  args: ['functions', 'deploy', 'add-chapter', 
+    '--trigger-http', '--runtime', 'nodejs18', '--source', './backend',
+    '--entry-point', 'add-chapter',
+  ]
+
+
+timeout: '1600s' # Adjust the timeout to your needs
