@@ -2,12 +2,25 @@ options:
   logging: CLOUD_LOGGING_ONLY
 
 steps:
+# Deploy generate
+- name: 'gcr.io/cloud-builders/gcloud'
+  args: ['functions', 'deploy', 'generate-audiobook', 
+    '--trigger-http', '--gen2', '--runtime', 'nodejs18', '--source', './backend',
+    '--entry-point', 'generate', '--memory', '1024MB', '--region', 'europe-central2'
+  ]
+
+# Deploy delete
+- name: 'gcr.io/cloud-builders/gcloud'
+  args: ['functions', 'deploy', 'delete-audiobook', 
+    '--trigger-http', '--gen2', '--runtime', 'nodejs18', '--source', './backend',
+    '--entry-point', 'delete', '--memory', '512MB', '--region', 'europe-central2'
+  ]
+
 # Deploy add-chapter
 - name: 'gcr.io/cloud-builders/gcloud'
   args: ['functions', 'deploy', 'add-chapter', 
     '--trigger-http', '--gen2', '--runtime', 'nodejs18', '--source', './backend',
     '--entry-point', 'add-chapter', '--memory', '1024MB', '--region', 'europe-central2'
   ]
-
 
 timeout: '1600s' # Adjust the timeout to your needs
