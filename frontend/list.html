@@ -28,43 +28,30 @@
   </head>
   <body>
     <div class="container">
-      <img src="/img/header.png" alt="Novels AI" style="max-width: 100%; min-width: 100%;" />
+      <img src="/img/small-header.png" alt="Novels AI" style="max-width: 100%;" />
+      <h2>Novels</h2>
+      <div class="mb-3 d-grid gap-2">
+        <input type="submit" value="Create new novel" class="btn btn-primary" id="create-new-button">
+      </div>
+      <table class="table table-dark table-striped table-bordered table-sm">
+        <tbody id="audiobooks-list">
+
+        </tbody>
+      </table>
       <div class="d-grid gap-2" style="margin-bottom: 15px;">
-        <input type="button" value="Google Signin" class="btn btn-primary" id="google-sign-in-button">
+        <input type="button" value="Load more" class="btn btn-primary" id="load-more-button">
       </div>
-      <div class="card text-bg-dark mb-3">
-        <div class="card-header">Classic Signin</div>
-        <form class="card-body" id="login-form" onsubmit="signin(); return false;">
-          <div class="mb-3">
-            <label for="input-email" class="form-label">Email address</label>
-            <input type="email" class="form-control" id="input-email" aria-describedby="emailHelp">
-          </div>
-          <div class="mb-3">
-            <label for="input-password" class="form-label">Password</label>
-            <input type="password" class="form-control" id="input-password">
-          </div>
-          <div class="d-grid gap-2" style="margin-bottom: 15px;">
-            <button type="submit" class="btn btn-primary">Signin</button>
-          </div>
-          <div class="d-grid gap-2" style="margin-bottom: 15px;">
-            <button type="button" class="btn btn-secondary" id="register-button">Register</button>
-          </div>
-        </form>
-      </div>
-      <h1>Welcome to Novels AI</h1>
-      <p>
-          Immerse yourself in the world of personalized AI-generated audiobooks with <strong>Novels AI</strong>. Our innovative app harnesses the power of artificial intelligence to create captivating stories with you as the main character! Experience your own adventures as the star of your unique novel, brought to life by state-of-the-art AI narration and voice synthesis technology.
-      </p>
-      <p>
-          With <strong>Novels AI</strong>, you can explore endless storytelling possibilities across various genres, from romance and mystery to science fiction and fantasy. Customize your character, make choices that shape the plot, and dive into a one-of-a-kind listening experience tailored just for you.
-      </p>
-      <p>
-          Whether you're looking to unwind with an engaging story, fuel your imagination, or simply experience the future of audiobooks, <strong>Novels AI</strong> is your gateway to an entirely new world of AI-powered storytelling. Embrace the magic of AI, and let the adventure begin!
-      </p>
       <div class="d-grid gap-2" style="margin-bottom: 15px;">
-        <a class="btn btn-success" href="demo.html">Click here to listen to some Novels AI demos</a>
+        <input 
+          type="button"
+          class="btn btn-success"
+          value="Buy 30 points for 5 euro"
+          onclick="(async (event) => { await buyPoints(event); })(event)">
       </div>
-      <img src="/img/start.png" alt="Walking into Sci-fi world" style="max-width: 100%; min-width: 100%; margin-bottom: 15px;" />
+      <img src="/img/listeners.png" alt="Listeners" style="max-width: 100%; min-width: 100%; margin-bottom: 15px;" />
+      <div class="d-grid gap-2" style="margin-bottom: 15px;">
+        <input type="button" value="Log out" class="btn btn-warning" onclick="signOut()">
+      </div>
     </div>
 
     <footer class="bg-dark text-center text-lg-start">
@@ -82,9 +69,6 @@
               </li>
               <li>
                 <a href="demo.html" class="text-light">Demo</a>
-              </li>
-              <li>
-                <a href="register.html" class="text-light">Register</a>
               </li>
               <li>
                 <a href="tos.html" class="text-light">Terms of Service</a>
@@ -110,6 +94,24 @@
     
     <script src="/js/config.js"></script>
 
-    <script src="/js/index.js"></script>
+    <script src="/js/store.js"></script>
+    <script src="/js/list.js"></script>
+
+    <script src="/js/auth.js"></script>
+    <script>
+      const createNewButton = document.getElementById('create-new-button');
+      const loadMoreButton = document.getElementById('load-more-button');
+      let storiesShown = STORIES_PER_PAGE;
+
+      loadMoreButton.addEventListener('click', async () => {
+        storiesShown += STORIES_PER_PAGE;
+        loadNovels();
+      });
+
+      createNewButton.addEventListener('click', async () => {
+        window.location.href='create.html';
+      });
+
+    </script>
   </body>
 </html>
