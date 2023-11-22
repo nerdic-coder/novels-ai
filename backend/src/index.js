@@ -87,7 +87,7 @@ functions.http('generate', async (req, res) => {
       role: 'system',
       content: `: You are a ${genre} author. Your task is to
       write ${genre} stories in a rich and intriguing language in a very slow pace building the
-      story.`,
+      story. Consider splitting up long sentences with sentence breaking punctuation.`,
     });
     messages.push({
       role: 'user',
