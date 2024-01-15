@@ -3,7 +3,7 @@ const API_URL_GENERATE_NEW_NOVEL = 'https://generate-audiobook-i3rsqvn75a-lm.a.r
 const API_URL_REMOVE_NOVEL = 'https://delete-audiobook-i3rsqvn75a-lm.a.run.app/';
 
 const STORIES_PER_PAGE = 5;
-const NEW_USER_POINTS = 2;
+const NEW_USER_POINTS = 1;
 
 firebase.initializeApp({
     apiKey: 'AIzaSyBzegpGaNrC-KHupiuNXnjI2XxkoaXzm2o',

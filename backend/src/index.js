@@ -36,7 +36,7 @@ functions.http('generate', async (req, res) => {
     userPoints = updateUserPoints(userRef, chapters);
     errorAfterPointDeduction = true;
     // Check if user has enough points
-    if (userPoints < chapters) {
+    if (userPoints < chapters || userPoints <= 0) {
       await userRef.update({ points: userPoints + chapters });
       res.status(400).send('Insufficient points');
       return;
