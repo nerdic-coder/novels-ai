@@ -10,7 +10,7 @@ const bucket = storage.bucket('generated-books');
 
 export default async function generateSpeech(input, filename, metadata, last, messages, voice) {
   const request = {
-    model: 'tts-1-hd',
+    model: 'tts-1',
     voice: voice || 'alloy',
     input,
   };

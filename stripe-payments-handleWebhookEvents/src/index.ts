@@ -672,12 +672,12 @@ const insertPaymentRecord = async (
         payment.status === 'succeeded' &&
         (item.price.id === 'price_1MvLYABPvg43OlrWhK03okqu' ||
           item.description ===
-            '30 points to use to create Novels AI chapters.' ||
-          item.description === '30 Novels AI points')
+            '10 points to use to create Novels AI chapters.' ||
+          item.description === '10 Novels AI points')
       ) {
         const points = customersSnap.docs[0].data()?.points || 0;
         console.log('current points', points);
-        const updatedPoints = points + 30;
+        const updatedPoints = points + 10;
         await customerDoc.ref.update({ points: updatedPoints });
       }
     }
