@@ -4,7 +4,7 @@ import { v4 } from 'uuid';
 import Handlebars from 'handlebars';
 import admin from './admin.js';
 import createChatResponse from './chat.js';
-import generateSpeech from './speech2.js';
+import generateSpeech from './speech.js';
 import storeMetadata, { updateUserPoints } from './store.js';
 
 functions.http('generate', async (req, res) => {
