@@ -18,7 +18,7 @@ export default async function generateSpeech(input, filename, metadata, last, me
   const mp3 = await openai.audio.speech.create(request);
   const buffer = Buffer.from(await mp3.arrayBuffer());
 
-  const file = bucket.file(`${filename}.mp3`);
+  const file = bucket.file(`${filename}.wav`);
 
   const stream = file.createWriteStream({
     metadata: {

@@ -282,7 +282,7 @@ functions.http('add-chapter', async (req, res) => {
     const audioBucketUrl = `https://storage.googleapis.com/generated-books/${uid}/${audiobookData.requestId}/`;
     chapters.push({
       chapterId: chapter,
-      chapterUrl: `${audioBucketUrl}chapter-${chapter}.mp3`,
+      chapterUrl: `${audioBucketUrl}chapter-${chapter}.wav`,
     });
 
     audiobookRef.update({
