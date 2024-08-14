@@ -13,6 +13,7 @@ export default async function generateSpeech(input, filename, metadata, last, me
     model: 'tts-1',
     voice: voice || 'alloy',
     input,
+    response_format: 'wav',
   };
   console.log('request', request);
   const mp3 = await openai.audio.speech.create(request);

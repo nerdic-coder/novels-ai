@@ -29,7 +29,7 @@ functions.http('generate', async (req, res) => {
     const idToken = req.get('Authorization').split('Bearer ')[1];
     const decodedToken = await admin.auth().verifyIdToken(idToken);
     uid = decodedToken.uid;
-    const voice = req.query.voice || req.body.voice || 'onyx';
+    const voice = req.query.voice || req.body.voice || 'en-US-Journey-D';
     chapters = parseInt(req.query.chapters, 10) || parseInt(req.body.chapters, 10) || 1;
 
     userRef = admin.firestore().collection('users').doc(uid);
@@ -276,7 +276,7 @@ functions.http('add-chapter', async (req, res) => {
       audiobookRef,
       true,
       messages,
-      voice || 'onyx',
+      voice || 'en-US-Journey-D',
     );
 
     const audioBucketUrl = `https://storage.googleapis.com/generated-books/${uid}/${audiobookData.requestId}/`;
