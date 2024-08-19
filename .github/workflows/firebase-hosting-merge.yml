@@ -30,7 +30,7 @@ jobs:
       uses: 'google-github-actions/auth@v2'
       with:
         project_id: 'ai-audiobook'
-        workload_identity_provider: 'projects/1003294158446/locations/global/workloadIdentityPools/novels-ai'
+        workload_identity_provider: 'projects/1003294158446/locations/global/workloadIdentityPools/novels-ai/providers/github-actions-provider'
 
     - id: 'deploy'
       uses: 'google-github-actions/deploy-cloud-functions@v3'
