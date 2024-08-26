@@ -17,31 +17,31 @@ jobs:
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_AI_AUDIOBOOK }}'
           channelId: live
           projectId: ai-audiobook
-  deploy_backend:
-    runs-on: 'ubuntu-latest'
-    permissions:
-      contents: 'read'
-      id-token: 'write'
+  # deploy_backend:
+  #   runs-on: 'ubuntu-latest'
+  #   permissions:
+  #     contents: 'read'
+  #     id-token: 'write'
 
-    steps:
-    - uses: 'actions/checkout@v4'
+  #   steps:
+  #   - uses: 'actions/checkout@v4'
 
-    - id: 'auth'
-      uses: 'google-github-actions/auth@v2'
-      with:
-        project_id: 'ai-audiobook'
-        workload_identity_provider: 'projects/1003294158446/locations/global/workloadIdentityPools/novels-ai/providers/github-actions-provider'
+  #   - id: 'auth'
+  #     uses: 'google-github-actions/auth@v2'
+  #     with:
+  #       project_id: 'ai-audiobook'
+  #       workload_identity_provider: 'projects/1003294158446/locations/global/workloadIdentityPools/novels-ai/providers/github-actions-provider'
 
-    - id: 'deploy'
-      uses: 'google-github-actions/deploy-cloud-functions@v3'
-      timeout-minutes: 10
-      with:
-        name: 'generate-audiobook'
-        entry_point: 'generate'
-        region: europe-central2
-        runtime: 'nodejs18'
-        source_dir: './backend'  # Specify the source directory where the Cloud Function is located
+  #   - id: 'deploy'
+  #     uses: 'google-github-actions/deploy-cloud-functions@v3'
+  #     timeout-minutes: 10
+  #     with:
+  #       name: 'generate-audiobook'
+  #       entry_point: 'generate'
+  #       region: europe-central2
+  #       runtime: 'nodejs18'
+  #       source_dir: './backend'  # Specify the source directory where the Cloud Function is located
 
-    # Example of using the output
-    - id: 'test'
-      run: 'curl "${{ steps.deploy.outputs.url }}"'
+  #   # Example of using the output
+  #   - id: 'test'
+  #     run: 'curl "${{ steps.deploy.outputs.url }}"'
