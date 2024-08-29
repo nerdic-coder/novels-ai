@@ -4,7 +4,7 @@ import { v4 } from 'uuid';
 import Handlebars from 'handlebars';
 import admin from './admin.js';
 import createChatResponse from './chat.js';
-import generateSpeech from './speech.js';
+import generateSpeechAI from './speech2.js';
 import storeMetadata, { updateUserPoints } from './store.js';
 
 functions.http('generate', async (req, res) => {
@@ -124,7 +124,7 @@ functions.http('generate', async (req, res) => {
         role: 'assistant',
         content: completion.choices[0].message.content,
       });
-      generateSpeech(
+      generateSpeechAI(
         completion.choices[0].message.content,
         `${uid}/${requestId}/chapter-${chapter}`,
         metadata,
@@ -270,14 +270,25 @@ functions.http('add-chapter', async (req, res) => {
       role: 'assistant',
       content: completion.choices[0].message.content,
     });
-    generateSpeech(
-      completion.choices[0].message.content,
-      `${uid}/${audiobookData.requestId}/chapter-${chapter}`,
-      audiobookRef,
-      true,
-      messages,
-      voice || 'en-US-Journey-D',
-    );
+    if (voice.includes('en-US-')) {
+      generateSpeechAI(
+        completion.choices[0].message.content,
+        `${uid}/${audiobookData.requestId}/chapter-${chapter}`,
+        audiobookRef,
+        true,
+        messages,
+        'alloy',
+      );
+    } else {
+      generateSpeechAI(
+        completion.choices[0].message.content,
+        `${uid}/${audiobookData.requestId}/chapter-${chapter}`,
+        audiobookRef,
+        true,
+        messages,
+        voice,
+      );
+    }
 
     const audioBucketUrl = `https://storage.googleapis.com/generated-books/${uid}/${audiobookData.requestId}/`;
     chapters.push({
