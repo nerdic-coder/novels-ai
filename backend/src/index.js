@@ -21,8 +21,9 @@ functions.http('generate', async (req, res) => {
       res.status(204).send('');
       return;
     }
-    if (!req.get('Authorization')) {
+    if (!req.get('Authorization') || req.get('Authorization').startsWith('Bearer ')) {
       res.status(401).send('Unauthorized');
+      return;
     }
     const requestId = v4();
     // Get the ID token from the Authorization header
@@ -156,8 +157,9 @@ functions.http('delete', async (req, res) => {
     res.status(204).send('');
     return;
   }
-  if (!req.get('Authorization')) {
+  if (!req.get('Authorization') || req.get('Authorization').startsWith('Bearer ')) {
     res.status(401).send('Unauthorized');
+    return;
   }
   // Get the ID token from the Authorization header
   const idToken = req.get('Authorization').split('Bearer ')[1];
@@ -214,8 +216,9 @@ functions.http('add-chapter', async (req, res) => {
     res.status(204).send('');
     return;
   }
-  if (!req.get('Authorization')) {
+  if (!req.get('Authorization') || req.get('Authorization').startsWith('Bearer ')) {
     res.status(401).send('Unauthorized');
+    return;
   }
   // Get the ID token from the Authorization header
   const idToken = req.get('Authorization').split('Bearer ')[1];
