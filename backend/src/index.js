@@ -21,7 +21,7 @@ functions.http('generate', async (req, res) => {
       res.status(204).send('');
       return;
     }
-    if (!req.get('Authorization') || req.get('Authorization').startsWith('Bearer ')) {
+    if (!req.get('Authorization') || !req.get('Authorization').startsWith('Bearer ')) {
       res.status(401).send('Unauthorized');
       return;
     }
@@ -157,7 +157,7 @@ functions.http('delete', async (req, res) => {
     res.status(204).send('');
     return;
   }
-  if (!req.get('Authorization') || req.get('Authorization').startsWith('Bearer ')) {
+  if (!req.get('Authorization') || !req.get('Authorization').startsWith('Bearer ')) {
     res.status(401).send('Unauthorized');
     return;
   }
@@ -216,7 +216,7 @@ functions.http('add-chapter', async (req, res) => {
     res.status(204).send('');
     return;
   }
-  if (!req.get('Authorization') || req.get('Authorization').startsWith('Bearer ')) {
+  if (!req.get('Authorization') || !req.get('Authorization').startsWith('Bearer ')) {
     res.status(401).send('Unauthorized');
     return;
   }
