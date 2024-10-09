@@ -1,9 +1,11 @@
 async function generateAudiobook() {
     const voiceSelect = document.getElementById('voice');
+    const povSelect = document.getElementById('pov');
     const formData = new FormData();
     // const chapters = document.getElementById('chapters').value;
     formData.append('chapters', 1);
     formData.append('voice', voiceSelect.options[voiceSelect.selectedIndex].value);
+    formData.append('pov', povSelect.options[povSelect.selectedIndex].value);
     formData.append('genre', document.getElementById('genre').value);
     formData.append('title', document.getElementById('title').value);
     formData.append('style', document.getElementById('style').value);

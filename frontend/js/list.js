@@ -53,6 +53,25 @@ async function addChapter(audiobookId) {
 }
 
 function loadNovels() {
+    const narrationTypes = new Map([
+        ['first', 'First Person'],
+        ['third-limited', 'Third Person Limited'],
+        ['third-omni', 'Third Person Omniscient'],
+        ['third-object', 'Third Person Objective (Dramatic)'],
+        ['second', 'Second Person'],
+        ['multiple', 'Multiple Points of View'],
+        ['consciousness', 'Stream of Consciousness'],
+        ['unreliable', 'Unreliable Narrator'],
+        ['plural', 'First Person Plural'],
+        ['detached', 'Detached Narrator']
+    ]);
+    const voices = new Map([
+        ['onyx', 'Paul'],
+        ['alloy', 'Sophia'],
+        ['nova', 'Kate'],
+        ['shimmer', 'Eve'],
+        ['fable', 'Orion'],
+    ]);
     // Get the currently signed-in user
     let user = firebase.auth().currentUser;
     // Get the audiobooks collection for the current user
@@ -99,6 +118,16 @@ function loadNovels() {
           audiobookContent += `
             Plotline: ${audiobookData.plot}<br/>`;
         }
+
+        if (audiobookData.pov) {
+          audiobookContent += `
+            Point of view: ${narrationTypes.get(audiobookData.pov)}<br/>`;
+        }
+
+        if (audiobookData.voice) {
+            audiobookContent += `
+              Voice: ${voices.get(audiobookData.voice)}<br/>`;
+          }
 
         if (audiobookData.starring) {
           audiobookContent += `

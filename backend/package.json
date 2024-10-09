@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "vitest",
     "start": "functions-framework --target=generate",
     "start:chapter": "functions-framework --target=add-chapter --port 8082",
     "start:delete": "functions-framework --target=delete --port 8081",
@@ -28,6 +28,8 @@
     "env-cmd": "^10.1.0",
     "eslint": "^8.36.0",
     "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-plugin-import": "^2.27.5"
+    "eslint-plugin-import": "^2.27.5",
+    "vite": "^5.4.2",
+    "vitest": "^2.0.5"
   }
 }

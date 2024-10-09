@@ -36,11 +36,14 @@ functions.http('generate', async (req, res) => {
     userRef = admin.firestore().collection('users').doc(uid);
     userPoints = updateUserPoints(userRef, chapters);
     errorAfterPointDeduction = true;
-    // Check if user has enough points
-    if (userPoints < chapters || userPoints <= 0) {
-      await userRef.update({ points: userPoints + chapters });
-      res.status(400).send('Insufficient points');
-      return;
+    // Check if devMode is enabled
+    if (!process.env.devMode) {
+      // Check if user has enough points
+      if (userPoints < chapters || userPoints <= 0) {
+        // await userRef.update({ points: userPoints + chapters });
+        res.status(400).send('Insufficient points');
+        return;
+      }
     }
 
     const starring = req.query.starring || req.body.starring ? `${req.query.starring || req.body.starring}` : '';
@@ -48,6 +51,8 @@ functions.http('generate', async (req, res) => {
     const genre = req.query.genre || req.body.genre || '';
     const style = req.query.style || req.body.style || '';
     const plot = req.query.plot || req.body.plot || '';
+    const pov = req.query.pov || req.body.pov || '';
+    let povDescription = '';
 
     let story = 'Write a story suitable as an audiobook. Start with Chapter 1. Use present tense. Keep in mind good character building and not rushing the main plot. Each chapter can be a maximum of 1250 characters. Don\'t write out "Chapter N"';
     if (title) {
@@ -70,6 +75,26 @@ functions.http('generate', async (req, res) => {
       story += 'The main plotline of the story is "{{plot}}". ';
     }
 
+    if (pov) {
+      // Mapping POV values to descriptions
+      const povDescriptions = {
+        first: 'In the first-person point of view, the story is narrated directly by one of the characters, often the protagonist, using pronouns like "I" and "me." This narrator recounts events and describes their thoughts, feelings, and perceptions from their personal perspective.',
+        'third-limited': 'The third person limited point of view features a narrator who is outside of the story and relates the thoughts, feelings, and experiences of a single character.',
+        'third-omni': 'In the third person omniscient point of view, the narrator knows all the thoughts, actions, and feelings of every character in the story.',
+        'third-object': 'This point of view features a narrator who reports only what is seen and heard, without providing access to the thoughts or feelings of any character.',
+        second: 'The second-person point of view addresses the reader directly using "you," making the reader feel as if they are the protagonist of the story.',
+        multiple: 'Multiple points of view involve telling the story from the perspectives of different characters, switching between them at set intervals.',
+        consciousness: 'The stream of consciousness point of view attempts to capture the continuous flow of a character’s thoughts, feelings, and impressions in a disorganized or free-flowing manner.',
+        unreliable: 'An unreliable narrator tells the story in a way that may not be completely accurate or credible, often due to personal bias, mental instability, or limited knowledge.',
+        plural: 'First-person plural narration uses the collective "we," representing a group of characters with a shared experience or perspective.',
+        detached: 'A detached narrator describes events in a neutral or emotionally distant manner, often without subjective commentary or engagement.',
+      };
+
+      // Select the appropriate description based on the selected POV
+      povDescription = povDescriptions[pov] || '';
+      story += '{{povDescription}} ';
+    }
+
     // Compile the template
     const template = Handlebars.compile(story);
 
@@ -81,6 +106,7 @@ functions.http('generate', async (req, res) => {
       chapters,
       title,
       plot,
+      povDescription,
     };
 
     const messages = [];
@@ -106,6 +132,7 @@ functions.http('generate', async (req, res) => {
       style,
       plot,
       voice,
+      pov,
     );
 
     let lastChapter = false;
@@ -237,7 +264,7 @@ functions.http('add-chapter', async (req, res) => {
   const userPoints = updateUserPoints(userRef, 1);
   errorAfterPointDeduction = true;
   // Check if user has enough points
-  if (userPoints < 1) {
+  if (userPoints <= 0) {
     await userRef.update({ points: userPoints + 1 });
     res.status(400).send('Insufficient points');
     return;
