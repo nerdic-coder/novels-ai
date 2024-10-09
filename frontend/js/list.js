@@ -119,12 +119,12 @@ function loadNovels() {
             Plotline: ${audiobookData.plot}<br/>`;
         }
 
-        if (audiobookData.pov) {
+        if (audiobookData.pov && narrationTypes.get(audiobookData.pov)) {
           audiobookContent += `
             Point of view: ${narrationTypes.get(audiobookData.pov)}<br/>`;
         }
 
-        if (audiobookData.voice) {
+        if (audiobookData.voice && voices.get(audiobookData.voice)) {
             audiobookContent += `
               Voice: ${voices.get(audiobookData.voice)}<br/>`;
           }
