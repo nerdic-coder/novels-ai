@@ -143,7 +143,7 @@ function loadNovels() {
         for (let index = 0; index < audiobookData.chapters.length; index += 1) {
           audioContent += `
             <h4>Chapter ${index + 1}</h4>
-            <audio controls>
+            <audio controls preload="metadata">
               <source src="${audiobookData.chapters[index].chapterUrl}" type="audio/mpeg">
               <p>Your browser does not support the audio element</p>
             </audio>
