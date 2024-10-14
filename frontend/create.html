@@ -70,10 +70,11 @@
           </div>
         </div>
         <div class="mb-3">
-          <label for="style" class="form-label">Author:</label>
+          <label for="style" class="form-label">Author's Style (for inspiration):</label>
           <input type="text" class="form-control" id="style">
           <div class="form-text text-light">
-            Enter the name of the author. E.g. J.K. Rowling, David Lynch.
+            Enter the name of an author whose style will inspire the writing. 
+            E.g., J.K. Rowling, David Lynch. The story will be original but influenced by their style.
           </div>
         </div>
         <div class="mb-3">
@@ -115,9 +116,16 @@
           <div class="form-text text-light">
             Pick the narrators point of view. <a href="pov.html" class="text-light">Read descriptions of each narration here!</a>
           </div>
+          <div class="mb-3">
+            <label for="image" class="form-label">Upload Image:</label>
+            <input class="form-control" type="file" id="image" accept="image/*">
+            <div class="form-text text-light">
+                Upload an image that will be integrated in the novel in some shape or form. Max image size 20MB.
+            </div>
+        </div>
         </div>
         <div class="mb-3 d-grid gap-2">
-          <input type="submit" value="Create novel" class="btn btn-primary" id="submit-button">
+          <input type="submit" value="Create novel" class="btn btn-primary btn-needs-points" id="submit-button">
           <input type="button" value="Cancel" class="btn btn-secondary" onclick="window.location.href='list.html';">
         </div>
         <img src="/img/ai-reader.png" alt="AI audiobook reader" style="max-width: 100%; min-width: 100%; margin-bottom: 15px;" />

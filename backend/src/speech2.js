@@ -15,7 +15,6 @@ export default async function generateSpeechAI(input, filename, metadata, last, 
     input,
     response_format: 'wav',
   };
-  console.log('request', request);
   const mp3 = await openai.audio.speech.create(request);
   const buffer = Buffer.from(await mp3.arrayBuffer());
 
@@ -39,10 +38,17 @@ export default async function generateSpeechAI(input, filename, metadata, last, 
     console.log('File uploaded successfully.');
     if (last) {
       console.log('Last file uploaded successfully.');
-      metadata.update({
-        status: 'completed',
-        messages,
-      });
+      try {
+        metadata.update({
+          status: 'completed',
+          messages,
+        });
+      } catch (err) {
+        console.error(err);
+        metadata.update({
+          status: 'error',
+        });
+      }
     }
   });
 

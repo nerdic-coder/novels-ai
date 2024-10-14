@@ -5,7 +5,7 @@ import Handlebars from 'handlebars';
 import admin from './admin.js';
 import createChatResponse from './chat.js';
 import generateSpeechAI from './speech2.js';
-import storeMetadata, { updateUserPoints } from './store.js';
+import storeMetadata, { spendUserPoints } from './store.js';
 
 functions.http('generate', async (req, res) => {
   let metadata;
@@ -16,7 +16,8 @@ functions.http('generate', async (req, res) => {
   let chapters;
   try {
     res.set('Access-Control-Allow-Origin', '*');
-    res.set('Access-Control-Allow-Headers', 'Authorization');
+    res.set('Access-Control-Allow-Headers', 'Authorization, Content-Type');
+    res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     if (req.method === 'OPTIONS') {
       res.status(204).send('');
       return;
@@ -30,11 +31,15 @@ functions.http('generate', async (req, res) => {
     const idToken = req.get('Authorization').split('Bearer ')[1];
     const decodedToken = await admin.auth().verifyIdToken(idToken);
     uid = decodedToken.uid;
-    const voice = req.query.voice || req.body.voice || 'en-US-Journey-D';
+    const voice = req.query.voice || req.body.voice || 'onyx';
     chapters = parseInt(req.query.chapters, 10) || parseInt(req.body.chapters, 10) || 1;
 
     userRef = admin.firestore().collection('users').doc(uid);
-    userPoints = updateUserPoints(userRef, chapters);
+    const userSnapshot = await userRef.get();
+    if (decodedToken.email && !Object.prototype.hasOwnProperty.call(userSnapshot.data(), 'email')) {
+      await userRef.update({ email: decodedToken.email });
+    }
+    userPoints = await spendUserPoints(userRef, chapters);
     errorAfterPointDeduction = true;
     // Check if devMode is enabled
     if (!process.env.devMode) {
@@ -52,6 +57,8 @@ functions.http('generate', async (req, res) => {
     const style = req.query.style || req.body.style || '';
     const plot = req.query.plot || req.body.plot || '';
     const pov = req.query.pov || req.body.pov || '';
+    const image = req.body.image || '';
+
     let povDescription = '';
 
     let story = 'Write a story suitable as an audiobook. Start with Chapter 1. Use present tense. Keep in mind good character building and not rushing the main plot. Each chapter can be a maximum of 1250 characters. Don\'t write out "Chapter N"';
@@ -135,32 +142,37 @@ functions.http('generate', async (req, res) => {
       pov,
     );
 
-    let lastChapter = false;
-    for (let chapter = 1; chapter <= chapters; chapter += 1) {
-      if (chapter !== 1) {
-        messages.push({
-          role: 'user',
-          content: `Now write chapter ${chapter} of the story`,
-        });
-      }
-      if (chapter === chapters) {
-        lastChapter = true;
-      }
-      // eslint-disable-next-line no-await-in-loop
-      const completion = await createChatResponse(messages, uid);
+    const messagesWithoutImage = [...messages];
+    if (image) {
       messages.push({
-        role: 'assistant',
-        content: completion.choices[0].message.content,
+        role: 'user',
+        content: [
+          { type: 'text', text: 'Integrate the content of the image into the story' },
+          {
+            type: 'image_url',
+            image_url: {
+              url: image,
+            },
+          },
+        ],
       });
-      generateSpeechAI(
-        completion.choices[0].message.content,
-        `${uid}/${requestId}/chapter-${chapter}`,
-        metadata,
-        lastChapter,
-        messages,
-        voice,
-      );
     }
+
+    const lastChapter = true;
+    const completion = await createChatResponse(messages, uid);
+
+    messagesWithoutImage.push({
+      role: 'assistant',
+      content: completion.choices[0].message.content,
+    });
+    generateSpeechAI(
+      completion.choices[0].message.content,
+      `${uid}/${requestId}/chapter-1`,
+      metadata,
+      lastChapter,
+      messagesWithoutImage,
+      voice,
+    );
 
     res.send(requestId);
   } catch (error) {
@@ -261,11 +273,11 @@ functions.http('add-chapter', async (req, res) => {
 
   let errorAfterPointDeduction = false;
   const userRef = admin.firestore().collection('users').doc(uid);
-  const userPoints = updateUserPoints(userRef, 1);
+  const userPoints = await spendUserPoints(userRef, 1);
   errorAfterPointDeduction = true;
   // Check if user has enough points
   if (userPoints <= 0) {
-    await userRef.update({ points: userPoints + 1 });
+    // await userRef.update({ points: userPoints + 1 });
     res.status(400).send('Insufficient points');
     return;
   }

@@ -58,13 +58,14 @@ function checkPointsLimit() {
         // Display the user's points in the UI
         document.getElementById('point-indicator').textContent = points;
 
-        if (points < chapters) {
-          // Disable submit button
-          const submitButton = document.getElementById('submit-button');
-          submitButton.disabled = true;
-        } else {
-          const submitButton = document.getElementById('submit-button');
-          submitButton.disabled = false;
+        const submitButtons = document.getElementsByClassName('btn-needs-points');
+        for (let i = 0; i < submitButtons.length; i++) {
+          if (points < chapters) {
+            // Disable each submit button
+            submitButtons[i].disabled = true;
+          } else {
+            submitButtons[i].disabled = false;
+          }
         }
       } else {
         console.error('User document does not exist');

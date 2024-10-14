@@ -43,6 +43,8 @@ async function addChapter(audiobookId) {
                 window.location.href='index.html';
             } else if (data === 'Internal Server Error') {
                 alert('Adding chapter failed, please try again!');
+            } else if (data === 'Insufficient points') {
+              alert('You do not have enough points to add a new chapter.');
             }
         })
         .catch(error => {
@@ -166,7 +168,7 @@ function loadNovels() {
           audiobookContent += audioContent;
           audiobookOptions.innerHTML = `
             <div class="mb-3 d-grid gap-2" style="margin-top: 15px; margin-bottom: 15px;">
-              <input type="button" value="Add chapter" class="btn btn-success" onclick="addChapter('${audiobookId}')">
+              <input type="button" value="Add chapter" class="btn btn-success btn-needs-points" onclick="addChapter('${audiobookId}')">
               <input type="button" value="Delete novel" class="btn btn-warning" onclick="deleteAudiobook('${audiobookId}')">
             </div>
           `;
@@ -186,4 +188,5 @@ function loadNovels() {
 function loadUserData() {
     isSuccessOrderParamPresent();
     loadNovels();
+    checkPointsLimit();
 }

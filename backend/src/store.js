@@ -50,7 +50,7 @@ export default async function storeMetadata(
   });
 }
 
-export async function updateUserPoints(userRef, chapters) {
+export async function spendUserPoints(userRef, points) {
   let userSnapshot = await userRef.get();
   let userPoints;
 
@@ -66,7 +66,7 @@ export async function updateUserPoints(userRef, chapters) {
   userPoints = userSnapshot.data().points || 0;
 
   if (userPoints > 0) {
-    await userRef.update({ points: userPoints - chapters });
+    await userRef.update({ points: userPoints - points });
   } else {
     await userRef.update({ points: 0 });
     userPoints = 0;
