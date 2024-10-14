@@ -45,34 +45,36 @@ async function buyPoints(event) {
 }
 
 function checkPointsLimit() {
-    // Get the currently signed-in user
-    let user = firebase.auth().currentUser;
-    const userDocRef = firebase.firestore().collection('users').doc(user.uid);
-    userDocRef.get().then((doc) => {
+  // Get the currently signed-in user
+  let user = firebase.auth().currentUser;
+  const userDocRef = firebase.firestore().collection('users').doc(user.uid);
+  
+  // Subscribe to real-time updates on the user's document
+  userDocRef.onSnapshot((doc) => {
       if (doc.exists) {
-        let points = doc.data().points;
-        if (points === undefined) {
-          points = 2;
-        }
-        const chapters = 1;
-        // Display the user's points in the UI
-        document.getElementById('point-indicator').textContent = points;
-
-        const submitButtons = document.getElementsByClassName('btn-needs-points');
-        for (let i = 0; i < submitButtons.length; i++) {
-          if (points < chapters) {
-            // Disable each submit button
-            submitButtons[i].disabled = true;
-          } else {
-            submitButtons[i].disabled = false;
+          let points = doc.data().points;
+          if (points === undefined) {
+              points = 2;
           }
-        }
+          const chapters = 1;
+          // Display the user's points in the UI
+          document.getElementById('point-indicator').textContent = points;
+
+          const submitButtons = document.getElementsByClassName('btn-needs-points');
+          for (let i = 0; i < submitButtons.length; i++) {
+              if (points < chapters) {
+                  // Disable each submit button
+                  submitButtons[i].disabled = true;
+              } else {
+                  submitButtons[i].disabled = false;
+              }
+          }
       } else {
-        console.error('User document does not exist');
-        document.getElementById('point-indicator').textContent = NEW_USER_POINTS;
+          console.error('User document does not exist');
+          document.getElementById('point-indicator').textContent = NEW_USER_POINTS;
       }
-    }).catch((error) => {
+  }, (error) => {
       console.error(`Error getting user document: ${error}`);
       document.getElementById('point-indicator').textContent = NEW_USER_POINTS;
-    });
+  });
 }
