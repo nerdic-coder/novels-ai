@@ -135,7 +135,8 @@ export interface Subscription {
     | 'incomplete_expired'
     | 'past_due'
     | 'trialing'
-    | 'unpaid';
+    | 'unpaid'
+    | 'paused';
   /**
    * If true the subscription has been canceled by the user and will be deleted at the end of the billing period.
    */

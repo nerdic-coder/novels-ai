@@ -16,7 +16,8 @@
 
 import * as admin from 'firebase-admin';
 import { getEventarc } from 'firebase-admin/eventarc';
-import * as functions from 'firebase-functions';
+import * as functions from 'firebase-functions/v1';
+// import { beforeUserCreated } from 'firebase-functions/v2/identity';
 import Stripe from 'stripe';
 import {
   Product,
@@ -28,9 +29,7 @@ import {
 import * as logs from './logs';
 import config from './config';
 
-const apiVersion = '2020-08-27';
 const stripe = new Stripe(config.stripeSecretKey, {
-  apiVersion,
   // Register extension as a Stripe plugin
   // https://stripe.com/docs/building-plugins#setappinfo
   appInfo: {
@@ -178,7 +177,6 @@ exports.createCheckoutSession = functions
         const sessionCreateParams: Stripe.Checkout.SessionCreateParams = {
           billing_address_collection,
           shipping_address_collection: { allowed_countries: shippingCountries },
-          shipping_rates,
           customer,
           customer_update,
           line_items: line_items
@@ -203,7 +201,6 @@ exports.createCheckoutSession = functions
         }
         if (mode === 'subscription') {
           sessionCreateParams.subscription_data = {
-            trial_from_plan,
             metadata,
           };
           if (!automatic_tax) {
@@ -293,7 +290,7 @@ exports.createCheckoutSession = functions
         }
         const ephemeralKey = await stripe.ephemeralKeys.create(
           { customer },
-          { apiVersion }
+          {  }
         );
         await snap.ref.set(
           {
@@ -695,7 +692,7 @@ const insertPaymentRecord = async (
 /**
  * A webhook handler function for the relevant Stripe events.
  */
-export const handleWebhookEvents = functions.handler.https.onRequest(
+export const handleWebhookEvents = functions.https.onRequest(
   async (req: functions.https.Request, resp) => {
     const relevantEvents = new Set([
       'product.created',
