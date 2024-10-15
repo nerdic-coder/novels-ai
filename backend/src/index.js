@@ -35,10 +35,6 @@ functions.http('generate', async (req, res) => {
     chapters = parseInt(req.query.chapters, 10) || parseInt(req.body.chapters, 10) || 1;
 
     userRef = admin.firestore().collection('users').doc(uid);
-    const userSnapshot = await userRef.get();
-    if (decodedToken.email && !Object.prototype.hasOwnProperty.call(userSnapshot.data(), 'email')) {
-      await userRef.update({ email: decodedToken.email });
-    }
     userPoints = await spendUserPoints(userRef, chapters);
     errorAfterPointDeduction = true;
     // Check if devMode is enabled
