@@ -187,7 +187,7 @@ functions.http('generate', async (req, res) => {
 
 functions.http('delete', async (req, res) => {
   res.set('Access-Control-Allow-Origin', '*');
-  res.set('Access-Control-Allow-Headers', 'Authorization');
+  res.set('Access-Control-Allow-Headers', 'Authorization, Content-Type');
   if (req.method === 'OPTIONS') {
     res.status(204).send('');
     return;
