@@ -188,6 +188,7 @@ functions.http('generate', async (req, res) => {
 functions.http('delete', async (req, res) => {
   res.set('Access-Control-Allow-Origin', '*');
   res.set('Access-Control-Allow-Headers', 'Authorization, Content-Type');
+  res.set('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
   if (req.method === 'OPTIONS') {
     res.status(204).send('');
     return;
@@ -246,7 +247,8 @@ functions.http('delete', async (req, res) => {
 functions.http('add-chapter', async (req, res) => {
   console.log('called!', req.method);
   res.set('Access-Control-Allow-Origin', '*');
-  res.set('Access-Control-Allow-Headers', 'Authorization');
+  res.set('Access-Control-Allow-Headers', 'Authorization, Content-Type');
+  res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   if (req.method === 'OPTIONS') {
     res.status(204).send('');
     return;
