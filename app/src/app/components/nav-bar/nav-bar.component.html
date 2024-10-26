@@ -1,0 +1,45 @@
+<nav class="navbar navbar-expand-lg bg-body-dark sticky-top" data-bs-theme="dark">
+  <div *ngIf="!(user$ | async)" class="container-fluid">
+    <button type="button" class="btn btn-secondary me-3" [routerLink]="['/register']">Sign Up</button>
+    <div class="d-flex">
+      <button type="button" class="btn btn-primary me-3" id="navbar-signin-btn" data-bs-toggle="modal" data-bs-target="#signinModal">
+        Email Login
+      </button>
+      <button class="btn btn-primary" [disabled]="isGoogleLoginDisabled" (click)="googleLogin()">{{ googleSignInButtonText }}</button>
+    </div>
+  </div>
+  <div *ngIf="user$ | async" class="container-fluid">
+    <button type="button" class="btn btn-secondary me-3" (click)="logout()">Logout</button>
+    <div class="d-flex">
+      <button type="button" class="btn btn-primary" [routerLink]="['/create']">
+        New Novel
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- Login Modal -->
+<div #signinModal class="modal fade bg-body-dark" id="signinModal" tabindex="-1" aria-labelledby="signinModalLabel" aria-hidden="true" data-bs-theme="dark">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="signinModalLabel">E-mail Login</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form (ngSubmit)="emailLogin()">
+          <div class="input-group mb-3">
+            <input id="input-email" name="email" [(ngModel)]="email" aria-describedby="emailHelp" class="form-control" type="email" placeholder="E-mail" aria-label="E-mail">
+          </div>
+          <div class="input-group mb-3">
+            <input id="input-password" name="password" [(ngModel)]="password" class="form-control" type="password" placeholder="Password" aria-label="Password">
+          </div>
+          <button type="submit" class="btn btn-primary w-100" data-bs-dismiss="modal">Login</button>
+        </form>
+        <div style="margin-top: 15px;">
+          <button type="button" class="btn btn-secondary w-100" [routerLink]="['/register']" data-bs-dismiss="modal">Not yet a member? Register here!</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

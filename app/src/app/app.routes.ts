@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { AuthGuard } from './services/auth.guard';
 
 export const routes: Routes = [
   {
@@ -6,16 +7,43 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/home/home.component').then(c => c.HomeComponent)
   },
   {
-    path: 'deferrable-views',
-    loadComponent: () => import('./pages/deferrable-views/deferrable-views.component').then(c => c.DeferrableViewsComponent),
+    path: 'create',
+    canActivate: [AuthGuard],
+    loadComponent: () => import('./pages/create/create.component').then(c => c.CreateComponent)
   },
   {
-    path: 'ssg',
-    loadComponent: () => import('./pages/ssg/ssg.component').then(c => c.SsgComponent)
+    path: 'list',
+    canActivate: [AuthGuard],
+    loadComponent: () => import('./pages/list/list.component').then(c => c.ListComponent)
   },
   {
-    path: 'ssr',
-    loadComponent: () => import('./pages/ssr/ssr.component').then(c => c.SsrComponent)
+    path: 'register',
+    loadComponent: () => import('./pages/register/register.component').then(c => c.RegisterComponent)
+  },
+  {
+    path: 'demo',
+    loadComponent: () => import('./pages/demo/demo.component').then(c => c.DemoComponent)
+  },
+  {
+    path: 'news',
+    loadComponent: () => import('./pages/news/news.component').then(c => c.NewsComponent)
+  },
+  {
+    path: 'contact-us',
+    loadComponent: () => import('./pages/contact-us/contact-us.component').then(c => c.ContactUsComponent)
+  },
+  {
+    path: 'privacy-policy',
+    loadComponent: () => import('./pages/privacy-policy/privacy-policy.component').then(c => c.PrivacyPolicyComponent)
+  },
+  {
+    path: 'terms-of-service',
+    loadComponent: () => import('./pages/terms-of-service/terms-of-service.component').then(c => c.TermsOfServiceComponent)
+  },
+  {
+    path: 'payment-history',
+    canActivate: [AuthGuard],
+    loadComponent: () => import('./pages/payment-history/payment-history.component').then(c => c.PaymentHistoryComponent)
   },
   {
     path: '**',

@@ -1,0 +1,40 @@
+<footer class="bg-dark text-center text-lg-start">
+  <div class="container p-4">
+    <div class="row">
+      <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
+        <h5 class="text-light">Sitemap</h5>
+
+        <ul class="list-unstyled mb-0">
+          <li>
+            <a [routerLink]="['/list']" class="text-light">Startpage</a>
+          </li>
+          <li>
+            <a [routerLink]="['/news']" class="text-light">What's New?</a>
+          </li>
+          <li *ngIf="(user$ | async)">
+            <a [routerLink]="['/payment-history']" class="text-light">Payment History</a>
+          </li>
+          <li>
+            <a [routerLink]="['/demo']" class="text-light">Demo</a>
+          </li>
+          <li *ngIf="!(user$ | async)">
+            <a [routerLink]="['/register']" class="text-light">Register</a>
+          </li>
+          <li>
+            <a [routerLink]="['/terms-of-service']" class="text-light">Terms of Service</a>
+          </li>
+          <li>
+            <a [routerLink]="['/privacy-policy']" class="text-light">Privacy Policy</a>
+          </li>
+          <li>
+            <a [routerLink]="['/contact-us']" class="text-light">Contact Us</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2);">
+    &copy; 2024 Novels AI
+  </div>
+</footer>

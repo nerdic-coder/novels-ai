@@ -1,0 +1,29 @@
+<div class="container">
+  <a [routerLink]="['/']"><img src="/assets/img/small-header.png" alt="Novels AI" style="width: 98%; display: block; margin: 0 auto;" /></a>
+  <div id="register-page">
+    <div class="card text-bg-dark mb-3">
+      <div class="card-header">Registration</div>
+      <form class="card-body" id="register-form" (ngSubmit)="register()">
+        <div class="mb-3">
+          <label for="input-email" class="form-label">Email address</label>
+          <input type="email" name="email" [(ngModel)]="email" class="form-control" id="input-email" aria-describedby="emailHelp">
+        </div>
+        <div class="mb-3">
+          <label for="input-password" class="form-label">Password</label>
+          <input type="password" name="password" [(ngModel)]="password" class="form-control" id="input-password">
+        </div>
+        <div class="mb-3">
+          <label for="input-confirm-password" class="form-label">Confirm Password</label>
+          <input type="password" name="confirmPassword" [(ngModel)]="confirmPassword" class="form-control" id="input-confirm-password">
+        </div>
+        <div class="d-grid gap-2" style="margin-bottom: 15px;">
+          <button type="submit" class="btn btn-primary" id="register-button">Register</button>
+        </div>
+        <div class="mb-3 d-grid gap-2">
+          <input type="button" value="Cancel" class="btn btn-secondary" [routerLink]="['/']">
+        </div>
+      </form>
+    </div>
+    <img src="/assets/img/register.png" alt="Walking into Sci-fi world" style="max-width: 100%; min-width: 100%; margin-bottom: 15px;" />
+  </div>
+</div>

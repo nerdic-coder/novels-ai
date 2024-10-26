@@ -1,0 +1,104 @@
+<div class="container">
+  <h2>Create novel</h2>
+  <div class="alert alert-info" role="alert">
+    You have <strong>{{points}}</strong> credits left to spend!<hr>
+    Each generated chapter costs 1 point.
+  </div>
+  <div class="d-grid gap-2" style="margin-bottom: 15px;">
+    <input 
+      type="button"
+      class="btn btn-success"
+      value="Buy 10 credit for 5 euro"
+      (click)="buyPoints()"
+      [disabled]="paymentInProgress">
+  </div>
+  <form method="get"(ngSubmit)="generateAudiobook()">
+    <div class="mb-3">
+      <label for="language" class="form-label">Language:</label>
+      <input type="text" class="form-control" id="language" value="English" required disabled>
+      <div class="form-text text-light">
+        Only english is supported currently.
+      </div>
+    </div>
+    <div class="mb-3">
+      <label for="voice" class="form-label">Voice:</label>
+      <select class="form-select" aria-label="Voice" id="selectedVoice" name="selectedVoice" [(ngModel)]="selectedVoice">
+        @for (voice of voicesArray; track voice) {
+          <option [value]="voice[0]" [selected]="voice[0] === selectedVoice">
+            {{ voice[1] }}
+          </option>
+        }
+      </select>
+      <div class="form-text text-light">
+        Pick the storytellers voice
+      </div>
+    </div>
+    <div class="mb-3">
+      <label for="genre" class="form-label">Genre:</label>
+      <input type="text" class="form-control" id="genre" name="genre" [(ngModel)]="genre">
+      <div class="form-text text-light">
+        Enter the genre of your novel (e.g. Fiction, Sci-fi, Mystery, Romance, Action, Horror).
+      </div>
+    </div>
+    <div class="mb-3">
+      <label for="style" class="form-label">Author's Style (for inspiration):</label>
+      <input type="text" class="form-control" id="style" name="style" [(ngModel)]="style">
+      <div class="form-text text-light">
+        Enter the name of an author whose style will inspire the writing. 
+        E.g., J.K. Rowling, David Lynch. The story will be original but influenced by their style.
+      </div>
+    </div>
+    <div class="mb-3">
+      <label for="title" class="form-label">Title:</label>
+      <input type="text" class="form-control" id="title" name="title" [(ngModel)]="title">
+      <div class="form-text text-light">
+        Enter the title of your novel. E.g. Bigfoot visiting New York.
+      </div>
+    </div>
+    <div class="mb-3">
+      <label for="plot" class="form-label">Main plotline:</label>
+      <input type="text" class="form-control" id="plot" name="plot" [(ngModel)]="plot">
+      <div class="form-text text-light">
+        Provide a brief plotline to guide the story in a specific direction.
+      </div>
+    </div>
+    <div class="mb-3">
+      <label for="starring" class="form-label">Starring:</label>
+      <input type="text" class="form-control" id="starring" name="starring" [(ngModel)]="starring">
+      <div class="form-text text-light">
+        Enter the names of the primary performers of the audiobook, add as many details as you wish for each character. E.g. "Johan Axelsson the main hero of the story"
+      </div>
+    </div>
+    <div class="mb-3">
+      <label for="pov" class="form-label">Point of view:</label>
+      <select class="form-select" aria-label="POV" id="pov" name="pov" [(ngModel)]="pov">
+        <option selected value="">-</option>
+        @for (povOption of narrationTypesArray; track povOption) {
+          <option [value]="povOption[0]" [selected]="povOption[0] === pov">
+            {{ povOption[1] }}
+          </option>
+        }
+      </select>
+      <div class="form-text text-light">
+        Pick the narrators point of view. <a href="pov.html" class="text-light">Read descriptions of each narration here!</a>
+      </div>
+      <div class="mb-3">
+        <label for="image" class="form-label">Upload Image:</label>
+        <input class="form-control" type="file" id="image" accept="image/*" name="imageInput" (change)="onFileSelected($event)">
+        <div class="form-text text-light">
+            Upload an image that will be integrated in the novel in some shape or form. Max image size 20MB.
+        </div>
+    </div>
+    </div>
+    <div class="mb-3 d-grid gap-2">
+      <input 
+        type="submit" 
+        [value]="creationInProgress ? 'Loading...' : 'Create novel'"  
+        class="btn btn-primary btn-needs-points" 
+        id="submit-button" 
+        [disabled]="creationInProgress || points < 1">
+      <input type="button" value="Cancel" class="btn btn-secondary" [routerLink]="['/list']">
+    </div>
+    <img src="/assets/img/ai-reader.png" alt="AI audiobook reader" style="max-width: 100%; min-width: 100%; margin-bottom: 15px;" />
+  </form>
+</div>

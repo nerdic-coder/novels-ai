@@ -2,14 +2,18 @@ import { Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
 import { filter, map, startWith } from 'rxjs';
-import { AngularIconComponent } from './components/icons/angular-icon.component';
-import { FirebaseIconComponent } from './components/icons/firebase-icon.component';
-import { ArrowBackIconComponent } from './components/icons/arrow-back-icon.component';
+import { NavBarComponent } from './components/nav-bar/nav-bar.component';
+import { FooterComponent } from './components/footer/footer.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, AngularIconComponent, FirebaseIconComponent, ArrowBackIconComponent, RouterLink],
+  imports: [
+    RouterOutlet,
+    RouterLink,
+    NavBarComponent,
+    FooterComponent,
+  ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })

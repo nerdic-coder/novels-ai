@@ -1,0 +1,81 @@
+<div class="container">
+  <img src="/assets/img/small-header.png" alt="Novels AI" style="max-width: 100%;" />
+  <h2>Novels</h2>
+  <div class="mb-3 d-grid gap-2">
+    <input type="submit" value="Create new novel" class="btn btn-primary" [routerLink]="['/create']">
+  </div>
+  <div class="alert alert-info" role="alert">
+    You have <strong>{{points}}</strong> credits left to spend!<hr>
+    Each generated chapter costs 1 point.
+  </div>
+  <div *ngIf="(audiobooks$ | async)?.length === 0" class="alert alert-info" role="alert">No novels created yet!</div>
+
+  <table class="table table-dark table-striped table-bordered table-sm">
+    <tbody>
+      @for (audiobook of (audiobooks$ | async); track audiobook) {
+        <tr>
+          <td>
+            @if (audiobook.status === 'error') {
+              <div class="alert alert-danger" role="alert">Failed to generate!</div>
+            }
+            <strong>{{audiobook.title}}</strong>
+            {{ audiobook.id }}
+            <div *ngIf="audiobook?.genre">
+              Genre: {{ audiobook.genre }}
+            </div>
+            <div *ngIf="audiobook?.style">
+              Author: {{ audiobook.style }}
+            </div>
+            <div *ngIf="audiobook?.plot">
+              Plotline: {{ audiobook.plot }}
+            </div>
+            <div *ngIf="audiobook.pov && getNarrationType(audiobook.pov)">
+              Point of view: {{ getNarrationType(audiobook.pov) }}<br/>
+            </div>
+            <div *ngIf="audiobook.voice && getVoice(audiobook.voice)">
+              Voice: {{ getVoice(audiobook.voice) }}<br/>
+            </div>
+            <div *ngIf="audiobook?.starring">
+              Starring: {{ audiobook.starring }}
+            </div>
+            @for (chapter of (audiobook.chapters); track chapter; let idx = $index) {
+              <h4>Chapter {{idx + 1}}</h4>
+              <audio controls preload="metadata">
+                <source src="{{chapter.chapterUrl}}" type="audio/mpeg">
+                <p>Your browser does not support the audio element</p>
+              </audio>
+            }
+          </td>
+          <td>
+            @if (audiobook.status === 'progress') {
+              <div class="spinner-border text-success" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            } @else if (audiobook.status === 'error') {
+              <div class="mb-3 d-grid gap-2" style="margin-top: 15px; margin-bottom: 15px;">
+                <input type="button" value="Delete novel" class="btn btn-warning" (click)="deleteAudiobook(audiobook.id)">
+              </div>
+            } @else {
+              <div class="mb-3 d-grid gap-2" style="margin-top: 15px; margin-bottom: 15px;">
+                <input type="button" value="Add chapter" class="btn btn-success btn-needs-points" (click)="addChapter(audiobook.id)" [disabled]="points < 1">
+                <input type="button" value="Delete novel" class="btn btn-warning" (click)="deleteAudiobook(audiobook.id)">
+              </div>
+            }
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+  <div *ngIf="canLoadMore" class="d-grid gap-2" style="margin-bottom: 15px;">
+    <input type="button" value="Load more" class="btn btn-primary" (click)="loadMoreNovels()" [disabled]="!canLoadMore">
+  </div>
+  <div class="d-grid gap-2" style="margin-bottom: 15px;">
+    <input 
+      type="button"
+      class="btn btn-success"
+      value="Buy 10 credit for 5 euro"
+      (click)="buyPoints()"
+      [disabled]="paymentInProgress">
+  </div>
+
+</div>
