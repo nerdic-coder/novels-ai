@@ -6,11 +6,12 @@ import {
   User,
 } from '@angular/fire/auth';
 import { AuthService } from '../../services/auth.service';
+import { UpdateContentIfNotGeneratedByServerDirective } from '../../directives/update-content-if-not-generated-by-server.directive';
 
 @Component({
   selector: 'app-footer',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, UpdateContentIfNotGeneratedByServerDirective],
   templateUrl: './footer.component.html',
   styleUrl: './footer.component.scss'
 })

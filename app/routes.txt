@@ -1,3 +1,6 @@
 /
-/ssg
-/deferrable-views
+/contact-us
+/demo
+/news
+/privacy-policy
+/terms-of-service

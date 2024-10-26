@@ -8,11 +8,12 @@ import {
 import { Observable } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { RouterModule } from '@angular/router';
+import { UpdateContentIfNotGeneratedByServerDirective } from '../../directives/update-content-if-not-generated-by-server.directive';
 
 @Component({
   selector: 'app-nav-bar',
   standalone: true,
-  imports: [FormsModule, AuthModule, CommonModule, RouterModule],
+  imports: [FormsModule, AuthModule, CommonModule, RouterModule, UpdateContentIfNotGeneratedByServerDirective],
   templateUrl: './nav-bar.component.html',
   styleUrl: './nav-bar.component.scss'
 })
