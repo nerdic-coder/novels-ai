@@ -1,13 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { 
+  Auth,
   AuthModule,
-  User,
+  signOut,
 } from '@angular/fire/auth';
-import { Observable } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { UpdateContentIfNotGeneratedByServerDirective } from '../../directives/update-content-if-not-generated-by-server.directive';
 
 @Component({
@@ -18,20 +18,27 @@ import { UpdateContentIfNotGeneratedByServerDirective } from '../../directives/u
   styleUrl: './nav-bar.component.scss'
 })
 export class NavBarComponent {
-
-  user$: Observable<User | null>;
+  private auth = inject(Auth);
 
   email: string = '';
   password: string = '';
   isGoogleLoginDisabled: boolean = false;
   googleSignInButtonText: string = 'Google Login';
 
-  constructor(private authService: AuthService) {
-    this.user$ = this.authService.user$;
+  constructor(private authService: AuthService, private router: Router) {
   }
 
-  emailLogin() {
-    this.authService.loginWithEmail(this.email, this.password);
+  isAuthenticated(): boolean {
+    return this.authService.isAuthenticated();
+  }
+
+  async emailLogin() {
+    const success = await this.authService.loginWithEmail(this.email, this.password);
+    if (success) {
+      this.router.navigate(['/list']);
+    } else {
+      alert('Failed to login!');
+    }
   }
 
   async googleLogin() {
@@ -50,8 +57,9 @@ export class NavBarComponent {
     }
   }
 
-  logout() {
-    this.authService.logout();
+  async logout() {
+    await signOut(this.auth);
+    this.router.navigate(['/']);
   }
 
 }

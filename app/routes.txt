@@ -4,3 +4,4 @@
 /news
 /privacy-policy
 /terms-of-service
+/register

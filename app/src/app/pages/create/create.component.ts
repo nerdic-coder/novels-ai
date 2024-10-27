@@ -1,7 +1,8 @@
 import { Component, inject } from '@angular/core';
 import { AudiobookRequest, narrationTypes, voices } from '../../models/audiobook';
 import { 
-  Auth
+  Auth,
+  signOut
 } from '@angular/fire/auth';
 import { 
   Firestore, 
@@ -86,7 +87,8 @@ export class CreateComponent {
 
     if (data === 'Unauthorized') {
       alert('Your session has expired!');
-      this.authService.logout();
+      await signOut(this.auth);
+      this.router.navigate(['/']);
     } else {
       this.router.navigate(['/list']);
     }

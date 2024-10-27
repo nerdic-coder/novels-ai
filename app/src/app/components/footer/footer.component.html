@@ -11,13 +11,13 @@
           <li>
             <a [routerLink]="['/news']" class="text-light">What's New?</a>
           </li>
-          <li *ngIf="(user$ | async)">
+          <li *ngIf="isAuthenticated()">
             <a [routerLink]="['/payment-history']" class="text-light">Payment History</a>
           </li>
           <li>
             <a [routerLink]="['/demo']" class="text-light">Demo</a>
           </li>
-          <li *ngIf="!(user$ | async)">
+          <li *ngIf="!isAuthenticated()">
             <a [routerLink]="['/register']" class="text-light">Register</a>
           </li>
           <li>

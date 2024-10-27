@@ -28,7 +28,6 @@ export class PaymentHistoryComponent {
 
   constructor() {
     // Get the currently signed-in user
-    let user = this.auth.currentUser;
     const usersCollection = collection(this.firestore, 'users');
     const currentUserDoc = doc(usersCollection, this.auth.currentUser?.uid);
     const orderByCreated = orderBy('created', 'desc');

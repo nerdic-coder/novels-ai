@@ -1,5 +1,5 @@
 <nav class="navbar navbar-expand-lg bg-body-dark sticky-top" data-bs-theme="dark">
-  <div *ngIf="!(user$ | async)" class="container-fluid">
+  <div *ngIf="!isAuthenticated()" class="container-fluid">
     <button type="button" class="btn btn-secondary me-3" [routerLink]="['/register']">Sign Up</button>
     <div class="d-flex">
       <button type="button" class="btn btn-primary me-3" id="navbar-signin-btn" data-bs-toggle="modal" data-bs-target="#signinModal">
@@ -8,7 +8,7 @@
       <button class="btn btn-primary" [disabled]="isGoogleLoginDisabled" (click)="googleLogin()">{{ googleSignInButtonText }}</button>
     </div>
   </div>
-  <div *ngIf="user$ | async" class="container-fluid">
+  <div *ngIf="isAuthenticated()" class="container-fluid">
     <button type="button" class="btn btn-secondary me-3" (click)="logout()">Logout</button>
     <div class="d-flex">
       <button type="button" class="btn btn-primary" [routerLink]="['/create']">

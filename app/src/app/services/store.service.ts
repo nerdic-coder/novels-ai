@@ -42,8 +42,6 @@ export class StoreService {
 
     // Listen for changes to the document
     onSnapshot(paymentRef, (doc: any) => {
-      console.log(doc.exists);
-      console.log(doc.data());
       // Check if the URL field exists and is not null
       if (doc.exists && doc.data().url) {
         const url = doc.data().url;

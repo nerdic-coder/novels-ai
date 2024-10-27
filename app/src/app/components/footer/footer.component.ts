@@ -1,12 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { Observable } from 'rxjs';
-import {
-  User,
-} from '@angular/fire/auth';
-import { AuthService } from '../../services/auth.service';
+import { Auth } from '@angular/fire/auth';
 import { UpdateContentIfNotGeneratedByServerDirective } from '../../directives/update-content-if-not-generated-by-server.directive';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-footer',
@@ -16,10 +13,12 @@ import { UpdateContentIfNotGeneratedByServerDirective } from '../../directives/u
   styleUrl: './footer.component.scss'
 })
 export class FooterComponent {
-
-  user$: Observable<User | null>;
+  private auth = inject(Auth);
 
   constructor(private authService: AuthService) {
-    this.user$ = this.authService.user$;
+  }
+
+  isAuthenticated(): boolean {
+    return this.authService.isAuthenticated();
   }
 }

@@ -1,9 +1,10 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { BehaviorSubject, firstValueFrom } from 'rxjs';
 import { 
-  Auth
+  Auth,
+  signOut
 } from '@angular/fire/auth';
 import { 
   Firestore, 
@@ -41,7 +42,7 @@ export class ListComponent {
   paymentInProgress = false;
   points = 0;
 
-  constructor(private storeService: StoreService, private authService: AuthService) {
+  constructor(private storeService: StoreService, private router: Router) {
     // Get the audiobooks collection for the current user
     const usersCollection = collection(this.firestore, 'users');
     const currentUserDoc = doc(usersCollection, this.auth.currentUser?.uid);
@@ -53,7 +54,6 @@ export class ListComponent {
       snapshot.docChanges().forEach(change => {
         const changedAudiobook = change.doc.data() as Audiobook;
         changedAudiobook.id = change.doc.id; // Assign the document ID
-        console.log('change.type', change.type);
         if (change.type === 'modified') {
           // Update existing audiobook
           const index = this.audiobooks.findIndex(audiobook => audiobook.id === changedAudiobook.id);
@@ -102,8 +102,6 @@ export class ListComponent {
 
       // Await the data using a Promise
       const newAudiobooks = await firstValueFrom(collectionData<Audiobook>(queryAudiobook, { idField: 'id' }));
-
-      console.log('New audiobooks loaded', newAudiobooks);
       
       if (newAudiobooks.length > 0) {
         // Update the last visible document
@@ -151,10 +149,11 @@ export class ListComponent {
         body: requestBody.toString(),
       })
       .then(response => response.text())
-      .then(data => {
+      .then(async data => {
           if (data === 'Unauthorized') {
               alert('Your session have expired!');
-              this.authService.logout();
+              await signOut(this.auth);
+              this.router.navigate(['/']);
           } else if (data === 'Internal Server Error') {
               alert('Deleting Audiobook failed, please try again!');
           }
@@ -181,10 +180,11 @@ export class ListComponent {
             body: requestBody.toString(),
         })
         .then(response => response.text())
-        .then(data => {
+        .then(async data => {
             if (data === 'Unauthorized') {
                 alert('Your session have expired!');
-                this.authService.logout();
+                await signOut(this.auth);
+                this.router.navigate(['/']);
             } else if (data === 'Internal Server Error') {
                 alert('Adding chapter failed, please try again!');
             } else if (data === 'Insufficient points') {
