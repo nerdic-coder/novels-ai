@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { BehaviorSubject, firstValueFrom } from 'rxjs';
@@ -19,9 +19,9 @@ import {
   startAfter,
 } from '@angular/fire/firestore';
 import { environment } from '../../../environments/environment';
-import { Audiobook, narrationTypes, voices } from '../../models/audiobook';
+import { Audiobook, Chapter, narrationTypes, voices } from '../../models/audiobook';
 import { StoreService } from '../../services/store.service';
-import { AuthService } from '../../services/auth.service';
+import { AudioPlayerState, AudioService } from '../../services/audio.service';
 
 @Component({
   selector: 'app-list',
@@ -30,7 +30,7 @@ import { AuthService } from '../../services/auth.service';
   templateUrl: './list.component.html',
   styleUrl: './list.component.scss'
 })
-export class ListComponent {
+export class ListComponent implements OnInit {
   private auth = inject(Auth);
   private storiesShown = environment.STORIES_PER_PAGE;
   private audiobooksRef;
@@ -41,8 +41,9 @@ export class ListComponent {
   canLoadMore = true;
   paymentInProgress = false;
   points = 0;
+  playerState: AudioPlayerState | undefined;
 
-  constructor(private storeService: StoreService, private router: Router) {
+  constructor(private storeService: StoreService, private router: Router, private audioService: AudioService) {
     // Get the audiobooks collection for the current user
     const usersCollection = collection(this.firestore, 'users');
     const currentUserDoc = doc(usersCollection, this.auth.currentUser?.uid);
@@ -85,6 +86,12 @@ export class ListComponent {
     });
   }
 
+  ngOnInit() {
+    this.audioService.state$.subscribe(state => {
+      this.playerState = state;
+    });
+  }
+
   async loadNovels() {
     try {
       // Listen for changes to the audiobooks collection
@@ -119,6 +126,24 @@ export class ListComponent {
     } catch (error) {
       console.error('Error loading novels:', error);
     }
+  }
+
+  playChapter(novel: Audiobook, chapter: Chapter) {
+    this.audioService.playChapter(novel, chapter);
+  }
+
+  onPlayPauseChapter(novel: Audiobook, chapter: Chapter) {
+    if (this.isPlayingCurrentChapter(novel, chapter)) {
+      // Toggle play/pause if it's the current chapter
+      this.audioService.updatePlayingState(false);
+    } else {
+      // Play the new chapter
+      this.audioService.playChapter(novel, chapter);
+    }
+  }
+
+  isPlayingCurrentChapter(novel: Audiobook, chapter: Chapter): boolean {
+    return this.audioService.isCurrentChapter(novel, chapter) && this.playerState!.isPlaying;
   }
 
   loadMoreNovels() {

@@ -1,5 +1,4 @@
 <div class="container">
-  <img src="/assets/img/small-header.png" alt="Novels AI" style="max-width: 100%;" />
   <h2>Novels</h2>
   <div class="mb-3 d-grid gap-2">
     <input type="submit" value="Create new novel" class="btn btn-primary" [routerLink]="['/create']">
@@ -10,20 +9,44 @@
   </div>
   <div *ngIf="(audiobooks$ | async)?.length === 0" class="alert alert-info" role="alert">No novels created yet!</div>
 
-  <table class="table table-dark table-striped table-bordered table-sm">
+  <table class="table table-dark table-striped table-bordered table-sm table-hover table-responsive">
     <tbody>
       @for (audiobook of (audiobooks$ | async); track audiobook) {
         <tr>
-          <td>
-            @if (audiobook.status === 'error') {
-              <div class="alert alert-danger" role="alert">Failed to generate!</div>
-            }
-            <strong>{{audiobook.title}}</strong>
-            {{ audiobook.id }}
-            <div *ngIf="audiobook?.genre">
-              Genre: {{ audiobook.genre }}
+          <td class="list-group-item d-flex justify-content-between align-items-start">
+            <div class="ms-2 me-auto">
+              <div class="fw-bold">
+                {{audiobook.title}} 
+                @if (audiobook.status === 'error') {
+                  <span class="badge text-bg-danger">Failed</span>
+                }
+              </div>
+                @if (audiobook.status !== 'error') {
+                  @for (chapter of (audiobook.chapters); track chapter; let idx = $index) {
+                    <button 
+                      type="button" 
+                      class="btn btn-secondary btn-sm me-2"
+                      (click)="onPlayPauseChapter(audiobook, chapter)">
+                      <i class="bi bi-play-circle"style="font-size: 1rem;"
+                      [ngClass]="{
+                        'bi-play-circle': !isPlayingCurrentChapter(audiobook, chapter),
+                        'bi-pause-circle': isPlayingCurrentChapter(audiobook, chapter)
+                      }"></i> {{idx + 1}}
+                    </button>
+                  }
+                }
             </div>
-            <div *ngIf="audiobook?.style">
+            @if (audiobook.status !== 'error') {
+              <button type="button" class="btn btn-sm btn-success" (click)="addChapter(audiobook.id)" [disabled]="points < 1">Extend</button>
+            }
+            <!-- <h3>{{audiobook.title}}</h3>
+            <div *ngIf="audiobook?.genre">
+              {{ audiobook.genre }}
+            </div> -->
+            @if (audiobook.status === 'error') {
+              <button type="button" class="btn btn-sm btn-danger" (click)="deleteAudiobook(audiobook.id)">Delete</button>
+            }
+            <!-- <div *ngIf="audiobook?.style">
               Author: {{ audiobook.style }}
             </div>
             <div *ngIf="audiobook?.plot">
@@ -38,29 +61,7 @@
             <div *ngIf="audiobook?.starring">
               Starring: {{ audiobook.starring }}
             </div>
-            @for (chapter of (audiobook.chapters); track chapter; let idx = $index) {
-              <h4>Chapter {{idx + 1}}</h4>
-              <audio controls preload="metadata">
-                <source src="{{chapter.chapterUrl}}" type="audio/mpeg">
-                <p>Your browser does not support the audio element</p>
-              </audio>
-            }
-          </td>
-          <td>
-            @if (audiobook.status === 'progress') {
-              <div class="spinner-border text-success" role="status">
-                <span class="visually-hidden">Loading...</span>
-              </div>
-            } @else if (audiobook.status === 'error') {
-              <div class="mb-3 d-grid gap-2" style="margin-top: 15px; margin-bottom: 15px;">
-                <input type="button" value="Delete novel" class="btn btn-warning" (click)="deleteAudiobook(audiobook.id)">
-              </div>
-            } @else {
-              <div class="mb-3 d-grid gap-2" style="margin-top: 15px; margin-bottom: 15px;">
-                <input type="button" value="Add chapter" class="btn btn-success btn-needs-points" (click)="addChapter(audiobook.id)" [disabled]="points < 1">
-                <input type="button" value="Delete novel" class="btn btn-warning" (click)="deleteAudiobook(audiobook.id)">
-              </div>
-            }
+             -->
           </td>
         </tr>
       }

@@ -23,7 +23,8 @@ export interface AudiobookRequest {
   image?: string | ArrayBuffer | null;
 }
 
-interface Chapter {
+export interface Chapter {
+  chapterId: number;
   chapterUrl: string;  // URL to the audio file for each chapter
 }
 

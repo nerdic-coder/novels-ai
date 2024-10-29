@@ -4,6 +4,7 @@ import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router
 import { filter, map, startWith } from 'rxjs';
 import { NavBarComponent } from './components/nav-bar/nav-bar.component';
 import { FooterComponent } from './components/footer/footer.component';
+import { AudioPlayerComponent } from './components/audio-player/audio-player.component';
 
 @Component({
   selector: 'app-root',
@@ -13,6 +14,7 @@ import { FooterComponent } from './components/footer/footer.component';
     RouterLink,
     NavBarComponent,
     FooterComponent,
+    AudioPlayerComponent,
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'

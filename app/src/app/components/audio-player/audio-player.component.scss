@@ -1,0 +1,29 @@
+.audio-player {
+  background-color: #343a40;
+  border-radius: 8px;
+  max-width: 1300px;
+  margin: auto;
+}
+
+.progress {
+  position: relative;
+  height: 10px;
+  cursor: pointer;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: #0d6efd;
+  cursor: pointer;
+}
+
+.novel-title {
+  white-space: nowrap;      /* Prevents the text from wrapping to a new line */
+  overflow: hidden;         /* Ensures that any overflowing text is hidden */
+}
+
+@media (max-width: 550px) {
+  .novel-title {
+    max-width: 100px;         /* Optional: set a max-width to control where truncation occurs */
+  }
+}
