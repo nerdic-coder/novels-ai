@@ -80,50 +80,66 @@
     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
   <div class="offcanvas-body">
-    <div class="audiobook-details-grid">
-      <div *ngIf="selectedAudiobook?.style"><strong>Author Style:</strong></div>
-      <div *ngIf="selectedAudiobook?.style">{{ selectedAudiobook?.style }}</div>
-      <div *ngIf="selectedAudiobook?.genre"><strong>Genre:</strong></div>
-      <div *ngIf="selectedAudiobook?.genre">{{ selectedAudiobook?.genre }}</div>
-      <div *ngIf="selectedAudiobook?.plot"><strong>Plot:</strong></div>
-      <div *ngIf="selectedAudiobook?.plot">{{ selectedAudiobook?.plot }}</div>
-      <div *ngIf="selectedAudiobook?.pov"><strong>Point of View:</strong></div>
-      <div *ngIf="selectedAudiobook?.pov">{{ getNarrationType(selectedAudiobook?.pov) }}</div>
-      <div *ngIf="selectedAudiobook?.voice"><strong>Voice:</strong></div>
-      <div *ngIf="selectedAudiobook?.voice">{{ getVoice(selectedAudiobook?.voice) }}</div>
-      <div *ngIf="selectedAudiobook?.starring"><strong>Starring:</strong></div>
-      <div *ngIf="selectedAudiobook?.starring">{{ selectedAudiobook?.starring }}</div>
-      <div *ngIf="selectedAudiobook?.chapters">
-        <div><strong>Chapters:</strong></div>
-        <div>
-          <ng-container *ngFor="let chapter of selectedAudiobook!.chapters; let idx = index">
-            <button 
-              type="button" 
-              class="btn btn-secondary btn-sm me-2"
-              (click)="onPlayPauseChapter(selectedAudiobook!, chapter)">
-              <i class="bi"
-                 [ngClass]="{
-                   'bi-play-circle': !isPlayingCurrentChapter(selectedAudiobook!, chapter),
-                   'bi-pause-circle': isPlayingCurrentChapter(selectedAudiobook!, chapter)
-                 }"></i> {{idx + 1}}
-            </button>
-          </ng-container>
+    <div class="container-fluid p-0">
+      <div class="row mb-2" *ngIf="selectedAudiobook?.style">
+        <div class="col-4"><strong>Author Style:</strong></div>
+        <div class="col-8">{{ selectedAudiobook?.style }}</div>
+      </div>
+      <div class="row mb-2" *ngIf="selectedAudiobook?.genre">
+        <div class="col-4"><strong>Genre:</strong></div>
+        <div class="col-8">{{ selectedAudiobook?.genre }}</div>
+      </div>
+      <div class="row mb-2" *ngIf="selectedAudiobook?.plot">
+        <div class="col-4"><strong>Plot:</strong></div>
+        <div class="col-8">{{ selectedAudiobook?.plot }}</div>
+      </div>
+      <div class="row mb-2" *ngIf="selectedAudiobook?.pov">
+        <div class="col-4"><strong>Point of View:</strong></div>
+        <div class="col-8">{{ getNarrationType(selectedAudiobook?.pov) }}</div>
+      </div>
+      <div class="row mb-2" *ngIf="selectedAudiobook?.voice">
+        <div class="col-4"><strong>Voice:</strong></div>
+        <div class="col-8">{{ getVoice(selectedAudiobook?.voice) }}</div>
+      </div>
+      <div class="row mb-2" *ngIf="selectedAudiobook?.starring">
+        <div class="col-4"><strong>Starring:</strong></div>
+        <div class="col-8">{{ selectedAudiobook?.starring }}</div>
+      </div>
+      <div class="row mb-3" *ngIf="selectedAudiobook?.chapters">
+        <div class="col-12">
+          <strong>Chapters:</strong>
+          <div class="mt-2">
+            <ng-container *ngFor="let chapter of selectedAudiobook!.chapters; let idx = index">
+              <button 
+                type="button" 
+                class="btn btn-secondary btn-sm me-2 mb-2"
+                (click)="onPlayPauseChapter(selectedAudiobook!, chapter)">
+                <i class="bi"
+                   [ngClass]="{
+                     'bi-play-circle': !isPlayingCurrentChapter(selectedAudiobook!, chapter),
+                     'bi-pause-circle': isPlayingCurrentChapter(selectedAudiobook!, chapter)
+                   }"></i> {{idx + 1}}
+              </button>
+            </ng-container>
+          </div>
         </div>
       </div>
-      <div class="mt-3">
-        <button 
-          type="button" 
-          class="btn btn-sm btn-success me-2" 
-          (click)="addChapter(selectedAudiobook!.id)" 
-          [disabled]="points < 1">
-          Extend
-        </button>
-        <button 
-          type="button" 
-          class="btn btn-sm btn-danger" 
-          (click)="deleteAudiobook(selectedAudiobook!.id)">
-          Delete
-        </button>
+      <div class="row">
+        <div class="col-12">
+          <button 
+            type="button" 
+            class="btn btn-sm btn-success me-2" 
+            (click)="addChapter(selectedAudiobook!.id)" 
+            [disabled]="points < 1">
+            Extend
+          </button>
+          <button 
+            type="button" 
+            class="btn btn-sm btn-danger" 
+            (click)="deleteAudiobook(selectedAudiobook!.id)">
+            Delete
+          </button>
+        </div>
       </div>
     </div>
   </div>
