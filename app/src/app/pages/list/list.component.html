@@ -13,13 +13,14 @@
           <td 
             class="list-group-item d-flex justify-content-between align-items-start"
             (click)="openAudiobookDetails(audiobook)">
-            <div class="ms-2 me-auto">
+            <div class="d-flex flex-column w-100">
               <div class="fw-bold">
                 {{audiobook.title}} 
                 @if (audiobook.status === 'error') {
                   <span class="badge text-bg-danger">Failed</span>
                 }
               </div>
+              <div class="mt-2">
                 @if (audiobook.status !== 'error') {
                   @for (chapter of (audiobook.chapters); track chapter; let idx = $index) {
                     <button 
@@ -34,6 +35,7 @@
                     </button>
                   }
                 }
+              </div>
             </div>
             <div class="mt-2">
               @if (audiobook.status !== 'error') {
