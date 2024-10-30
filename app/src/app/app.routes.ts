@@ -12,7 +12,7 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/create/create.component').then(c => c.CreateComponent)
   },
   {
-    path: 'list',
+    path: 'novels',
     canActivate: [AuthGuard],
     loadComponent: () => import('./pages/list/list.component').then(c => c.ListComponent)
   },

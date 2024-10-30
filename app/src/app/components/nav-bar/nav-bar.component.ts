@@ -41,7 +41,7 @@ export class NavBarComponent {
   async emailLogin() {
     const success = await this.authService.loginWithEmail(this.email, this.password);
     if (success) {
-      this.router.navigate(['/list']);
+      this.router.navigate(['/novels']);
     } else {
       alert('Failed to login!');
     }
