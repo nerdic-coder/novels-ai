@@ -1,8 +1,5 @@
 <div class="container">
   <h2>Novels</h2>
-  <div class="mb-3 d-grid gap-2">
-    <input type="submit" value="Create new novel" class="btn btn-primary" [routerLink]="['/create']">
-  </div>
   <div class="alert alert-info" role="alert">
     You have <strong>{{points}}</strong> credits left to spend!<hr>
     Each generated chapter costs 1 point.
@@ -39,29 +36,9 @@
             @if (audiobook.status !== 'error') {
               <button type="button" class="btn btn-sm btn-success" (click)="addChapter(audiobook.id)" [disabled]="points < 1">Extend</button>
             }
-            <!-- <h3>{{audiobook.title}}</h3>
-            <div *ngIf="audiobook?.genre">
-              {{ audiobook.genre }}
-            </div> -->
             @if (audiobook.status === 'error') {
               <button type="button" class="btn btn-sm btn-danger" (click)="deleteAudiobook(audiobook.id)">Delete</button>
             }
-            <!-- <div *ngIf="audiobook?.style">
-              Author: {{ audiobook.style }}
-            </div>
-            <div *ngIf="audiobook?.plot">
-              Plotline: {{ audiobook.plot }}
-            </div>
-            <div *ngIf="audiobook.pov && getNarrationType(audiobook.pov)">
-              Point of view: {{ getNarrationType(audiobook.pov) }}<br/>
-            </div>
-            <div *ngIf="audiobook.voice && getVoice(audiobook.voice)">
-              Voice: {{ getVoice(audiobook.voice) }}<br/>
-            </div>
-            <div *ngIf="audiobook?.starring">
-              Starring: {{ audiobook.starring }}
-            </div>
-             -->
           </td>
         </tr>
       }
@@ -69,6 +46,9 @@
   </table>
   <div *ngIf="canLoadMore" class="d-grid gap-2" style="margin-bottom: 15px;">
     <input type="button" value="Load more" class="btn btn-primary" (click)="loadMoreNovels()" [disabled]="!canLoadMore">
+  </div>
+  <div class="mb-3 d-grid gap-2">
+    <input type="submit" value="Create new novel" class="btn btn-primary" [routerLink]="['/create']">
   </div>
   <div class="d-grid gap-2" style="margin-bottom: 15px;">
     <input 

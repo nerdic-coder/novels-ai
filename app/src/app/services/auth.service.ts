@@ -9,6 +9,7 @@ import { map, Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class AuthService {
+
   private auth = inject(Auth);
 
   // Optionally define a method to manually check authentication state
@@ -50,4 +51,5 @@ export class AuthService {
       return false;
     }
   }
+
 }
