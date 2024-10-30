@@ -1,0 +1,8 @@
+.form-control-required {
+  border-left: 4px solid #dc3545;
+}
+
+.form-control-required:focus {
+  border-color: #dc3545;
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
