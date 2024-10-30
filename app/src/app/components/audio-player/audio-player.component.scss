@@ -3,6 +3,7 @@
   border-radius: 8px;
   max-width: 1300px;
   margin: auto;
+  z-index: 1051; /* Ensure it's above the Offcanvas which typically has a z-index of 1050 */
 }
 
 .progress {
