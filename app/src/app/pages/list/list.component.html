@@ -35,12 +35,14 @@
                   }
                 }
             </div>
-            @if (audiobook.status !== 'error') {
-              <button type="button" class="btn btn-sm btn-success" (click)="addChapter(audiobook.id); $event.stopPropagation()" [disabled]="points < 1">Extend</button>
-            }
-            @if (audiobook.status === 'error') {
-              <button type="button" class="btn btn-sm btn-danger" (click)="deleteAudiobook(audiobook.id)">Delete</button>
-            }
+            <div class="mt-2">
+              @if (audiobook.status !== 'error') {
+                <button type="button" class="btn btn-sm btn-success" (click)="addChapter(audiobook.id); $event.stopPropagation()" [disabled]="points < 1">Extend</button>
+              }
+              @if (audiobook.status === 'error') {
+                <button type="button" class="btn btn-sm btn-danger" (click)="deleteAudiobook(audiobook.id)">Delete</button>
+              }
+            </div>
           </td>
         </tr>
       }
