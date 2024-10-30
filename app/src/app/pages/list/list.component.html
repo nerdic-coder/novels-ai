@@ -10,7 +10,9 @@
     <tbody>
       @for (audiobook of (audiobooks$ | async); track audiobook) {
         <tr>
-          <td class="list-group-item d-flex justify-content-between align-items-start">
+          <td 
+            class="list-group-item d-flex justify-content-between align-items-start"
+            (click)="openAudiobookDetails(audiobook)">
             <div class="ms-2 me-auto">
               <div class="fw-bold">
                 {{audiobook.title}} 
@@ -59,4 +61,23 @@
       [disabled]="paymentInProgress">
   </div>
 
+</div>
+<!-- Offcanvas for Audiobook Details -->
+<div 
+  class="offcanvas offcanvas-end" 
+  tabindex="-1" 
+  id="audiobookDetailsOffcanvas" 
+  aria-labelledby="audiobookDetailsLabel"
+  data-bs-scroll="true"
+  data-bs-backdrop="false"
+  data-bs-theme="dark">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="audiobookDetailsLabel">{{ selectedAudiobook?.title }}</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+    <p><strong>Status:</strong> {{ selectedAudiobook?.status }}</p>
+    <p><strong>Author style:</strong> {{ selectedAudiobook?.style }}</p>
+    <!-- Add more details as necessary -->
+  </div>
 </div>
