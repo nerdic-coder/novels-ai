@@ -89,7 +89,7 @@ export class CreateComponent {
       await signOut(this.auth);
       this.router.navigate(['/']);
     } else {
-      this.router.navigate(['/list']);
+      this.router.navigate(['/novels']);
     }
   }
 
