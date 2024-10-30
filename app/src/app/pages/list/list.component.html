@@ -19,7 +19,7 @@
                 @if (audiobook.status === 'error') {
                   <span class="badge text-bg-danger">Failed</span>
                 }
-                else @if (audiobook.status === 'progress') {
+                @else if (audiobook.status === 'progress') {
                   <span class="badge text-bg-info">Loading</span>
                 }
               </div>
@@ -30,11 +30,11 @@
                       type="button" 
                       class="btn btn-secondary btn-sm me-2"
                       (click)="onPlayPauseChapter(audiobook, chapter); $event.stopPropagation()"
-                      [disabled]="audiobook.status === 'progress' && idx === audiobook.chapters.length - 1">
-                      <i *ngIf="audiobook.status === 'progress' && idx === audiobook.chapters.length - 1" 
+                      [disabled]="audiobook.status === 'progress' && idx === audiobook.chapters!.length - 1">
+                      <i *ngIf="audiobook.status === 'progress' && idx === audiobook.chapters!.length - 1" 
                          class="bi bi-arrow-repeat spin" 
                          style="font-size: 1rem;"></i>
-                      <i *ngIf="!(audiobook.status === 'progress' && idx === audiobook.chapters.length - 1)"
+                      <i *ngIf="!(audiobook.status === 'progress' && idx === audiobook.chapters!.length - 1)"
                          class="bi bi-play-circle" 
                          style="font-size: 1rem;"
                          [ngClass]="{
