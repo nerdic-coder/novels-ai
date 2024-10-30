@@ -76,8 +76,23 @@
     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
   <div class="offcanvas-body">
-    <p><strong>Status:</strong> {{ selectedAudiobook?.status }}</p>
-    <p><strong>Author style:</strong> {{ selectedAudiobook?.style }}</p>
-    <!-- Add more details as necessary -->
+    <div class="audiobook-details-grid">
+      <div><strong>Title:</strong></div>
+      <div>{{ selectedAudiobook?.title }}</div>
+      <div><strong>Status:</strong></div>
+      <div>{{ selectedAudiobook?.status }}</div>
+      <div><strong>Author Style:</strong></div>
+      <div>{{ selectedAudiobook?.style }}</div>
+      <div><strong>Genre:</strong></div>
+      <div>{{ selectedAudiobook?.genre }}</div>
+      <div><strong>Plot:</strong></div>
+      <div>{{ selectedAudiobook?.plot }}</div>
+      <div><strong>Point of View:</strong></div>
+      <div>{{ getNarrationType(selectedAudiobook?.pov) }}</div>
+      <div><strong>Voice:</strong></div>
+      <div>{{ getVoice(selectedAudiobook?.voice) }}</div>
+      <div><strong>Starring:</strong></div>
+      <div>{{ selectedAudiobook?.starring }}</div>
+    </div>
   </div>
 </div>
