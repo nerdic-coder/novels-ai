@@ -47,8 +47,14 @@ functions.http('generate', async (req, res) => {
       }
     }
 
+    // Validate required title
+    const title = req.query.title || req.body.title;
+    if (!title?.trim()) {
+      res.status(400).send('Title is required');
+      return;
+    }
+
     const starring = req.query.starring || req.body.starring ? `${req.query.starring || req.body.starring}` : '';
-    const title = req.query.title || req.body.title || '';
     const genre = req.query.genre || req.body.genre || '';
     const style = req.query.style || req.body.style || '';
     const plot = req.query.plot || req.body.plot || '';

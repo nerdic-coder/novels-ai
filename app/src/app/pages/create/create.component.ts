@@ -109,7 +109,11 @@ export class CreateComponent {
   }
 
   async generateAudiobook() {
-    
+    if (!this.title?.trim()) {
+      alert('Title is required');
+      return;
+    }
+
     // Disable submit button
     this.creationInProgress = true;
     
