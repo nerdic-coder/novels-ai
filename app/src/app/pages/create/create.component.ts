@@ -15,7 +15,6 @@ import { StoreService } from '../../services/store.service';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-create',
@@ -43,7 +42,7 @@ export class CreateComponent {
   starring: string = '';
   imageInput: any;
 
-  constructor(private storeService: StoreService, private router: Router, private authService: AuthService) {
+  constructor(private storeService: StoreService, private router: Router) {
     
     const usersCollection = collection(this.firestore, 'users');
     const currentUserDoc = doc(usersCollection, this.auth.currentUser?.uid);

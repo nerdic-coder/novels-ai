@@ -1,17 +1,5 @@
 <div class="container">
   <h2>Create novel</h2>
-  <div class="alert alert-info" role="alert">
-    You have <strong>{{points}}</strong> credits left to spend!<hr>
-    Each generated chapter costs 1 point.
-  </div>
-  <div class="d-grid gap-2" style="margin-bottom: 15px;">
-    <input 
-      type="button"
-      class="btn btn-success"
-      value="Buy 10 credit for 5 euro"
-      (click)="buyPoints()"
-      [disabled]="paymentInProgress">
-  </div>
   <form method="get"(ngSubmit)="generateAudiobook()">
     <div class="mb-3">
       <label for="language" class="form-label">Language:</label>
@@ -34,6 +22,13 @@
       </div>
     </div>
     <div class="mb-3">
+      <label for="title" class="form-label">Title:</label>
+      <input type="text" class="form-control" id="title" name="title" [(ngModel)]="title">
+      <div class="form-text text-light">
+        Enter the title of your novel. E.g. Bigfoot visiting New York.
+      </div>
+    </div>
+    <div class="mb-3">
       <label for="genre" class="form-label">Genre:</label>
       <input type="text" class="form-control" id="genre" name="genre" [(ngModel)]="genre">
       <div class="form-text text-light">
@@ -46,13 +41,6 @@
       <div class="form-text text-light">
         Enter the name of an author whose style will inspire the writing. 
         E.g., J.K. Rowling, David Lynch. The story will be original but influenced by their style.
-      </div>
-    </div>
-    <div class="mb-3">
-      <label for="title" class="form-label">Title:</label>
-      <input type="text" class="form-control" id="title" name="title" [(ngModel)]="title">
-      <div class="form-text text-light">
-        Enter the title of your novel. E.g. Bigfoot visiting New York.
       </div>
     </div>
     <div class="mb-3">
@@ -98,6 +86,18 @@
         id="submit-button" 
         [disabled]="creationInProgress || points < 1">
       <input type="button" value="Cancel" class="btn btn-secondary" [routerLink]="['/list']">
+    </div>
+    <div class="alert alert-info" role="alert">
+      You have <strong>{{points}}</strong> credits left to spend!<hr>
+      Each generated chapter costs 1 point.
+    </div>
+    <div class="d-grid gap-2" style="margin-bottom: 15px;">
+      <input 
+        type="button"
+        class="btn btn-success"
+        value="Buy 10 credit for 5 euro"
+        (click)="buyPoints()"
+        [disabled]="paymentInProgress">
     </div>
     <img src="/assets/img/ai-reader.png" alt="AI audiobook reader" style="max-width: 100%; min-width: 100%; margin-bottom: 15px;" />
   </form>
