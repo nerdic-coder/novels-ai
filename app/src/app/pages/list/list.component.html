@@ -93,6 +93,38 @@
       <div *ngIf="selectedAudiobook?.voice">{{ getVoice(selectedAudiobook?.voice) }}</div>
       <div *ngIf="selectedAudiobook?.starring"><strong>Starring:</strong></div>
       <div *ngIf="selectedAudiobook?.starring">{{ selectedAudiobook?.starring }}</div>
+      <div *ngIf="selectedAudiobook?.chapters">
+        <div><strong>Chapters:</strong></div>
+        <div>
+          <ng-container *ngFor="let chapter of selectedAudiobook.chapters; let idx = index">
+            <button 
+              type="button" 
+              class="btn btn-secondary btn-sm me-2"
+              (click)="onPlayPauseChapter(selectedAudiobook, chapter)">
+              <i class="bi" 
+                 [ngClass]="{
+                   'bi-play-circle': !isPlayingCurrentChapter(selectedAudiobook, chapter),
+                   'bi-pause-circle': isPlayingCurrentChapter(selectedAudiobook, chapter)
+                 }"></i> {{idx + 1}}
+            </button>
+          </ng-container>
+        </div>
+      </div>
+      <div class="mt-3">
+        <button 
+          type="button" 
+          class="btn btn-sm btn-success me-2" 
+          (click)="addChapter(selectedAudiobook?.id)" 
+          [disabled]="points < 1">
+          Extend
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-sm btn-danger" 
+          (click)="deleteAudiobook(selectedAudiobook?.id)">
+          Delete
+        </button>
+      </div>
     </div>
   </div>
 </div>
