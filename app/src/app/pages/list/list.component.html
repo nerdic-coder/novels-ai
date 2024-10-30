@@ -96,15 +96,15 @@
       <div *ngIf="selectedAudiobook?.chapters">
         <div><strong>Chapters:</strong></div>
         <div>
-          <ng-container *ngFor="let chapter of selectedAudiobook.chapters; let idx = index">
+          <ng-container *ngFor="let chapter of selectedAudiobook!.chapters; let idx = index">
             <button 
               type="button" 
               class="btn btn-secondary btn-sm me-2"
-              (click)="onPlayPauseChapter(selectedAudiobook, chapter)">
-              <i class="bi" 
+              (click)="onPlayPauseChapter(selectedAudiobook!, chapter)">
+              <i class="bi"
                  [ngClass]="{
-                   'bi-play-circle': !isPlayingCurrentChapter(selectedAudiobook, chapter),
-                   'bi-pause-circle': isPlayingCurrentChapter(selectedAudiobook, chapter)
+                   'bi-play-circle': !isPlayingCurrentChapter(selectedAudiobook!, chapter),
+                   'bi-pause-circle': isPlayingCurrentChapter(selectedAudiobook!, chapter)
                  }"></i> {{idx + 1}}
             </button>
           </ng-container>
@@ -114,14 +114,14 @@
         <button 
           type="button" 
           class="btn btn-sm btn-success me-2" 
-          (click)="addChapter(selectedAudiobook?.id)" 
+          (click)="addChapter(selectedAudiobook!.id)" 
           [disabled]="points < 1">
           Extend
         </button>
         <button 
           type="button" 
           class="btn btn-sm btn-danger" 
-          (click)="deleteAudiobook(selectedAudiobook?.id)">
+          (click)="deleteAudiobook(selectedAudiobook!.id)">
           Delete
         </button>
       </div>
