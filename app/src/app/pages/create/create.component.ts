@@ -39,7 +39,22 @@ export class CreateComponent {
   plot: string = '';
   pov: string = '';
   selectedVoice = 'onyx'; // Default selected value, change this based on your logic
-  starring: string = '';
+  characters: Array<{name: string; description: string}> = [{name: '', description: ''}];
+
+  addCharacter() {
+    this.characters.push({name: '', description: ''});
+  }
+
+  removeCharacter(index: number) {
+    this.characters.splice(index, 1);
+  }
+
+  private combineCharacters(): string {
+    return this.characters
+      .filter(char => char.name.trim() || char.description.trim())
+      .map(char => `${char.name}${char.description ? ` - ${char.description}` : ''}`)
+      .join(', ');
+  }
   imageInput: any;
 
   constructor(private storeService: StoreService, private router: Router) {
@@ -128,7 +143,7 @@ export class CreateComponent {
         title: this.title,
         style: this.style,
         plot: this.plot,
-        starring: this.starring,
+        starring: this.combineCharacters(),
         image: this.imageInput ? this.imageInput : null
       };
     

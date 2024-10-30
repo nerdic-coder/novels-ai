@@ -51,10 +51,27 @@
       </div>
     </div>
     <div class="mb-3">
-      <label for="starring" class="form-label">Starring:</label>
-      <input type="text" class="form-control" id="starring" name="starring" [(ngModel)]="starring">
+      <label class="form-label">Characters:</label>
+      @for (character of characters; track $index) {
+        <div class="row mb-2">
+          <div class="col">
+            <input type="text" class="form-control" [name]="'characterName' + $index" [(ngModel)]="character.name" placeholder="Character name">
+          </div>
+          <div class="col">
+            <input type="text" class="form-control" [name]="'characterDesc' + $index" [(ngModel)]="character.description" placeholder="Character description">
+          </div>
+          <div class="col-auto">
+            <button type="button" class="btn btn-danger" (click)="removeCharacter($index)" [disabled]="characters.length === 1">
+              <i class="bi bi-trash"></i> Remove
+            </button>
+          </div>
+        </div>
+      }
+      <button type="button" class="btn btn-secondary" (click)="addCharacter()">
+        <i class="bi bi-plus-circle"></i> Add Character
+      </button>
       <div class="form-text text-light">
-        Enter the names of the primary performers of the audiobook, add as many details as you wish for each character. E.g. "Johan Axelsson the main hero of the story"
+        Add the characters that will appear in your story. For each character, provide their name and optionally a description.
       </div>
     </div>
     <div class="mb-3">
