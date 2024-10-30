@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { 
   Auth
 } from '@angular/fire/auth';
-import { Firestore, collection, doc, addDoc, onSnapshot } from '@angular/fire/firestore';
+import { Firestore, collection, doc, addDoc, onSnapshot, getDoc } from '@angular/fire/firestore';
 
 declare let gtag: Function;
 
@@ -60,38 +60,25 @@ export class StoreService {
     });
   }
 
-  // checkPointsLimit() {
-  //   // Get the currently signed-in user
-  //   const usersCollection = collection(this.firestore, 'users');
-  //   const currentUserDoc = doc(usersCollection, this.auth.currentUser?.uid);
-    
-  //   // Subscribe to real-time updates on the user's document
-  //   onSnapshot(currentUserDoc, (doc: any) => {
-  //       if (doc.exists) {
-  //           let points = doc.data().points;
-  //           if (points === undefined) {
-  //               points = 2;
-  //           }
-  //           const chapters = 1;
-  //           // Display the user's points in the UI
-  //           // document.getElementById('point-indicator').textContent = points;
+  async getPoints(): Promise<number> {
+    try {
+      // Reference to the user's document
+      const usersCollection = collection(this.firestore, 'users');
+      const currentUserDoc = doc(usersCollection, this.auth.currentUser?.uid);
   
-  //           const submitButtons: any = document.getElementsByClassName('btn-needs-points');
-  //           for (let i = 0; i < submitButtons.length; i++) {
-  //               if (points < chapters) {
-  //                   // Disable each submit button
-  //                   submitButtons[i].disabled = true;
-  //               } else {
-  //                   submitButtons[i].disabled = false;
-  //               }
-  //           }
-  //       } else {
-  //           console.error('User document does not exist');
-  //           // document.getElementById('point-indicator').textContent = NEW_USER_POINTS;
-  //       }
-  //   }, (error) => {
-  //       console.error(`Error getting user document: ${error}`);
-  //       // document.getElementById('point-indicator').textContent = NEW_USER_POINTS;
-  //   });
-  // }
+      // Get a single snapshot of the user's document
+      const docSnapshot = await getDoc(currentUserDoc);
+  
+      if (docSnapshot.exists()) {
+        // Retrieve the points or set to a default value if undefined
+        const points = docSnapshot.data()['points'] ?? 2;
+        return points;
+      } else {
+        throw new Error("User document does not exist");
+      }
+    } catch (error) {
+      console.error(`Error getting user document: ${error}`);
+      return 0;  // Default value if there's an error
+    }
+  }
 }

@@ -9,6 +9,7 @@ import {
 import { AuthService } from '../../services/auth.service';
 import { Router, RouterModule } from '@angular/router';
 import { UpdateContentIfNotGeneratedByServerDirective } from '../../directives/update-content-if-not-generated-by-server.directive';
+import { StoreService } from '../../services/store.service';
 
 @Component({
   selector: 'app-nav-bar',
@@ -23,9 +24,14 @@ export class NavBarComponent {
   email: string = '';
   password: string = '';
   isGoogleLoginDisabled: boolean = false;
+  paymentInProgress = false;
   googleSignInButtonText: string = 'Google Login';
 
-  constructor(private authService: AuthService, private router: Router) {
+  constructor(
+    private authService: AuthService,
+    private storeService: StoreService,
+    private router: Router,
+  ) {
   }
 
   isAuthenticated(): boolean {
@@ -60,6 +66,12 @@ export class NavBarComponent {
   async logout() {
     await signOut(this.auth);
     this.router.navigate(['/']);
+  }
+
+  async buyPoints() {
+    this.paymentInProgress = true;
+    await this.storeService.buyPoints();
+    this.paymentInProgress = false;
   }
 
 }

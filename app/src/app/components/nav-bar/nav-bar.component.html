@@ -5,9 +5,14 @@
         <a [routerLink]="['/list']"><img src="/assets/img/small-header-transparent.png" alt="Novels AI" style="max-height:38px;" /></a>
       </div>
       <div class="d-flex">
-        <button type="button" class="btn btn-primary me-3" [routerLink]="['/create']">
+        <button type="button" class="btn btn-primary me-2" [routerLink]="['/create']">
           New Novel
         </button>
+        <button 
+          type="button"
+          class="btn btn-success me-2 d-none d-md-inline"
+          (click)="buyPoints()"
+          [disabled]="paymentInProgress">Buy 10 credits</button>
         <button type="button" class="btn btn-secondary" (click)="logout()">Logout</button>
       </div>
     }

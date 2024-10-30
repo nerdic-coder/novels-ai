@@ -1,6 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
+import { Offcanvas } from 'bootstrap';
 import { BehaviorSubject, firstValueFrom } from 'rxjs';
 import { 
   Auth,
@@ -42,6 +43,8 @@ export class ListComponent implements OnInit {
   paymentInProgress = false;
   points = 0;
   playerState: AudioPlayerState | undefined;
+  selectedAudiobook: Audiobook | null = null;
+  offcanvasInstance: Offcanvas | null = null;
 
   constructor(private storeService: StoreService, private router: Router, private audioService: AudioService) {
     // Get the audiobooks collection for the current user
@@ -90,6 +93,11 @@ export class ListComponent implements OnInit {
     this.audioService.state$.subscribe(state => {
       this.playerState = state;
     });
+
+    const offcanvasElement = document.getElementById('audiobookDetailsOffcanvas');
+    if (offcanvasElement) {
+      this.offcanvasInstance = new Offcanvas(offcanvasElement);
+    }
   }
 
   async loadNovels() {
@@ -125,6 +133,15 @@ export class ListComponent implements OnInit {
       }
     } catch (error) {
       console.error('Error loading novels:', error);
+    }
+  }
+
+  openAudiobookDetails(audiobook: Audiobook) {
+    this.selectedAudiobook = audiobook;
+
+    // Open the Offcanvas only if it's not already visible
+    if (this.offcanvasInstance) {
+      this.offcanvasInstance.show();
     }
   }
 
