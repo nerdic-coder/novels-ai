@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { 
-  Auth, authState, browserLocalPersistence, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithEmailAndPassword, signInWithRedirect, 
+  Auth, authState, browserLocalPersistence, connectAuthEmulator, createUserWithEmailAndPassword, getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signInWithEmailAndPassword, signInWithRedirect, 
 } from '@angular/fire/auth';
 import { setPersistence } from 'firebase/auth';
 import { map, Observable } from 'rxjs';
@@ -11,6 +11,32 @@ import { map, Observable } from 'rxjs';
 export class AuthService {
 
   private auth = inject(Auth);
+
+  constructor() {
+    connectAuthEmulator(this.auth, "http://localhost:4200");
+    onAuthStateChanged(this.auth, (user) => {
+      // this.userSubject.next(user); // Emits user state across the app
+      if (user) {
+        console.log('Logged in', user);
+        // Handle logged-in user (e.g., fetch user data or update UI)
+      } else {
+        // Handle user logout (e.g., clear user-specific data)
+      }
+    });
+  }
+
+  ngOnInit() {
+    getRedirectResult(this.auth)
+      .then((result) => {
+        if (result) {
+          // Handle the logged-in user here, like storing user info or redirecting
+          console.log("Login successful", result.user);
+        }
+      })
+      .catch((error) => {
+        console.error("Error handling redirect result", error);
+      });
+  }
 
   // Optionally define a method to manually check authentication state
   isAuthenticated(): boolean {
