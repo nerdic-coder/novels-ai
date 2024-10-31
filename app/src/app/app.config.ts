@@ -29,7 +29,7 @@ export const appConfig: ApplicationConfig = {
     },
     provideFirebaseApp(() => initializeApp({
       apiKey: 'AIzaSyBzegpGaNrC-KHupiuNXnjI2XxkoaXzm2o',
-      authDomain: 'localhost:4200',
+      authDomain: 'ai-audiobook.firebaseapp.com',
       databaseURL: 'https://ai-audiobook.firebaseio.com',
       projectId: 'ai-audiobook',
     })),

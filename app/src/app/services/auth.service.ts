@@ -13,7 +13,7 @@ export class AuthService {
   private auth = inject(Auth);
 
   constructor() {
-    connectAuthEmulator(this.auth, "http://localhost:4200");
+    connectAuthEmulator(this.auth, "http://127.0.0.1:9099", { disableWarnings: true });
     onAuthStateChanged(this.auth, (user) => {
       // this.userSubject.next(user); // Emits user state across the app
       if (user) {
