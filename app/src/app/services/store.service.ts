@@ -36,8 +36,8 @@ export class StoreService {
     const paymentRef = await addDoc(checkoutsCollection, {
       mode: "payment",
       price: "price_1MvLYABPvg43OlrWhK03okqu", // One-time price created in Stripe
-      success_url: `https://novels-ai.com/list.html?success=true`,
-      cancel_url: `https://novels-ai.com/list.html?cancel=true`,
+      success_url: `https://novels-ai-bff--ai-audiobook.us-central1.hosted.app//novels?success=true`,
+      cancel_url: `https://novels-ai-bff--ai-audiobook.us-central1.hosted.app//novels?cancel=true`,
     });
 
     // Listen for changes to the document
