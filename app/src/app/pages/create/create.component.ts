@@ -15,6 +15,7 @@ import { StoreService } from '../../services/store.service';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { AlertService } from '../../services/alert.service';
 
 @Component({
   selector: 'app-create',
@@ -26,6 +27,7 @@ import { FormsModule } from '@angular/forms';
 export class CreateComponent {
   private auth = inject(Auth);
   firestore: Firestore = inject(Firestore);
+  alertService = inject(AlertService);
   points = 0;
   paymentInProgress = false;
   creationInProgress = false;
@@ -100,7 +102,7 @@ export class CreateComponent {
     this.creationInProgress = false;
 
     if (data === 'Unauthorized') {
-      alert('Your session has expired!');
+      this.alertService.error('Your session has expired!');
       await signOut(this.auth);
       this.router.navigate(['/']);
     } else {
@@ -125,7 +127,7 @@ export class CreateComponent {
 
   async generateAudiobook() {
     if (!this.title?.trim()) {
-      alert('Title is required');
+      this.alertService.error('Title is required');
       return;
     }
 
@@ -151,7 +153,7 @@ export class CreateComponent {
     
     } catch (error) {
       console.error(error);
-      alert('Creating novel failed, please try again!');
+      this.alertService.error('Creating novel failed, please try again!');
     
       // Re-enable the submit button
       this.creationInProgress = false;

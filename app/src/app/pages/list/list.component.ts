@@ -1,6 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
+import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { Offcanvas } from 'bootstrap';
 import { BehaviorSubject, firstValueFrom } from 'rxjs';
 import { 
@@ -23,6 +23,7 @@ import { environment } from '../../../environments/environment';
 import { Audiobook, Chapter, narrationTypes, voices } from '../../models/audiobook';
 import { StoreService } from '../../services/store.service';
 import { AudioPlayerState, AudioService } from '../../services/audio.service';
+import { AlertService } from '../../services/alert.service';
 
 @Component({
   selector: 'app-list',
@@ -46,7 +47,13 @@ export class ListComponent implements OnInit {
   selectedAudiobook: Audiobook | null = null;
   offcanvasInstance: Offcanvas | null = null;
 
-  constructor(private storeService: StoreService, private router: Router, private audioService: AudioService) {
+  constructor(
+    private storeService: StoreService, 
+    private router: Router, 
+    private audioService: AudioService, 
+    private alertService: AlertService,
+    private route: ActivatedRoute
+  ) {
     // Get the audiobooks collection for the current user
     const usersCollection = collection(this.firestore, 'users');
     const currentUserDoc = doc(usersCollection, this.auth.currentUser?.uid);
@@ -98,6 +105,22 @@ export class ListComponent implements OnInit {
     if (offcanvasElement) {
       this.offcanvasInstance = new Offcanvas(offcanvasElement);
     }
+
+    // Check URL parameters for purchase/subscription status
+    this.route.queryParams.subscribe(params => {
+      if (params['success'] === 'true') {
+        this.alertService.success('Payment successful! Your points have been added.');
+      }
+      if (params['cancel'] === 'true') {
+        this.alertService.warning('Payment cancelled.');
+      }
+      if (params['subscription'] === 'success') {
+        this.alertService.success('Subscription activated! You now have access to 20 points monthly.');
+      }
+      if (params['subscription'] === 'cancel') {
+        this.alertService.warning('Subscription cancelled.');
+      }
+    });
   }
 
   async loadNovels() {
@@ -193,16 +216,16 @@ export class ListComponent implements OnInit {
       .then(response => response.text())
       .then(async data => {
           if (data === 'Unauthorized') {
-              alert('Your session have expired!');
-              await signOut(this.auth);
-              this.router.navigate(['/']);
+            this.alertService.error('Your session have expired!');
+            await signOut(this.auth);
+            this.router.navigate(['/']);
           } else if (data === 'Internal Server Error') {
-              alert('Deleting Audiobook failed, please try again!');
+            this.alertService.error('Deleting Audiobook failed, please try again!');
           }
       })
       .catch(error => {
           console.error(error);
-          alert('Deleting Audiobook failed, please try again!');
+          this.alertService.error('Deleting Audiobook failed, please try again!');
       });
     }
   }
@@ -224,18 +247,18 @@ export class ListComponent implements OnInit {
         .then(response => response.text())
         .then(async data => {
             if (data === 'Unauthorized') {
-                alert('Your session have expired!');
-                await signOut(this.auth);
-                this.router.navigate(['/']);
+              this.alertService.error('Your session have expired!');
+              await signOut(this.auth);
+              this.router.navigate(['/']);
             } else if (data === 'Internal Server Error') {
-                alert('Adding chapter failed, please try again!');
+              this.alertService.error('Adding chapter failed, please try again!');
             } else if (data === 'Insufficient points') {
-              alert('You do not have enough credit to add a new chapter.');
+              this.alertService.error('You do not have enough credit to add a new chapter.');
             }
         })
         .catch(error => {
             console.error(error);
-            alert('Adding chapter failed, please try again!');
+            this.alertService.error('Adding chapter failed, please try again!');
         });
     }
   }

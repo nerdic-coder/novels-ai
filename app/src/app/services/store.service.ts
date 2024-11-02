@@ -4,6 +4,7 @@ import {
 } from '@angular/fire/auth';
 import { Firestore, collection, doc, addDoc, onSnapshot, getDoc } from '@angular/fire/firestore';
 import { environment } from '../../environments/environment';
+import { AlertService } from './alert.service';
 
 declare let gtag: Function;
 
@@ -13,6 +14,7 @@ declare let gtag: Function;
 export class StoreService {
   private auth = inject(Auth);
   firestore: Firestore = inject(Firestore);
+  alertService = inject(AlertService);
 
   isSuccessOrderParamPresent() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -53,7 +55,7 @@ export class StoreService {
         // Do something with the URL, e.g. open it in a new window
         window.location.href = url;
       } else if (doc.exists && doc.data().error) {
-        alert('Payment could not be initiated, if error persist contact us!');
+        this.alertService.error('Payment could not be initiated, if error persist contact us!');
       }
     });
   }
@@ -75,7 +77,7 @@ export class StoreService {
       if (doc.exists && doc.data().url) {
         window.location.href = doc.data().url;
       } else if (doc.exists && doc.data().error) {
-        alert('Payment could not be initiated, if error persist contact us!');
+        this.alertService.error('Payment could not be initiated, if error persist contact us!');
       }
     });
   }

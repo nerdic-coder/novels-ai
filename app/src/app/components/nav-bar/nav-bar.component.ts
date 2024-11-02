@@ -10,6 +10,7 @@ import { AuthService } from '../../services/auth.service';
 import { Router, RouterModule } from '@angular/router';
 import { UpdateContentIfNotGeneratedByServerDirective } from '../../directives/update-content-if-not-generated-by-server.directive';
 import { StoreService } from '../../services/store.service';
+import { AlertService } from '../../services/alert.service';
 
 @Component({
   selector: 'app-nav-bar',
@@ -31,6 +32,7 @@ export class NavBarComponent {
     private authService: AuthService,
     private storeService: StoreService,
     private router: Router,
+    private alertService: AlertService,
   ) {
   }
 
@@ -43,7 +45,7 @@ export class NavBarComponent {
     if (success) {
       this.router.navigate(['/novels']);
     } else {
-      alert('Failed to login!');
+      this.alertService.error('Failed to login');
     }
   }
 
@@ -57,7 +59,7 @@ export class NavBarComponent {
       this.googleSignInButtonText = 'Google Login';
     } catch (error) {
         console.error('Error signing in', error);
-        alert('Error signing in!');
+        this.alertService.error('Error signing in!');
         this.isGoogleLoginDisabled = false;
         this.googleSignInButtonText = 'Google Login';
     }

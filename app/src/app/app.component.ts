@@ -5,6 +5,7 @@ import { filter, map, startWith } from 'rxjs';
 import { NavBarComponent } from './components/nav-bar/nav-bar.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { AudioPlayerComponent } from './components/audio-player/audio-player.component';
+import { AlertComponent } from './components/alert/alert.component';
 
 @Component({
   selector: 'app-root',
@@ -15,6 +16,7 @@ import { AudioPlayerComponent } from './components/audio-player/audio-player.com
     NavBarComponent,
     FooterComponent,
     AudioPlayerComponent,
+    AlertComponent,
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
