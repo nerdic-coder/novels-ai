@@ -665,13 +665,19 @@ const insertPaymentRecord = async (
       console.log('item.description', item.description);
       console.log('item.price.id', item.price.id);
       console.log('payment.status', payment.status);
-      if (
-        payment.status === 'succeeded' &&
-        (item.price.id === 'price_1MvLYABPvg43OlrWhK03okqu' ||
-          item.description ===
-            '10 points to use to create Novels AI chapters.' ||
-          item.description === '10 Novels AI points')
-      ) {
+      if (payment.status === 'succeeded') {
+        if (item.price.id === 'price_1MvLYABPvg43OlrWhK03okqu' ||
+            item.description === '10 points to use to create Novels AI chapters.' ||
+            item.description === '10 Novels AI points') {
+          const points = customersSnap.docs[0].data()?.points || 0;
+          const updatedPoints = points + 10;
+          await customerDoc.ref.update({ points: updatedPoints });
+        } else if (item.price.id === 'price_1QGmloBPvg43OlrWJyM4fMvY') {
+          const points = customersSnap.docs[0].data()?.points || 0;
+          const updatedPoints = points + 20; // Add 20 points for monthly subscription
+          await customerDoc.ref.update({ points: updatedPoints });
+        }
+      }
         const points = customersSnap.docs[0].data()?.points || 0;
         console.log('current points', points);
         const updatedPoints = points + 10;

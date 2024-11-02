@@ -74,4 +74,10 @@ export class NavBarComponent {
     this.paymentInProgress = false;
   }
 
+  async subscribe() {
+    this.paymentInProgress = true;
+    await this.storeService.startSubscription();
+    this.paymentInProgress = false;
+  }
+
 }

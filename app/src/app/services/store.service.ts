@@ -3,6 +3,7 @@ import {
   Auth
 } from '@angular/fire/auth';
 import { Firestore, collection, doc, addDoc, onSnapshot, getDoc } from '@angular/fire/firestore';
+import { environment } from '../../environments/environment';
 
 declare let gtag: Function;
 
@@ -28,16 +29,14 @@ export class StoreService {
   }
 
   async buyPoints() {
-    // event.target.disabled = true;
-    // Get the currently signed-in user
     const usersCollection = collection(this.firestore, 'users');
     const currentUserDoc = doc(usersCollection, this.auth.currentUser?.uid);
     const checkoutsCollection = collection(currentUserDoc, 'checkout_sessions');
     const paymentRef = await addDoc(checkoutsCollection, {
       mode: "payment",
       price: "price_1MvLYABPvg43OlrWhK03okqu", // One-time price created in Stripe
-      success_url: `https://novels-ai-bff--ai-audiobook.us-central1.hosted.app//novels?success=true`,
-      cancel_url: `https://novels-ai-bff--ai-audiobook.us-central1.hosted.app//novels?cancel=true`,
+      success_url: `https://novels-ai-bff--ai-audiobook.us-central1.hosted.app/novels?success=true`,
+      cancel_url: `https://novels-ai-bff--ai-audiobook.us-central1.hosted.app/novels?cancel=true`,
     });
 
     // Listen for changes to the document
@@ -55,7 +54,28 @@ export class StoreService {
         window.location.href = url;
       } else if (doc.exists && doc.data().error) {
         alert('Payment could not be initiated, if error persist contact us!');
-        // event.target.disabled = false;
+      }
+    });
+  }
+
+  async startSubscription() {
+    const usersCollection = collection(this.firestore, 'users');
+    const currentUserDoc = doc(usersCollection, this.auth.currentUser?.uid);
+    const checkoutsCollection = collection(currentUserDoc, 'checkout_sessions');
+    const subscriptionRef = await addDoc(checkoutsCollection, {
+      mode: "subscription",
+      price: environment.SUBSCRIPTION_PRICE_ID,
+      success_url: `https://novels-ai-bff--ai-audiobook.us-central1.hosted.app/novels?subscription=success`,
+      cancel_url: `https://novels-ai-bff--ai-audiobook.us-central1.hosted.app/novels?subscription=cancel`,
+    });
+
+    console.log('checkout', subscriptionRef);
+
+    onSnapshot(subscriptionRef, (doc: any) => {
+      if (doc.exists && doc.data().url) {
+        window.location.href = doc.data().url;
+      } else if (doc.exists && doc.data().error) {
+        alert('Payment could not be initiated, if error persist contact us!');
       }
     });
   }
