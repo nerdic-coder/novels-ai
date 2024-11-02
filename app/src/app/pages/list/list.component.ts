@@ -46,6 +46,7 @@ export class ListComponent implements OnInit {
   playerState: AudioPlayerState | undefined;
   selectedAudiobook: Audiobook | null = null;
   offcanvasInstance: Offcanvas | null = null;
+  isSubscribed = false;
 
   constructor(
     private storeService: StoreService, 
@@ -96,7 +97,11 @@ export class ListComponent implements OnInit {
     });
   }
 
-  ngOnInit() {
+  async ngOnInit() {
+    
+    // Check subscription status when component initializes
+    this.isSubscribed = await this.storeService.isSubscribed();
+
     this.audioService.state$.subscribe(state => {
       this.playerState = state;
     });
@@ -267,5 +272,20 @@ export class ListComponent implements OnInit {
     this.paymentInProgress = true;
     await this.storeService.buyPoints();
     this.paymentInProgress = false;
+  }
+
+  
+  async subscribe() {
+    this.paymentInProgress = true;
+    await this.storeService.startSubscription();
+    this.paymentInProgress = false;
+  }
+
+  async cancelSubscription() {
+    if (confirm('Are you sure you want to cancel your subscription?')) {
+      this.paymentInProgress = true;
+      await this.storeService.cancelSubscription();
+      this.paymentInProgress = false;
+    }
   }
 }

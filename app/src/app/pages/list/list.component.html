@@ -67,6 +67,19 @@
     <input type="submit" value="Create new novel" class="btn btn-primary" [routerLink]="['/create']">
   </div>
   <div class="d-grid gap-2" style="margin-bottom: 15px;">
+    @if (!isSubscribed) {
+      <button 
+        type="button"
+        class="btn btn-info"
+        (click)="subscribe()"
+        [disabled]="paymentInProgress">Subscribe (€6.99/mo)</button>
+    } @else {
+      <button 
+        type="button"
+        class="btn btn-danger"
+        (click)="cancelSubscription()"
+        [disabled]="paymentInProgress">Cancel Subscription</button>
+    }
     <input 
       type="button"
       class="btn btn-success"

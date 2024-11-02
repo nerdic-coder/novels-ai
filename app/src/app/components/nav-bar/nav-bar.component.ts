@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { 
@@ -19,7 +19,7 @@ import { AlertService } from '../../services/alert.service';
   templateUrl: './nav-bar.component.html',
   styleUrl: './nav-bar.component.scss'
 })
-export class NavBarComponent {
+export class NavBarComponent implements OnInit {
   private auth = inject(Auth);
 
   email: string = '';
@@ -27,13 +27,18 @@ export class NavBarComponent {
   isGoogleLoginDisabled: boolean = false;
   paymentInProgress = false;
   googleSignInButtonText: string = 'Google Login';
+  isSubscribed = false;
 
   constructor(
     private authService: AuthService,
     private storeService: StoreService,
     private router: Router,
     private alertService: AlertService,
-  ) {
+  ) {}
+
+  async ngOnInit() {
+    // Check subscription status when component initializes
+    this.isSubscribed = await this.storeService.isSubscribed();
   }
 
   isAuthenticated(): boolean {
@@ -80,6 +85,14 @@ export class NavBarComponent {
     this.paymentInProgress = true;
     await this.storeService.startSubscription();
     this.paymentInProgress = false;
+  }
+
+  async cancelSubscription() {
+    if (confirm('Are you sure you want to cancel your subscription?')) {
+      this.paymentInProgress = true;
+      await this.storeService.cancelSubscription();
+      this.paymentInProgress = false;
+    }
   }
 
 }

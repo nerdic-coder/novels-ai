@@ -2,7 +2,8 @@ import { inject, Injectable } from '@angular/core';
 import { 
   Auth
 } from '@angular/fire/auth';
-import { Firestore, collection, doc, addDoc, onSnapshot, getDoc } from '@angular/fire/firestore';
+import { Firestore, collection, doc, addDoc, onSnapshot, getDoc, query, where, getDocs } from '@angular/fire/firestore';
+import { getFunctions, httpsCallable } from '@angular/fire/functions';
 import { environment } from '../../environments/environment';
 import { AlertService } from './alert.service';
 
@@ -15,6 +16,53 @@ export class StoreService {
   private auth = inject(Auth);
   firestore: Firestore = inject(Firestore);
   alertService = inject(AlertService);
+
+  async isSubscribed(): Promise<boolean> {
+    const uid = this.auth.currentUser?.uid;
+    if (!uid) return false;
+
+    const subscriptionsRef = collection(this.firestore, 'customers', uid, 'subscriptions');
+    const q = query(subscriptionsRef, where('status', 'in', ['trialing', 'active']));
+    const snapshot = await getDocs(q);
+    return !snapshot.empty;
+  }
+
+  async cancelSubscription() {
+    const uid = this.auth.currentUser?.uid;
+    if (!uid) {
+      this.alertService.error('You must be logged in to cancel your subscription');
+      return;
+    }
+
+    try {
+      const subscriptionsRef = collection(this.firestore, 'customers', uid, 'subscriptions');
+      const q = query(subscriptionsRef, where('status', 'in', ['trialing', 'active']));
+      const snapshot = await getDocs(q);
+      
+      if (snapshot.empty) {
+        this.alertService.error('No active subscription found');
+        return;
+      }
+
+      const subscription = snapshot.docs[0];
+      const portalSession = await this.createPortalSession();
+      window.location.href = portalSession.url;
+    } catch (error) {
+      console.error('Error canceling subscription:', error);
+      this.alertService.error('Failed to cancel subscription. Please try again.');
+    }
+  }
+
+  private async createPortalSession(): Promise<{ url: string }> {
+    const functionRef = httpsCallable<{ returnUrl: string }, { url: string }>(
+      getFunctions(),
+      'ext-firestore-stripe-payments-createPortalLink'
+    );
+    const { data } = await functionRef({
+      returnUrl: window.location.origin + '/novels',
+    });
+    return data;
+  }
 
   isSuccessOrderParamPresent() {
     const urlParams = new URLSearchParams(window.location.search);
