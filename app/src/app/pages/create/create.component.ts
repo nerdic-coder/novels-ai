@@ -74,7 +74,6 @@ export class CreateComponent {
       }
     }, (error) => {
       console.error(`Error getting user document: ${error}`);
-      // document.getElementById('point-indicator').textContent = NEW_USER_POINTS;
     });
   }
 

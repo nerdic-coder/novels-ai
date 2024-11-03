@@ -1,7 +1,7 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, ElementRef, inject, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
-import { Offcanvas } from 'bootstrap';
+import { OffcanvasService } from '../../services/offcanvas.service';
 import { BehaviorSubject, firstValueFrom } from 'rxjs';
 import { 
   Auth,
@@ -24,15 +24,16 @@ import { Audiobook, Chapter, narrationTypes, voices } from '../../models/audiobo
 import { StoreService } from '../../services/store.service';
 import { AudioPlayerState, AudioService } from '../../services/audio.service';
 import { AlertService } from '../../services/alert.service';
+import { ConfirmationModalComponent } from '../../components/confirmation-modal/confirmation-modal.component';
 
 @Component({
   selector: 'app-list',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, ConfirmationModalComponent],
   templateUrl: './list.component.html',
   styleUrl: './list.component.scss'
 })
-export class ListComponent implements OnInit {
+export class ListComponent implements OnInit, AfterViewInit {
   private auth = inject(Auth);
   private storiesShown = environment.STORIES_PER_PAGE;
   private audiobooksRef;
@@ -45,7 +46,10 @@ export class ListComponent implements OnInit {
   points = 0;
   playerState: AudioPlayerState | undefined;
   selectedAudiobook: Audiobook | null = null;
-  offcanvasInstance: Offcanvas | null = null;
+  @ViewChild('offcanvasElement') offcanvasElement!: ElementRef;
+  @ViewChild('cancelSubscriptionModal') cancelSubscriptionModal!: ConfirmationModalComponent;
+  private offcanvasService = inject(OffcanvasService);
+  private offcanvasInstance: any = null;
   isSubscribed = false;
 
   constructor(
@@ -93,7 +97,6 @@ export class ListComponent implements OnInit {
       }
     }, (error) => {
       console.error(`Error getting user document: ${error}`);
-      // document.getElementById('point-indicator').textContent = NEW_USER_POINTS;
     });
   }
 
@@ -106,10 +109,6 @@ export class ListComponent implements OnInit {
       this.playerState = state;
     });
 
-    const offcanvasElement = document.getElementById('audiobookDetailsOffcanvas');
-    if (offcanvasElement) {
-      this.offcanvasInstance = new Offcanvas(offcanvasElement);
-    }
 
     // Check URL parameters for purchase/subscription status
     this.route.queryParams.subscribe(params => {
@@ -164,11 +163,15 @@ export class ListComponent implements OnInit {
     }
   }
 
-  openAudiobookDetails(audiobook: Audiobook) {
-    this.selectedAudiobook = audiobook;
+  async ngAfterViewInit() {
+    this.offcanvasInstance = await this.offcanvasService.createOffcanvas(this.offcanvasElement);
+  }
 
-    // Open the Offcanvas only if it's not already visible
-    if (this.offcanvasInstance) {
+  async openAudiobookDetails(audiobook: Audiobook) {
+    this.selectedAudiobook = audiobook;
+    if (!this.offcanvasInstance) {
+      this.offcanvasInstance = await this.offcanvasService.showOffcanvas(this.offcanvasElement);
+    } else {
       this.offcanvasInstance.show();
     }
   }
@@ -188,8 +191,8 @@ export class ListComponent implements OnInit {
   }
 
   isPlayingCurrentChapter(novel: Audiobook, chapter: Chapter): boolean {
-    return this.audioService.isCurrentChapter(novel, chapter) && this.playerState!.isPlaying;
-  }
+    return !!(this.audioService.isCurrentChapter(novel, chapter) && this.playerState && this.playerState.isPlaying);
+}
 
   loadMoreNovels() {
     this.storiesShown += environment.STORIES_PER_PAGE;
@@ -204,8 +207,11 @@ export class ListComponent implements OnInit {
     return voice ? voices.get(voice) : undefined;
   }
   
+  @ViewChild('deleteModal') deleteModal!: ConfirmationModalComponent;
+
   async deleteAudiobook(audiobookId: string) {
-    if (confirm("Are you sure you want to delete this book?")) {
+    this.deleteModal.message = "Are you sure you want to delete this book?";
+    this.deleteModal.confirmed.subscribe(async () => {
       const requestBody = new URLSearchParams();
       requestBody.append('audiobookId', audiobookId);
 
@@ -232,12 +238,16 @@ export class ListComponent implements OnInit {
           console.error(error);
           this.alertService.error('Deleting Audiobook failed, please try again!');
       });
-    }
+    });
+    this.deleteModal.show();
   }
 
+  @ViewChild('addChapterModal') addChapterModal!: ConfirmationModalComponent;
+
   async addChapter(audiobookId: string) {
-    if (confirm("Are you sure you want to add a new chapter for 1 point?")) {
-        const requestBody = new URLSearchParams();
+    this.addChapterModal.message = "Are you sure you want to add a new chapter for 1 point?";
+    this.addChapterModal.confirmed.subscribe(async () => {
+      const requestBody = new URLSearchParams();
         requestBody.append('audiobookId', audiobookId);
 
         const token = await this.auth.currentUser?.getIdToken();
@@ -265,7 +275,8 @@ export class ListComponent implements OnInit {
             console.error(error);
             this.alertService.error('Adding chapter failed, please try again!');
         });
-    }
+    });
+    this.addChapterModal.show();
   }
 
   async buyPoints() {
@@ -282,10 +293,12 @@ export class ListComponent implements OnInit {
   }
 
   async cancelSubscription() {
-    if (confirm('Are you sure you want to cancel your subscription?')) {
+    this.cancelSubscriptionModal.message = "Are you sure you want to cancel your subscription?";
+    this.cancelSubscriptionModal.confirmed.subscribe(async () => {
       this.paymentInProgress = true;
       await this.storeService.cancelSubscription();
       this.paymentInProgress = false;
-    }
+    });
+    this.cancelSubscriptionModal.show();
   }
 }

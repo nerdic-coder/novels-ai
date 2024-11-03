@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { 
@@ -11,11 +11,12 @@ import { Router, RouterModule } from '@angular/router';
 import { UpdateContentIfNotGeneratedByServerDirective } from '../../directives/update-content-if-not-generated-by-server.directive';
 import { StoreService } from '../../services/store.service';
 import { AlertService } from '../../services/alert.service';
+import { ConfirmationModalComponent } from '../confirmation-modal/confirmation-modal.component';
 
 @Component({
   selector: 'app-nav-bar',
   standalone: true,
-  imports: [FormsModule, AuthModule, CommonModule, RouterModule, UpdateContentIfNotGeneratedByServerDirective],
+  imports: [FormsModule, AuthModule, CommonModule, RouterModule, UpdateContentIfNotGeneratedByServerDirective, ConfirmationModalComponent],
   templateUrl: './nav-bar.component.html',
   styleUrl: './nav-bar.component.scss'
 })
@@ -28,6 +29,7 @@ export class NavBarComponent implements OnInit {
   paymentInProgress = false;
   googleSignInButtonText: string = 'Google Login';
   isSubscribed = false;
+  @ViewChild('cancelSubscriptionModal') cancelSubscriptionModal!: ConfirmationModalComponent;
 
   constructor(
     private authService: AuthService,
@@ -88,11 +90,13 @@ export class NavBarComponent implements OnInit {
   }
 
   async cancelSubscription() {
-    if (confirm('Are you sure you want to cancel your subscription?')) {
+    this.cancelSubscriptionModal.message = "Are you sure you want to cancel your subscription?";
+    this.cancelSubscriptionModal.confirmed.subscribe(async () => {
       this.paymentInProgress = true;
       await this.storeService.cancelSubscription();
       this.paymentInProgress = false;
-    }
+    });
+    this.cancelSubscriptionModal.show();
   }
 
 }
