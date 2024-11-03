@@ -48,6 +48,7 @@ export class ListComponent implements OnInit, AfterViewInit {
   selectedAudiobook: Audiobook | null = null;
   @ViewChild('offcanvasElement') offcanvasElement!: ElementRef;
   @ViewChild('cancelSubscriptionModal') cancelSubscriptionModal!: ConfirmationModalComponent;
+  @ViewChild('deleteModal') deleteModal!: ConfirmationModalComponent;
   private offcanvasService = inject(OffcanvasService);
   private offcanvasInstance: any = null;
   isSubscribed = false;
@@ -182,8 +183,8 @@ export class ListComponent implements OnInit, AfterViewInit {
 
   onPlayPauseChapter(novel: Audiobook, chapter: Chapter) {
     if (this.isPlayingCurrentChapter(novel, chapter)) {
-      // Toggle play/pause if it's the current chapter
-      this.audioService.updatePlayingState(false);
+      // If it's the current chapter, toggle play/pause
+      this.audioService.updatePlayingState(!this.playerState?.isPlaying);
     } else {
       // Play the new chapter
       this.audioService.playChapter(novel, chapter);
@@ -191,8 +192,8 @@ export class ListComponent implements OnInit, AfterViewInit {
   }
 
   isPlayingCurrentChapter(novel: Audiobook, chapter: Chapter): boolean {
-    return !!(this.audioService.isCurrentChapter(novel, chapter) && this.playerState && this.playerState.isPlaying);
-}
+    return this.audioService.isCurrentChapter(novel, chapter) && this.playerState!.isPlaying;
+  }
 
   loadMoreNovels() {
     this.storiesShown += environment.STORIES_PER_PAGE;
@@ -206,8 +207,6 @@ export class ListComponent implements OnInit, AfterViewInit {
   getVoice(voice: string | undefined): string | undefined {
     return voice ? voices.get(voice) : undefined;
   }
-  
-  @ViewChild('deleteModal') deleteModal!: ConfirmationModalComponent;
 
   async deleteAudiobook(audiobookId: string) {
     this.deleteModal.message = "Are you sure you want to delete this book?";

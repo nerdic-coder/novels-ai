@@ -35,12 +35,10 @@
                          class="bi bi-arrow-repeat spin" 
                          style="font-size: 1rem;"></i>
                       <i *ngIf="!(audiobook.status === 'progress' && idx === audiobook.chapters!.length - 1)"
-                         class="bi bi-play-circle" 
+                         class="bi"
                          style="font-size: 1rem;"
-                         [ngClass]="{
-                           'bi-play-circle': !isPlayingCurrentChapter(audiobook, chapter),
-                           'bi-pause-circle': isPlayingCurrentChapter(audiobook, chapter)
-                         }"></i>
+                         [class.bi-play-circle]="!isPlayingCurrentChapter(audiobook, chapter)"
+                         [class.bi-pause-circle]="isPlayingCurrentChapter(audiobook, chapter)"></i>
                       {{idx + 1}}
                     </button>
                   }
@@ -146,10 +144,8 @@
                    style="font-size: 1rem;"></i>
                 <i *ngIf="!(selectedAudiobook!.status === 'progress' && idx === selectedAudiobook!.chapters!.length - 1)"
                    class="bi"
-                   [ngClass]="{
-                     'bi-play-circle': !isPlayingCurrentChapter(selectedAudiobook!, chapter),
-                     'bi-pause-circle': isPlayingCurrentChapter(selectedAudiobook!, chapter)
-                   }"></i> {{idx + 1}}
+                   [class.bi-play-circle]="!isPlayingCurrentChapter(selectedAudiobook!, chapter)"
+                   [class.bi-pause-circle]="isPlayingCurrentChapter(selectedAudiobook!, chapter)"></i> {{idx + 1}}
               </button>
             </ng-container>
           </div>
