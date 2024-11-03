@@ -61,7 +61,7 @@
     </tbody>
   </table>
   <div *ngIf="canLoadMore" class="d-grid gap-2" style="margin-bottom: 15px;">
-    <input type="button" value="Load more" class="btn btn-primary" (click)="loadMoreNovels()" [disabled]="!canLoadMore">
+    <input type="button" value="Load more..." class="btn btn-primary" (click)="loadMoreNovels()" [disabled]="!canLoadMore">
   </div>
   <div class="mb-3 d-grid gap-2">
     <input type="submit" value="Create new novel" class="btn btn-primary" [routerLink]="['/create']">
