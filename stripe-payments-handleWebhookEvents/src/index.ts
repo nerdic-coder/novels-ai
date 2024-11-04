@@ -817,6 +817,24 @@ export const handleWebhookEvents = functions.https.onRequest(
           case 'invoice.payment_action_required':
             const invoice = event.data.object as Stripe.Invoice;
             await insertInvoiceRecord(invoice);
+            
+            // Handle subscription renewal points
+            if (invoice.subscription && invoice.paid && invoice.billing_reason === 'subscription_cycle') {
+              // Get customer's UID from Firestore
+              const customersSnap = await admin
+                .firestore()
+                .collection(config.customersCollectionPath)
+                .where('stripeId', '==', invoice.customer)
+                .get();
+              
+              if (customersSnap.size === 1) {
+                const customerDoc = customersSnap.docs[0];
+                const points = customerDoc.data()?.points || 0;
+                // Add 20 points for monthly subscription renewal
+                await customerDoc.ref.update({ points: points + 20 });
+                console.log(`Added 20 points for subscription renewal. Customer: ${invoice.customer}, New total: ${points + 20}`);
+              }
+            }
             break;
           case 'payment_intent.processing':
           case 'payment_intent.succeeded':
