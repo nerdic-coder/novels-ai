@@ -85,4 +85,11 @@ export class AudioService {
       state.currentChapter?.chapterId === chapter.chapterId
     );
   }
+
+  isPlaying(): boolean {
+    const state = this.state.value;
+    return (
+      state.isPlaying
+    );
+  }
 }

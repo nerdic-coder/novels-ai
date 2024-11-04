@@ -22,7 +22,7 @@ import {
 import { environment } from '../../../environments/environment';
 import { Audiobook, Chapter, narrationTypes, voices } from '../../models/audiobook';
 import { StoreService } from '../../services/store.service';
-import { AudioPlayerState, AudioService } from '../../services/audio.service';
+import { AudioService } from '../../services/audio.service';
 import { AlertService } from '../../services/alert.service';
 import { ConfirmationModalComponent } from '../../components/confirmation-modal/confirmation-modal.component';
 import { SubscriptionBenefitsModalComponent } from '../../components/subscription-benefits-modal/subscription-benefits-modal.component';
@@ -47,7 +47,6 @@ export class NovelsComponent implements OnInit, AfterViewInit {
   canLoadMore = true;
   paymentInProgress = false;
   points = 0;
-  playerState: AudioPlayerState | undefined;
   selectedAudiobook: Audiobook | null = null;
   @ViewChild('offcanvasElement') offcanvasElement!: ElementRef;
   @ViewChild('cancelSubscriptionModal') cancelSubscriptionModal!: ConfirmationModalComponent;
@@ -107,11 +106,6 @@ export class NovelsComponent implements OnInit, AfterViewInit {
     
     // Check subscription status when component initializes
     this.isSubscribed = await this.storeService.isSubscribed();
-
-    this.audioService.state$.subscribe(state => {
-      this.playerState = state;
-    });
-
 
     // Check URL parameters for purchase/subscription status
     this.route.queryParams.subscribe(params => {
@@ -186,7 +180,7 @@ export class NovelsComponent implements OnInit, AfterViewInit {
   onPlayPauseChapter(novel: Audiobook, chapter: Chapter) {
     if (this.isPlayingCurrentChapter(novel, chapter)) {
       // If it's the current chapter, toggle play/pause
-      this.audioService.updatePlayingState(!this.playerState?.isPlaying);
+      this.audioService.updatePlayingState(false);
     } else {
       // Play the new chapter
       this.audioService.playChapter(novel, chapter);
@@ -194,7 +188,8 @@ export class NovelsComponent implements OnInit, AfterViewInit {
   }
 
   isPlayingCurrentChapter(novel: Audiobook, chapter: Chapter): boolean {
-    return this.audioService.isCurrentChapter(novel, chapter) && this.playerState!.isPlaying;
+    const isPlaying = this.audioService.isCurrentChapter(novel, chapter) && this.audioService.isPlaying();
+    return isPlaying;
   }
 
   loadMoreNovels() {
