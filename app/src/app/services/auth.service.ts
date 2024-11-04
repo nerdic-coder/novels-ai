@@ -1,4 +1,5 @@
 import { inject, Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 import { 
   Auth, authState, browserLocalPersistence, connectAuthEmulator, createUserWithEmailAndPassword, getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signInWithEmailAndPassword, signInWithRedirect, 
 } from '@angular/fire/auth';
@@ -11,6 +12,7 @@ import { map, Observable } from 'rxjs';
 export class AuthService {
 
   private auth = inject(Auth);
+  private router = inject(Router);
 
   constructor() {
     // connectAuthEmulator(this.auth, "http://127.0.0.1:9099", { disableWarnings: true });
@@ -31,6 +33,7 @@ export class AuthService {
         if (result) {
           // Handle the logged-in user here, like storing user info or redirecting
           console.log("Login successful", result.user);
+          this.router.navigate(['/novels']);
         }
       })
       .catch((error) => {
