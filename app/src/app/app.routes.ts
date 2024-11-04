@@ -14,7 +14,7 @@ export const routes: Routes = [
   {
     path: 'novels',
     canActivate: [AuthGuard],
-    loadComponent: () => import('./pages/novels/novels.component').then(c => c.ListComponent)
+    loadComponent: () => import('./pages/novels/novels.component').then(c => c.NovelsComponent)
   },
   {
     path: 'register',

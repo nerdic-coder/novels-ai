@@ -85,8 +85,8 @@ export class StoreService {
     const paymentRef = await addDoc(checkoutsCollection, {
       mode: "payment",
       price: "price_1MvLYABPvg43OlrWhK03okqu", // One-time price created in Stripe
-      success_url: `https://novels-ai-bff--ai-audiobook.us-central1.hosted.app/novels?success=true`,
-      cancel_url: `https://novels-ai-bff--ai-audiobook.us-central1.hosted.app/novels?cancel=true`,
+      success_url: `${window.location.origin}/novels?success=true`,
+      cancel_url: `${window.location.origin}/novels?cancel=true`,
     });
 
     // Listen for changes to the document
@@ -115,8 +115,8 @@ export class StoreService {
     const subscriptionRef = await addDoc(checkoutsCollection, {
       mode: "subscription",
       price: environment.SUBSCRIPTION_PRICE_ID,
-      success_url: `https://novels-ai-bff--ai-audiobook.us-central1.hosted.app/novels?subscription=success`,
-      cancel_url: `https://novels-ai-bff--ai-audiobook.us-central1.hosted.app/novels?subscription=cancel`,
+      success_url: `${window.location.origin}/novels?subscription=success`,
+      cancel_url: `${window.location.origin}/novels?subscription=cancel`,
     });
 
     console.log('checkout', subscriptionRef);

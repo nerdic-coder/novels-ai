@@ -27,13 +27,13 @@ import { AlertService } from '../../services/alert.service';
 import { ConfirmationModalComponent } from '../../components/confirmation-modal/confirmation-modal.component';
 
 @Component({
-  selector: 'app-list',
+  selector: 'app-novels',
   standalone: true,
   imports: [CommonModule, RouterModule, ConfirmationModalComponent],
-  templateUrl: './list.component.html',
-  styleUrl: './list.component.scss'
+  templateUrl: './novels.component.html',
+  styleUrl: './novels.component.scss'
 })
-export class ListComponent implements OnInit, AfterViewInit {
+export class NovelsComponent implements OnInit, AfterViewInit {
   private auth = inject(Auth);
   private storiesShown = environment.STORIES_PER_PAGE;
   private audiobooksRef;
