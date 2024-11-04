@@ -25,11 +25,12 @@ import { StoreService } from '../../services/store.service';
 import { AudioPlayerState, AudioService } from '../../services/audio.service';
 import { AlertService } from '../../services/alert.service';
 import { ConfirmationModalComponent } from '../../components/confirmation-modal/confirmation-modal.component';
+import { SubscriptionBenefitsModalComponent } from '../../components/subscription-benefits-modal/subscription-benefits-modal.component';
 
 @Component({
   selector: 'app-novels',
   standalone: true,
-  imports: [CommonModule, RouterModule, ConfirmationModalComponent],
+  imports: [CommonModule, RouterModule, ConfirmationModalComponent, SubscriptionBenefitsModalComponent],
   templateUrl: './novels.component.html',
   styleUrl: './novels.component.scss'
 })
@@ -37,6 +38,8 @@ export class NovelsComponent implements OnInit, AfterViewInit {
   private auth = inject(Auth);
   private storiesShown = environment.STORIES_PER_PAGE;
   private audiobooksRef;
+  private offcanvasService = inject(OffcanvasService);
+  private offcanvasInstance: any = null;
   firestore: Firestore = inject(Firestore);
   lastVisibleDocument: any = null;  // Track the last document in the previous query
   audiobooks: Audiobook[] = [];
@@ -49,8 +52,7 @@ export class NovelsComponent implements OnInit, AfterViewInit {
   @ViewChild('offcanvasElement') offcanvasElement!: ElementRef;
   @ViewChild('cancelSubscriptionModal') cancelSubscriptionModal!: ConfirmationModalComponent;
   @ViewChild('deleteModal') deleteModal!: ConfirmationModalComponent;
-  private offcanvasService = inject(OffcanvasService);
-  private offcanvasInstance: any = null;
+  @ViewChild('subscriptionBenefitsModal') subscriptionBenefitsModal!: SubscriptionBenefitsModalComponent;
   isSubscribed = false;
 
   constructor(
@@ -286,9 +288,12 @@ export class NovelsComponent implements OnInit, AfterViewInit {
 
   
   async subscribe() {
-    this.paymentInProgress = true;
-    await this.storeService.startSubscription();
-    this.paymentInProgress = false;
+    this.subscriptionBenefitsModal.confirmed.subscribe(async () => {
+      this.paymentInProgress = true;
+      await this.storeService.startSubscription();
+      this.paymentInProgress = false;
+    });
+    this.subscriptionBenefitsModal.show();
   }
 
   async cancelSubscription() {

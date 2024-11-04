@@ -12,11 +12,12 @@ import { UpdateContentIfNotGeneratedByServerDirective } from '../../directives/u
 import { StoreService } from '../../services/store.service';
 import { AlertService } from '../../services/alert.service';
 import { ConfirmationModalComponent } from '../confirmation-modal/confirmation-modal.component';
+import { SubscriptionBenefitsModalComponent } from '../subscription-benefits-modal/subscription-benefits-modal.component';
 
 @Component({
   selector: 'app-nav-bar',
   standalone: true,
-  imports: [FormsModule, AuthModule, CommonModule, RouterModule, UpdateContentIfNotGeneratedByServerDirective, ConfirmationModalComponent],
+  imports: [FormsModule, AuthModule, CommonModule, RouterModule, UpdateContentIfNotGeneratedByServerDirective, ConfirmationModalComponent, SubscriptionBenefitsModalComponent],
   templateUrl: './nav-bar.component.html',
   styleUrl: './nav-bar.component.scss'
 })
@@ -30,6 +31,7 @@ export class NavBarComponent implements OnInit {
   googleSignInButtonText: string = 'Google Login';
   isSubscribed = false;
   @ViewChild('cancelSubscriptionModal') cancelSubscriptionModal!: ConfirmationModalComponent;
+  @ViewChild('subscriptionBenefitsModal') subscriptionBenefitsModal!: SubscriptionBenefitsModalComponent;
 
   constructor(
     private authService: AuthService,
@@ -84,9 +86,12 @@ export class NavBarComponent implements OnInit {
   }
 
   async subscribe() {
-    this.paymentInProgress = true;
-    await this.storeService.startSubscription();
-    this.paymentInProgress = false;
+    this.subscriptionBenefitsModal.confirmed.subscribe(async () => {
+      this.paymentInProgress = true;
+      await this.storeService.startSubscription();
+      this.paymentInProgress = false;
+    });
+    this.subscriptionBenefitsModal.show();
   }
 
   async cancelSubscription() {

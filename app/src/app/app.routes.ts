@@ -41,6 +41,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/terms-of-service/terms-of-service.component').then(c => c.TermsOfServiceComponent)
   },
   {
+    path: 'pov',
+    loadComponent: () => import('./pages/pov/pov.component').then(c => c.PovComponent)
+  },
+  {
     path: 'payment-history',
     canActivate: [AuthGuard],
     loadComponent: () => import('./pages/payment-history/payment-history.component').then(c => c.PaymentHistoryComponent)
