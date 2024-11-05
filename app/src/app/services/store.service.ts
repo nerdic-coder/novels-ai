@@ -21,7 +21,7 @@ export class StoreService {
     const uid = this.auth.currentUser?.uid;
     if (!uid) return false;
 
-    const subscriptionsRef = collection(this.firestore, 'customers', uid, 'subscriptions');
+    const subscriptionsRef = collection(this.firestore, 'users', uid, 'subscriptions');
     const q = query(subscriptionsRef, where('status', 'in', ['trialing', 'active']));
     const snapshot = await getDocs(q);
     return !snapshot.empty;
@@ -35,7 +35,7 @@ export class StoreService {
     }
 
     try {
-      const subscriptionsRef = collection(this.firestore, 'customers', uid, 'subscriptions');
+      const subscriptionsRef = collection(this.firestore, 'users', uid, 'subscriptions');
       const q = query(subscriptionsRef, where('status', 'in', ['trialing', 'active']));
       const snapshot = await getDocs(q);
       
