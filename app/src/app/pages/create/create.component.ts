@@ -79,8 +79,10 @@ export class CreateComponent {
 
   async buyPoints() {
     this.paymentInProgress = true;
-    await this.storeService.buyPoints();
-    this.paymentInProgress = false;
+    const success = await this.storeService.buyPoints();
+    if (!success) {
+      this.paymentInProgress = false;
+    }
   }
 
   // Helper function to handle the POST request

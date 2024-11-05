@@ -81,15 +81,19 @@ export class NavBarComponent implements OnInit {
 
   async buyPoints() {
     this.paymentInProgress = true;
-    await this.storeService.buyPoints();
-    this.paymentInProgress = false;
+    const success = await this.storeService.buyPoints();
+    if (!success) {
+      this.paymentInProgress = false;
+    }
   }
 
   async subscribe() {
     this.subscriptionBenefitsModal.confirmed.subscribe(async () => {
       this.paymentInProgress = true;
-      await this.storeService.startSubscription();
-      this.paymentInProgress = false;
+      const success = await this.storeService.startSubscription();
+      if (!success) {
+        this.paymentInProgress = false;
+      }
     });
     this.subscriptionBenefitsModal.show();
   }
@@ -98,8 +102,10 @@ export class NavBarComponent implements OnInit {
     this.cancelSubscriptionModal.message = "Are you sure you want to cancel your subscription?";
     this.cancelSubscriptionModal.confirmed.subscribe(async () => {
       this.paymentInProgress = true;
-      await this.storeService.cancelSubscription();
-      this.paymentInProgress = false;
+      const success = await this.storeService.cancelSubscription();
+      if (!success) {
+        this.paymentInProgress = false;
+      }
     });
     this.cancelSubscriptionModal.show();
   }

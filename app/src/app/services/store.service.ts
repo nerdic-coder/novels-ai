@@ -27,11 +27,11 @@ export class StoreService {
     return !snapshot.empty;
   }
 
-  async cancelSubscription() {
+  async cancelSubscription(): Promise<boolean> {
     const uid = this.auth.currentUser?.uid;
     if (!uid) {
       this.alertService.error('You must be logged in to cancel your subscription');
-      return;
+      return false;
     }
 
     try {
@@ -41,14 +41,16 @@ export class StoreService {
       
       if (snapshot.empty) {
         this.alertService.error('No active subscription found');
-        return;
+        return false;
       }
 
       const portalSession = await this.createPortalSession();
       window.location.href = portalSession.url;
+      return true;
     } catch (error) {
       console.error('Error canceling subscription:', error);
       this.alertService.error('Failed to cancel subscription. Please try again.');
+      return false;
     }
   }
 
@@ -77,56 +79,68 @@ export class StoreService {
     }
   }
 
-  async buyPoints() {
-    const usersCollection = collection(this.firestore, 'users');
-    const currentUserDoc = doc(usersCollection, this.auth.currentUser?.uid);
-    const checkoutsCollection = collection(currentUserDoc, 'checkout_sessions');
-    const paymentRef = await addDoc(checkoutsCollection, {
-      mode: "payment",
-      price: "price_1MvLYABPvg43OlrWhK03okqu", // One-time price created in Stripe
-      success_url: `${window.location.origin}/novels?success=true`,
-      cancel_url: `${window.location.origin}/novels?cancel=true`,
-    });
+  async buyPoints(): Promise<boolean> {
+    try {
+      const usersCollection = collection(this.firestore, 'users');
+      const currentUserDoc = doc(usersCollection, this.auth.currentUser?.uid);
+      const checkoutsCollection = collection(currentUserDoc, 'checkout_sessions');
+      const paymentRef = await addDoc(checkoutsCollection, {
+        mode: "payment",
+        price: "price_1MvLYABPvg43OlrWhK03okqu", // One-time price created in Stripe
+        success_url: `${window.location.origin}/novels?success=true`,
+        cancel_url: `${window.location.origin}/novels?cancel=true`,
+      });
 
-    // Listen for changes to the document
-    onSnapshot(paymentRef, (doc: any) => {
-      // Check if the URL field exists and is not null
-      if (doc.exists && doc.data().url) {
-        const url = doc.data().url;
-        // event.target.disabled = false;
-        gtag('event', 'begin_checkout', {
-          'event_category': 'Checkout',
-          'event_label': 'Start of Checkout',
-          'value': 5,
+      return new Promise((resolve) => {
+        onSnapshot(paymentRef, (doc: any) => {
+          if (doc.exists && doc.data().url) {
+            const url = doc.data().url;
+            gtag('event', 'begin_checkout', {
+              'event_category': 'Checkout',
+              'event_label': 'Start of Checkout',
+              'value': 5,
+            });
+            window.location.href = url;
+            resolve(true);
+          } else if (doc.exists && doc.data().error) {
+            this.alertService.error('Payment could not be initiated, if error persist contact us!');
+            resolve(false);
+          }
         });
-        // Do something with the URL, e.g. open it in a new window
-        window.location.href = url;
-      } else if (doc.exists && doc.data().error) {
-        this.alertService.error('Payment could not be initiated, if error persist contact us!');
-      }
-    });
+      });
+    } catch (error) {
+      this.alertService.error('Payment could not be initiated, please try again!');
+      return false;
+    }
   }
 
-  async startSubscription() {
-    const usersCollection = collection(this.firestore, 'users');
-    const currentUserDoc = doc(usersCollection, this.auth.currentUser?.uid);
-    const checkoutsCollection = collection(currentUserDoc, 'checkout_sessions');
-    const subscriptionRef = await addDoc(checkoutsCollection, {
-      mode: "subscription",
-      price: environment.SUBSCRIPTION_PRICE_ID,
-      success_url: `${window.location.origin}/novels?subscription=success`,
-      cancel_url: `${window.location.origin}/novels?subscription=cancel`,
-    });
+  async startSubscription(): Promise<boolean> {
+    try {
+      const usersCollection = collection(this.firestore, 'users');
+      const currentUserDoc = doc(usersCollection, this.auth.currentUser?.uid);
+      const checkoutsCollection = collection(currentUserDoc, 'checkout_sessions');
+      const subscriptionRef = await addDoc(checkoutsCollection, {
+        mode: "subscription",
+        price: environment.SUBSCRIPTION_PRICE_ID,
+        success_url: `${window.location.origin}/novels?subscription=success`,
+        cancel_url: `${window.location.origin}/novels?subscription=cancel`,
+      });
 
-    console.log('checkout', subscriptionRef);
-
-    onSnapshot(subscriptionRef, (doc: any) => {
-      if (doc.exists && doc.data().url) {
-        window.location.href = doc.data().url;
-      } else if (doc.exists && doc.data().error) {
-        this.alertService.error('Payment could not be initiated, if error persist contact us!');
-      }
-    });
+      return new Promise((resolve) => {
+        onSnapshot(subscriptionRef, (doc: any) => {
+          if (doc.exists && doc.data().url) {
+            window.location.href = doc.data().url;
+            resolve(true);
+          } else if (doc.exists && doc.data().error) {
+            this.alertService.error('Payment could not be initiated, if error persist contact us!');
+            resolve(false);
+          }
+        });
+      });
+    } catch (error) {
+      this.alertService.error('Subscription could not be initiated, please try again!');
+      return false;
+    }
   }
 
   async getPoints(): Promise<number> {
