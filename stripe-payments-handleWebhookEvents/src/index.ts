@@ -683,16 +683,16 @@ const insertPaymentRecord = async (
         const updatedPoints = points + 10;
         await customerDoc.ref.update({ points: updatedPoints });
       }
+      
+      payment['prices'] = prices;
+      payment['items'] = lineItems.data;
     }
-    payment['prices'] = prices;
-    payment['items'] = lineItems.data;
-  }
-  // Write to invoice to a subcollection on the subscription doc.
-  await customerDoc.ref
-    .collection('payments')
-    .doc(payment.id)
-    .set(payment, { merge: true });
-  logs.firestoreDocCreated('payments', payment.id);
+      // Write to invoice to a subcollection on the subscription doc.
+    await customerDoc.ref
+      .collection('payments')
+      .doc(payment.id)
+      .set(payment, { merge: true });
+    logs.firestoreDocCreated('payments', payment.id);
 };
 
 /**
