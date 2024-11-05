@@ -23,12 +23,12 @@
                   <span class="badge text-bg-info">Loading</span>
                 }
               </div>
-              <div class="mt-2">
+              <div>
                 @if (audiobook.status !== 'error') {
                   @for (chapter of (audiobook.chapters); track chapter; let idx = $index) {
                     <button 
                       type="button" 
-                      class="btn btn-secondary btn-sm me-2"
+                      class="btn btn-secondary btn-sm me-2 mt-2"
                       (click)="onPlayPauseChapter(audiobook, chapter); $event.stopPropagation()"
                       [disabled]="audiobook.status === 'progress' && idx === audiobook.chapters!.length - 1">
                       <i *ngIf="audiobook.status === 'progress' && idx === audiobook.chapters!.length - 1" 
@@ -133,11 +133,11 @@
       <div class="row mb-3" *ngIf="selectedAudiobook?.chapters">
         <div class="col-12">
           <strong>Chapters:</strong>
-          <div class="mt-2">
+          <div>
             <ng-container *ngFor="let chapter of selectedAudiobook!.chapters; let idx = index">
               <button 
                 type="button" 
-                class="btn btn-secondary btn-sm me-2 mb-2"
+                class="btn btn-secondary btn-sm me-2 mb-2 mt-2"
                 (click)="onPlayPauseChapter(selectedAudiobook!, chapter)"
                 [disabled]="selectedAudiobook!.status === 'progress' && idx === selectedAudiobook!.chapters!.length - 1">
                 <i *ngIf="selectedAudiobook!.status === 'progress' && idx === selectedAudiobook!.chapters!.length - 1" 

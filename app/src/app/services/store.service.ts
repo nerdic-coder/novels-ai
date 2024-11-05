@@ -44,7 +44,6 @@ export class StoreService {
         return;
       }
 
-      const subscription = snapshot.docs[0];
       const portalSession = await this.createPortalSession();
       window.location.href = portalSession.url;
     } catch (error) {
