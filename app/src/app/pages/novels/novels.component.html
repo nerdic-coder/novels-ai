@@ -13,7 +13,7 @@
           <td 
             class="list-group-item d-flex justify-content-between align-items-start"
             (click)="openAudiobookDetails(audiobook)">
-            <div class="d-flex flex-column w-100">
+            <div class="d-flex flex-column w-100 p-2">
               <div class="fw-bold">
                 {{audiobook.title}} 
                 @if (audiobook.status === 'error') {
@@ -45,7 +45,7 @@
                 }
               </div>
             </div>
-            <div class="mt-2">
+            <div class="mt-2 me-1">
               @if (audiobook.status !== 'error') {
                 <button type="button" class="btn btn-sm btn-success" (click)="addChapter(audiobook.id); $event.stopPropagation()" [disabled]="points < 1">Extend</button>
               }

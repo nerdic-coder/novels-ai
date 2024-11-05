@@ -52,6 +52,7 @@ export class NovelsComponent implements OnInit, AfterViewInit {
   @ViewChild('cancelSubscriptionModal') cancelSubscriptionModal!: ConfirmationModalComponent;
   @ViewChild('deleteModal') deleteModal!: ConfirmationModalComponent;
   @ViewChild('subscriptionBenefitsModal') subscriptionBenefitsModal!: SubscriptionBenefitsModalComponent;
+  @ViewChild('addChapterModal') addChapterModal!: ConfirmationModalComponent;
   isSubscribed = false;
 
   constructor(
@@ -237,8 +238,6 @@ export class NovelsComponent implements OnInit, AfterViewInit {
     });
     this.deleteModal.show();
   }
-
-  @ViewChild('addChapterModal') addChapterModal!: ConfirmationModalComponent;
 
   async addChapter(audiobookId: string) {
     this.addChapterModal.message = "Are you sure you want to add a new chapter for 1 point?";
