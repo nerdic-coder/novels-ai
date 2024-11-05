@@ -20,6 +20,7 @@ export class AuthService {
       // this.userSubject.next(user); // Emits user state across the app
       if (user) {
         console.log('Logged in', user);
+        this.router.navigate(['/novels']);
         // Handle logged-in user (e.g., fetch user data or update UI)
       } else {
         // Handle user logout (e.g., clear user-specific data)
