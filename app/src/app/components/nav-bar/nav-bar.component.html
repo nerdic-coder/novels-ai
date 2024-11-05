@@ -13,7 +13,7 @@
           class="btn btn-success me-2 d-none d-md-inline"
           (click)="buyPoints()"
           [disabled]="paymentInProgress">Buy 10 credits</button>
-        @if (!isSubscribed) {
+        @if (!(checkSubscribed() | async)) {
           <button 
             type="button"
             class="btn btn-info me-2 d-none d-md-inline"

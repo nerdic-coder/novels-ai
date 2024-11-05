@@ -49,6 +49,10 @@ export class NavBarComponent implements OnInit {
     return this.authService.isAuthenticated();
   }
 
+  checkSubscribed(): Promise<boolean> {
+    return this.storeService.isSubscribed();
+  }
+
   async emailLogin() {
     const success = await this.authService.loginWithEmail(this.email, this.password);
     if (success) {
