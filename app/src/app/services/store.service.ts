@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { 
   Auth
 } from '@angular/fire/auth';
+import { BehaviorSubject } from 'rxjs';
 import { Firestore, collection, doc, addDoc, onSnapshot, getDoc, query, where, getDocs } from '@angular/fire/firestore';
 import { getFunctions, httpsCallable } from '@angular/fire/functions';
 import { environment } from '../../environments/environment';
@@ -17,14 +18,22 @@ export class StoreService {
   firestore: Firestore = inject(Firestore);
   alertService = inject(AlertService);
 
+  private subscriptionStatusSubject = new BehaviorSubject<boolean>(false);
+  subscriptionStatus$ = this.subscriptionStatusSubject.asObservable();
+
   async isSubscribed(): Promise<boolean> {
     const uid = this.auth.currentUser?.uid;
-    if (!uid) return false;
+    if (!uid) {
+      this.subscriptionStatusSubject.next(false);
+      return false;
+    }
 
     const subscriptionsRef = collection(this.firestore, 'users', uid, 'subscriptions');
     const q = query(subscriptionsRef, where('status', 'in', ['trialing', 'active']));
     const snapshot = await getDocs(q);
-    return !snapshot.empty;
+    const isSubscribed = !snapshot.empty;
+    this.subscriptionStatusSubject.next(isSubscribed);
+    return isSubscribed;
   }
 
   async cancelSubscription(): Promise<boolean> {

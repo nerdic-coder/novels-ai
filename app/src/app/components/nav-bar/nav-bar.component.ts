@@ -41,8 +41,12 @@ export class NavBarComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
-    // Check subscription status when component initializes
-    this.isSubscribed = await this.storeService.isSubscribed();
+    // Initialize subscription status
+    await this.storeService.isSubscribed();
+    // Monitor subscription status changes
+    this.storeService.subscriptionStatus$.subscribe(status => {
+      this.isSubscribed = status;
+    });
   }
 
   isAuthenticated(): boolean {
