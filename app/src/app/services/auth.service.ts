@@ -16,30 +16,30 @@ export class AuthService {
 
   constructor() {
     // connectAuthEmulator(this.auth, "http://127.0.0.1:9099", { disableWarnings: true });
+    
+    // Handle redirect result immediately on construction
+    this.handleRedirectResult();
+    
     onAuthStateChanged(this.auth, (user) => {
-      // this.userSubject.next(user); // Emits user state across the app
       if (user) {
         console.log('Logged in', user);
         this.router.navigate(['/novels']);
-        // Handle logged-in user (e.g., fetch user data or update UI)
       } else {
         // Handle user logout (e.g., clear user-specific data)
       }
     });
   }
 
-  ngOnInit() {
-    getRedirectResult(this.auth)
-      .then((result) => {
-        if (result) {
-          // Handle the logged-in user here, like storing user info or redirecting
-          console.log("Login successful", result.user);
-          this.router.navigate(['/novels']);
-        }
-      })
-      .catch((error) => {
-        console.error("Error handling redirect result", error);
-      });
+  private async handleRedirectResult() {
+    try {
+      const result = await getRedirectResult(this.auth);
+      if (result) {
+        console.log("Login successful", result.user);
+        this.router.navigate(['/novels']);
+      }
+    } catch (error) {
+      console.error("Error handling redirect result", error);
+    }
   }
 
   // Optionally define a method to manually check authentication state
@@ -57,6 +57,8 @@ export class AuthService {
     try {
       await setPersistence(this.auth, browserLocalPersistence);
       await signInWithRedirect(this.auth, provider);
+      // Handle redirect result after redirect
+      await this.handleRedirectResult();
     } catch (error) {
       console.error('Login error:', error);
     }

@@ -68,17 +68,15 @@ export class NavBarComponent implements OnInit {
 
   async googleLogin() {
     try {
-      // Disable the button and change the text
       this.isGoogleLoginDisabled = true;
       this.googleSignInButtonText = 'Loading...';
       await this.authService.loginWithGoogle();
+    } catch (error) {
+      console.error('Error signing in', error);
+      this.alertService.error('Error signing in!');
+    } finally {
       this.isGoogleLoginDisabled = false;
       this.googleSignInButtonText = 'Google Login';
-    } catch (error) {
-        console.error('Error signing in', error);
-        this.alertService.error('Error signing in!');
-        this.isGoogleLoginDisabled = false;
-        this.googleSignInButtonText = 'Google Login';
     }
   }
 
