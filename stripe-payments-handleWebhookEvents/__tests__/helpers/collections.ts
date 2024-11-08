@@ -16,15 +16,15 @@ setupEmulator();
 const firestore = admin.firestore();
 
 function customerCollection() {
-  return firestore.collection('customers');
+  return firestore.collection('users');
 }
 
 function paymentsCollection(userId) {
-  return firestore.collection('customers').doc(userId).collection('payments');
+  return firestore.collection('users').doc(userId).collection('payments');
 }
 
 export async function findCustomerInCollection(user: UserRecord) {
-  const doc = firestore.collection('customers').doc(user.uid);
+  const doc = firestore.collection('users').doc(user.uid);
 
   const customerDoc = await waitForDocumentToExistWithField(
     doc,

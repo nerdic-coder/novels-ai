@@ -1,5 +1,8 @@
 {
   "projects": {
     "default": "ai-audiobook"
+  },
+  "functions": {
+    "region": "europe-central2"
   }
 }
