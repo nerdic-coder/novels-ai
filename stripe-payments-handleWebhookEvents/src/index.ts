@@ -704,8 +704,12 @@ const insertPaymentRecord = async (
  */
 export const handleWebhookEvents = functions.https.onRequest(
   async (req: functions.https.Request, resp) => {
+    const allowedOrigins = ['https://beta.novels-ai.com', 'https://novels-ai.com'];
     // Set CORS headers
-    resp.set('Access-Control-Allow-Origin', 'beta.novels-ai.com, novels-ai.com');
+    const origin = req.headers.origin;
+    if (allowedOrigins.includes(origin)) {
+      resp.set('Access-Control-Allow-Origin', origin);
+    }
     resp.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     resp.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 

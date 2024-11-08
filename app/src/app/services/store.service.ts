@@ -52,9 +52,6 @@ export class StoreService {
         this.alertService.error('No active subscription found');
         return false;
       }
-
-      // Show message about benefits continuing until end of period
-      this.alertService.info('Your benefits will continue until the end of your billing period');
       
       const portalSession = await this.createPortalSession();
       window.location.href = portalSession.url;
