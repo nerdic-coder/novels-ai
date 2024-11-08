@@ -1,6 +1,20 @@
 <div class="container">
   <a [routerLink]="['/novels']"><img src="/assets/img/small-header.png" alt="Novels AI" style="max-width: 100%;" /></a>
   <div id="register-page">
+    @if (activeSubscription) {
+    <div class="card text-bg-dark mb-3">
+      <div class="card-header">
+        <h5 class="card-title mb-0">Active Subscription</h5>
+      </div>
+      <div class="card-body">
+        <p class="card-text">Status: {{activeSubscription.status}}</p>
+        <p class="card-text">Current Period: {{formatDate(activeSubscription.current_period_start.seconds)}} - {{formatDate(activeSubscription.current_period_end.seconds)}}</p>
+        @if (activeSubscription.cancel_at) {
+          <p class="card-text text-warning">Cancels on: {{formatDate(activeSubscription.cancel_at.seconds)}}</p>
+        }
+      </div>
+    </div>
+    }
     <div class="card text-bg-dark mb-3">
       <table class="table table-dark table-striped table-bordered table-sm" style="margin-bottom: 0;">
         <thead>

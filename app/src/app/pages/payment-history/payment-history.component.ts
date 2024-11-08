@@ -11,6 +11,8 @@ import {
   doc,
   orderBy,
   query,
+  where,
+  getDocs
 } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 
@@ -25,8 +27,10 @@ export class PaymentHistoryComponent {
   private auth = inject(Auth);
   firestore: Firestore = inject(Firestore);
   payments$ = new Observable<any[]>();
+  activeSubscription: any = null;
 
   constructor() {
+    this.loadSubscriptionData();
     // Get the currently signed-in user
     const usersCollection = collection(this.firestore, 'users');
     const currentUserDoc = doc(usersCollection, this.auth.currentUser?.uid);
@@ -38,5 +42,17 @@ export class PaymentHistoryComponent {
 
   formatDate(date: number): string {
     return new Date(date * 1000).toLocaleString();
+  }
+
+  private async loadSubscriptionData() {
+    const usersCollection = collection(this.firestore, 'users');
+    const currentUserDoc = doc(usersCollection, this.auth.currentUser?.uid);
+    const subscriptionsCollection = collection(currentUserDoc, 'subscriptions');
+    const q = query(subscriptionsCollection, where('status', 'in', ['trialing', 'active']));
+    
+    const querySnapshot = await getDocs(q);
+    if (!querySnapshot.empty) {
+      this.activeSubscription = querySnapshot.docs[0].data();
+    }
   }
 }
