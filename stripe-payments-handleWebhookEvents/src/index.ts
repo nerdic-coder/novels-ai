@@ -545,6 +545,10 @@ const manageSubscriptionStatusChange = async (
     trial_end: subscription.trial_end
       ? admin.firestore.Timestamp.fromMillis(subscription.trial_end * 1000)
       : null,
+    // Add resume_at if subscription is scheduled to resume
+    // resume_at: subscription.pause_collection?.resume_at
+    //   ? admin.firestore.Timestamp.fromMillis(subscription.pause_collection.resume_at * 1000)
+    //   : null,
   };
   await subsDbRef.set(subscriptionData);
 
@@ -700,6 +704,16 @@ const insertPaymentRecord = async (
  */
 export const handleWebhookEvents = functions.https.onRequest(
   async (req: functions.https.Request, resp) => {
+    // Set CORS headers
+    resp.set('Access-Control-Allow-Origin', 'beta.novels-ai.com, novels-ai.com');
+    resp.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    resp.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+    // Handle preflight requests
+    if (req.method === 'OPTIONS') {
+      resp.status(204).send('');
+      return;
+    }
     const relevantEvents = new Set([
       'product.created',
       'product.updated',
