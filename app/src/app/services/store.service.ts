@@ -68,7 +68,7 @@ export class StoreService {
 
   private async createPortalSession(): Promise<{ url: string }> {
     const functionRef = httpsCallable<{ returnUrl: string }, { url: string }>(
-      getFunctions(),
+      getFunctions(undefined, 'europe-west2'),
       'ext-firestore-stripe-payments-createPortalLink'
     );
     const { data } = await functionRef({
