@@ -74,9 +74,9 @@
     } @else {
       <button 
         type="button"
-        class="btn btn-danger"
+        class="btn btn-info"
         (click)="cancelSubscription()"
-        [disabled]="paymentInProgress">Cancel Subscription</button>
+        [disabled]="paymentInProgress">Subscription Details</button>
     }
     <input 
       type="button"
@@ -89,7 +89,7 @@
 </div>
 <app-confirmation-modal #deleteModal title="Delete Book"></app-confirmation-modal>
 <app-confirmation-modal #addChapterModal title="Add Chapter"></app-confirmation-modal>
-<app-confirmation-modal #cancelSubscriptionModal title="Cancel Subscription"></app-confirmation-modal>
+<app-confirmation-modal #cancelSubscriptionModal title="Subscription Details"></app-confirmation-modal>
 <app-subscription-benefits-modal #subscriptionBenefitsModal></app-subscription-benefits-modal>
 <!-- Offcanvas for Audiobook Details -->
 <div 

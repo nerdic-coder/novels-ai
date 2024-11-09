@@ -58,7 +58,7 @@ export class StoreService {
       return true;
     } catch (error) {
       console.error('Error canceling subscription:', error);
-      this.alertService.error('Failed to cancel subscription. Please try again.');
+      this.alertService.error('Failed to view subscription details. Contact us if issue remains!');
       return false;
     }
   }

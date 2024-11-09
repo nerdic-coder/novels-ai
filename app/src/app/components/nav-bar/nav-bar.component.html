@@ -19,12 +19,6 @@
             class="btn btn-info me-2 d-none d-md-inline"
             (click)="subscribe()"
             [disabled]="paymentInProgress">Subscribe (€6.99/mo)</button>
-        } @else {
-          <button 
-            type="button"
-            class="btn btn-danger me-2 d-none d-md-inline"
-            (click)="cancelSubscription()"
-            [disabled]="paymentInProgress">Cancel Subscription</button>
         }
         <button type="button" class="btn btn-secondary" (click)="logout()">Logout</button>
       </div>

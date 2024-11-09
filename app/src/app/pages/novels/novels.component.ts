@@ -295,14 +295,10 @@ export class NovelsComponent implements OnInit, AfterViewInit {
   }
 
   async cancelSubscription() {
-    this.cancelSubscriptionModal.message = "Are you sure you want to cancel your subscription?";
-    this.cancelSubscriptionModal.confirmed.subscribe(async () => {
-      this.paymentInProgress = true;
+    this.paymentInProgress = true;
       const success = await this.storeService.cancelSubscription();
       if (!success) {
         this.paymentInProgress = false;
       }
-    });
-    this.cancelSubscriptionModal.show();
   }
 }
