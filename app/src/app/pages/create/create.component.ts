@@ -10,7 +10,7 @@ import {
   doc,
   onSnapshot,
 } from '@angular/fire/firestore';
-import { environment } from '../../../environments/environment';
+import { environment } from '../../../environments/environment.loader';
 import { StoreService } from '../../services/store.service';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';

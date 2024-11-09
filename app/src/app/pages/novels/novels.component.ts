@@ -19,7 +19,7 @@ import {
   onSnapshot,
   startAfter,
 } from '@angular/fire/firestore';
-import { environment } from '../../../environments/environment';
+import { environment } from '../../../environments/environment.loader';
 import { Audiobook, Chapter, narrationTypes, voices } from '../../models/audiobook';
 import { StoreService } from '../../services/store.service';
 import { AudioService } from '../../services/audio.service';

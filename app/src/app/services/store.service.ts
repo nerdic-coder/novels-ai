@@ -5,7 +5,7 @@ import {
 import { BehaviorSubject } from 'rxjs';
 import { Firestore, collection, doc, addDoc, onSnapshot, getDoc, query, where, getDocs } from '@angular/fire/firestore';
 import { getFunctions, httpsCallable } from '@angular/fire/functions';
-import { environment } from '../../environments/environment';
+import { environment } from '../../environments/environment.loader';
 import { AlertService } from './alert.service';
 
 declare let gtag: Function;
@@ -95,7 +95,7 @@ export class StoreService {
       const checkoutsCollection = collection(currentUserDoc, 'checkout_sessions');
       const paymentRef = await addDoc(checkoutsCollection, {
         mode: "payment",
-        price: "price_1MvLYABPvg43OlrWhK03okqu", // One-time price created in Stripe
+        price: environment.POINTS_PRICE_ID,
         success_url: `${window.location.origin}/novels?success=true`,
         cancel_url: `${window.location.origin}/novels?cancel=true`,
       });
