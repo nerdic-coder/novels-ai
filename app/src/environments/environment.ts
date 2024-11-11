@@ -6,7 +6,7 @@ export const environment = {
   
   STORIES_PER_PAGE: 5,
   NEW_USER_POINTS: 1,
-  SUBSCRIPTION_PRICE_ID: 'price_1QGmloBPvg43OlrWJyM4fMvY',
+  SUBSCRIPTION_PRICE_ID: 'price_1QK3rEBPvg43OlrWCaP4YQ0w',
   STRIPE_TEST_MODE: true,
   POINTS_PRICE_ID: 'price_1MvO0jBPvg43OlrWpKdsLptb',
 };

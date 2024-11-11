@@ -34,7 +34,7 @@ export class RegisterComponent {
 
     if (isRegistered) {
       this.alertService.success('Registration successful!');
-      this.router.navigate(['/']);
+      this.router.navigate(['/novels']);
     } else {
       this.alertService.error('Registration failed!');
     }
