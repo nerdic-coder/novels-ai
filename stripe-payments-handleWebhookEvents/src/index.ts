@@ -115,9 +115,10 @@ exports.createCustomer = functions.auth
         const doc = await userRef.get();
 
         if (!doc.exists) {
-            // If the document doesn't exist, create it with the email field
+            // If the document doesn't exist, create it with the email and points field
             await userRef.set({
-                email: email
+                email: email,
+                points: 1,
             });
         } else if (!doc.data()?.email) {
             // If the document exists but lacks the email field, add it
@@ -762,12 +763,13 @@ const insertPaymentRecord = async (
       console.log('payment.status', payment.status);
       if (payment.status === 'succeeded') {
         if (item.price.id === 'price_1MvLYABPvg43OlrWhK03okqu' ||
+            item.price.id === 'price_1QK3rEBPvg43OlrWCaP4YQ0w' ||
             item.description === '10 points to use to create Novels AI chapters.' ||
             item.description === '10 Novels AI points') {
           const points = customersSnap.docs[0].data()?.points || 0;
           const updatedPoints = points + 10;
           await customerDoc.ref.update({ points: updatedPoints });
-        } else if (item.price.id === 'price_1QGmloBPvg43OlrWJyM4fMvY') {
+        } else if (item.price.id === 'price_1QGmloBPvg43OlrWJyM4fMvY' || item.price.id === 'price_1QK3rEBPvg43OlrWCaP4YQ0w') {
           const points = customersSnap.docs[0].data()?.points || 0;
           const updatedPoints = points + 20; // Add 20 points for monthly subscription
           await customerDoc.ref.update({ points: updatedPoints });
@@ -839,7 +841,7 @@ export const handleWebhookEvents = functions.https.onRequest(
         event = stripeTest.webhooks.constructEvent(
           req.rawBody,
           req.headers['stripe-signature'],
-          config.stripeWebhookSecret
+          config.stripeTestWebhookSecret
         );
       } catch (error) {
         logs.badWebhookSecret(error);

@@ -15,3 +15,9 @@ Set all needed env variables on your system.
 `npm install` command in backend folder to install dependencies.
 
 `npm start` command to start the server on localhost
+
+
+
+Test customer
+Live: cus_NgjSSLoqZW8du5
+Test: cus_Ngm5rYw71uaA9N
