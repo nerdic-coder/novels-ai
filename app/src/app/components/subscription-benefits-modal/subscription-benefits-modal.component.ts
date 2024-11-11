@@ -20,7 +20,6 @@ data-bs-theme="dark">
             <ul class="list-group list-group-flush">
               <li class="list-group-item bg-transparent">✨ 20 points every month automatically</li>
               <li class="list-group-item bg-transparent">🚀 Priority access to new features</li>
-              <li class="list-group-item bg-transparent">💰 Special subscriber-only discounts</li>
               <li class="list-group-item bg-transparent">🔄 Points roll over - never lose unused points</li>
             </ul>
           </div>
