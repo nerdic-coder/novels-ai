@@ -28,7 +28,7 @@
           @for (payment of (payments$ | async); track payment) {
             <tr>
               <td>{{formatDate(payment.created)}}</td>
-              <td>{{payment.amount}}</td>
+              <td>{{payment.amount / 100}} {{payment.currency}}</td>
               <td>{{payment.status}}</td>
             </tr>
           }

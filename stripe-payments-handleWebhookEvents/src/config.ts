@@ -16,6 +16,7 @@
 
 export default {
   stripeSecretKey: process.env.STRIPE_API_KEY,
+  stripeTestSecretKey: process.env.STRIPE_TEST_API_KEY,
   stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
   productsCollectionPath: process.env.PRODUCTS_COLLECTION,
   customersCollectionPath: process.env.CUSTOMERS_COLLECTION,

@@ -38,6 +38,15 @@ const stripe = new Stripe(config.stripeSecretKey, {
   },
 });
 
+const stripeTest = new Stripe(config.stripeTestSecretKey, {
+  // Register extension as a Stripe plugin
+  // https://stripe.com/docs/building-plugins#setappinfo
+  appInfo: {
+    name: 'Firebase firestore-stripe-payments',
+    version: '0.3.3',
+  },
+});
+
 admin.initializeApp();
 
 const eventChannel =
@@ -53,10 +62,12 @@ const createCustomerRecord = async ({
   email,
   uid,
   phone,
+  livemode = true,
 }: {
   email?: string;
   phone?: string;
   uid: string;
+  livemode?: boolean;
 }) => {
   try {
     logs.creatingCustomer(uid);
@@ -67,7 +78,8 @@ const createCustomerRecord = async ({
     };
     if (email) customerData.email = email;
     if (phone) customerData.phone = phone;
-    const customer = await stripe.customers.create(customerData);
+    const stripeSource = livemode ? stripe : stripeTest;
+    const customer = await stripeSource.customers.create(customerData);
     // Add a mapping record in Cloud Firestore.
     const customerRecord = {
       email: customer.email,
@@ -93,12 +105,42 @@ const createCustomerRecord = async ({
 exports.createCustomer = functions.auth
   .user()
   .onCreate(async (user): Promise<void> => {
-    if (!config.syncUsersOnCreate) return;
     const { email, uid, phoneNumber } = user;
+
+    // Reference to the Firestore document for the user
+    const userRef = admin.firestore().collection('users').doc(uid);
+
+    try {
+        // Get the document snapshot for the user
+        const doc = await userRef.get();
+
+        if (!doc.exists) {
+            // If the document doesn't exist, create it with the email field
+            await userRef.set({
+                email: email
+            });
+        } else if (!doc.data()?.email) {
+            // If the document exists but lacks the email field, add it
+            await userRef.update({
+                email: email
+            });
+        }
+    } catch (error) {
+        console.error("Error ensuring email field:", error);
+    }
+
+    if (!config.syncUsersOnCreate) {
+      return;
+    }
+    let livemode = true;
+    if (email.includes('nerdic-coder.com')) {
+      livemode = false;
+    }
     await createCustomerRecord({
       email,
       uid,
       phone: phoneNumber,
+      livemode,
     });
   });
 
@@ -145,6 +187,7 @@ exports.createCheckoutSession = functions
       phone_number_collection = {},
     } = snap.data();
     try {
+      let livemode = true;
       logs.creatingCheckoutSession(context.params.id);
       // Get stripe customer id
       let customerRecord = (await snap.ref.parent.parent.get()).data();
@@ -152,13 +195,20 @@ exports.createCheckoutSession = functions
         const { email, phoneNumber } = await admin
           .auth()
           .getUser(context.params.uid);
+        if (email.includes('nerdic-coder.com')) {
+          livemode = false;
+        }
         customerRecord = await createCustomerRecord({
           uid: context.params.uid,
           email,
           phone: phoneNumber,
+          livemode,
         });
       }
       const customer = customerRecord.stripeId;
+      if (customerRecord.email.includes('nerdic-coder.com')) {
+        livemode = false;
+      }
       if (client === 'web') {
         // Get shipping countries
         const shippingCountries: Stripe.Checkout.SessionCreateParams.ShippingAddressCollection.AllowedCountry[] =
@@ -235,7 +285,8 @@ exports.createCheckoutSession = functions
         }
         if (client_reference_id)
           sessionCreateParams.client_reference_id = client_reference_id;
-        const session = await stripe.checkout.sessions.create(
+        const stripeSource = livemode ? stripe : stripeTest;
+        const session = await stripeSource.checkout.sessions.create(
           sessionCreateParams,
           { idempotencyKey: context.params.id }
         );
@@ -272,12 +323,14 @@ exports.createCheckoutSession = functions
             paymentIntentCreateParams.automatic_payment_methods =
               automatic_payment_methods;
           }
-          const paymentIntent = await stripe.paymentIntents.create(
+          const stripeSource = livemode ? stripe : stripeTest;
+          const paymentIntent = await stripeSource.paymentIntents.create(
             paymentIntentCreateParams
           );
           paymentIntentClientSecret = paymentIntent.client_secret;
         } else if (mode === 'setup') {
-          const setupIntent = await stripe.setupIntents.create({
+          const stripeSource = livemode ? stripe : stripeTest;
+          const setupIntent = await stripeSource.setupIntents.create({
             customer,
             metadata,
             payment_method_types: payment_method_types ?? ['card'],
@@ -288,7 +341,8 @@ exports.createCheckoutSession = functions
             `Mode '${mode} is not supported for 'client:mobile'!`
           );
         }
-        const ephemeralKey = await stripe.ephemeralKeys.create(
+        const stripeSource = livemode ? stripe : stripeTest;
+        const ephemeralKey = await stripeSource.ephemeralKeys.create(
           { customer },
           {  }
         );
@@ -337,13 +391,17 @@ export const createPortalLink = functions.https.onCall(
     try {
       const { returnUrl: return_url, locale = 'auto', configuration } = data;
       // Get stripe customer id
-      const customer = (
+      const customerRecord = (
         await admin
           .firestore()
           .collection(config.customersCollectionPath)
           .doc(uid)
           .get()
-      ).data().stripeId;
+      ).data();
+    
+      const customer = customerRecord.stripeId;
+      const email = customerRecord.email;
+
       const params: Stripe.BillingPortal.SessionCreateParams = {
         customer,
         return_url,
@@ -352,7 +410,12 @@ export const createPortalLink = functions.https.onCall(
       if (configuration) {
         params.configuration = configuration;
       }
-      const session = await stripe.billingPortal.sessions.create(params);
+      let livemode = true;
+      if (email.includes('nerdic-coder.com')) {
+        livemode = false;
+      }
+      const stripeSource = livemode ? stripe : stripeTest;
+      const session = await stripeSource.billingPortal.sessions.create(params);
       logs.createdBillingPortalLink(uid);
       return session;
     } catch (error) {
@@ -461,6 +524,16 @@ const copyBillingDetailsToCustomer = async (
   await stripe.customers.update(customer, { name, phone, address });
 };
 
+// Helper function to add points to a user
+async function addPointsToUser(uid: string, points: number) {
+  const userRef = admin.firestore().collection(config.customersCollectionPath).doc(uid);
+  await admin.firestore().runTransaction(async (transaction) => {
+    const userDoc = await transaction.get(userRef);
+    const currentPoints = userDoc.exists ? userDoc.data()?.points || 0 : 0;
+    transaction.update(userRef, { points: currentPoints + points });
+  });
+}
+
 /**
  * Manage subscription status changes.
  */
@@ -478,9 +551,24 @@ const manageSubscriptionStatusChange = async (
   if (customersSnap.size !== 1) {
     throw new Error('User not found!');
   }
+  
   const uid = customersSnap.docs[0].id;
+  const customerRecord = (
+    await admin
+      .firestore()
+      .collection(config.customersCollectionPath)
+      .doc(uid)
+      .get()
+  ).data();
+
+  const email = customerRecord.email;
+  let livemode = true;
+  if (email.includes('nerdic-coder.com')) {
+    livemode = false;
+  }
+  const stripeSource = livemode ? stripe : stripeTest;
   // Retrieve latest subscription status and write it to the Firestore
-  const subscription = await stripe.subscriptions.retrieve(subscriptionId, {
+  const subscription = await stripeSource.subscriptions.retrieve(subscriptionId, {
     expand: ['default_payment_method', 'items.data.price.product'],
   });
   const price: Stripe.Price = subscription.items.data[0].price;
@@ -565,6 +653,8 @@ const manageSubscriptionStatusChange = async (
         await admin
           .auth()
           .setCustomUserClaims(uid, { ...customClaims, stripeRole: role });
+        // Add 20 points for each successful renewal (every month)
+        await addPointsToUser(uid, 20);
       } else {
         logs.userCustomClaimSet(uid, 'stripeRole', 'null');
         await admin
@@ -652,7 +742,8 @@ const insertPaymentRecord = async (
   console.log('payment.status', payment.status);
   console.log('checkoutSession', checkoutSession);
   if (checkoutSession) {
-    const lineItems = await stripe.checkout.sessions.listLineItems(
+    const stripeSource = checkoutSession.livemode ? stripe : stripeTest;
+    const lineItems = await stripeSource.checkout.sessions.listLineItems(
       checkoutSession.id
     );
     const prices = [];
@@ -704,20 +795,6 @@ const insertPaymentRecord = async (
  */
 export const handleWebhookEvents = functions.https.onRequest(
   async (req: functions.https.Request, resp) => {
-    const allowedOrigins = ['https://beta.novels-ai.com', 'https://novels-ai.com'];
-    // Set CORS headers
-    const origin = req.headers.origin;
-    if (allowedOrigins.includes(origin)) {
-      resp.set('Access-Control-Allow-Origin', origin);
-    }
-    resp.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    resp.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-
-    // Handle preflight requests
-    if (req.method === 'OPTIONS') {
-      resp.status(204).send('');
-      return;
-    }
     const relevantEvents = new Set([
       'product.created',
       'product.updated',
@@ -758,8 +835,17 @@ export const handleWebhookEvents = functions.https.onRequest(
       );
     } catch (error) {
       logs.badWebhookSecret(error);
-      resp.status(401).send('Webhook Error: Invalid Secret');
-      return;
+      try {
+        event = stripeTest.webhooks.constructEvent(
+          req.rawBody,
+          req.headers['stripe-signature'],
+          config.stripeWebhookSecret
+        );
+      } catch (error) {
+        logs.badWebhookSecret(error);
+        resp.status(401).send('Webhook Error: Invalid Secret');
+        return;
+      }
     }
 
     if (relevantEvents.has(event.type)) {
@@ -807,8 +893,9 @@ export const handleWebhookEvents = functions.https.onRequest(
                 true
               );
             } else {
+              const stripeSource = checkoutSession.livemode ? stripe : stripeTest;
               const paymentIntentId = checkoutSession.payment_intent as string;
-              const paymentIntent = await stripe.paymentIntents.retrieve(
+              const paymentIntent = await stripeSource.paymentIntents.retrieve(
                 paymentIntentId
               );
               await insertPaymentRecord(paymentIntent, checkoutSession);
