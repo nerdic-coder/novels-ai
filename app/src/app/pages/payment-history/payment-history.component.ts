@@ -15,6 +15,7 @@ import {
   getDocs
 } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
+import { StoreService } from '../../services/store.service';
 
 @Component({
   selector: 'app-payment-history',
@@ -29,7 +30,7 @@ export class PaymentHistoryComponent {
   payments$ = new Observable<any[]>();
   activeSubscription: any = null;
 
-  constructor() {
+  constructor(private storeService: StoreService) {
     this.loadSubscriptionData();
     // Get the currently signed-in user
     const usersCollection = collection(this.firestore, 'users');
@@ -38,6 +39,10 @@ export class PaymentHistoryComponent {
     const paymentCollection = collection(currentUserDoc, 'payments');
     const queryPayments = query(paymentCollection, orderByCreated);
     this.payments$ = collectionData<any> (queryPayments);
+  }
+
+  async subscriptionDetails() {
+      await this.storeService.cancelSubscription();
   }
 
   formatDate(date: number): string {

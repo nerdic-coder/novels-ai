@@ -12,6 +12,10 @@
         @if (activeSubscription.cancel_at) {
           <p class="card-text text-warning">Cancels on: {{formatDate(activeSubscription.cancel_at.seconds)}}</p>
         }
+        <button 
+          type="button"
+          class="btn btn-info"
+          (click)="subscriptionDetails()">Subscription Details</button>
       </div>
     </div>
     }
