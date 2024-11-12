@@ -518,11 +518,13 @@ const insertTaxRateRecord = async (taxRate: Stripe.TaxRate): Promise<void> => {
  * Copies the billing details from the payment method to the customer object.
  */
 const copyBillingDetailsToCustomer = async (
-  payment_method: Stripe.PaymentMethod
+  payment_method: Stripe.PaymentMethod,
+  livemode: boolean,
 ): Promise<void> => {
   const customer = payment_method.customer as string;
   const { name, phone, address } = payment_method.billing_details;
-  await stripe.customers.update(customer, { name, phone, address });
+  const stripeSource = livemode ? stripe : stripeTest;
+  await stripeSource.customers.update(customer, { name, phone, address });
 };
 
 // Helper function to add points to a user
@@ -531,6 +533,7 @@ async function addPointsToUser(uid: string, points: number) {
   await admin.firestore().runTransaction(async (transaction) => {
     const userDoc = await transaction.get(userRef);
     const currentPoints = userDoc.exists ? userDoc.data()?.points || 0 : 0;
+    console.log(`add ${points} points to user ${uid}`);
     transaction.update(userRef, { points: currentPoints + points });
   });
 }
@@ -541,7 +544,8 @@ async function addPointsToUser(uid: string, points: number) {
 const manageSubscriptionStatusChange = async (
   subscriptionId: string,
   customerId: string,
-  createAction: boolean
+  createAction: boolean,
+  livemode: boolean,
 ): Promise<void> => {
   // Get customer's UID from Firestore
   const customersSnap = await admin
@@ -554,19 +558,19 @@ const manageSubscriptionStatusChange = async (
   }
   
   const uid = customersSnap.docs[0].id;
-  const customerRecord = (
-    await admin
-      .firestore()
-      .collection(config.customersCollectionPath)
-      .doc(uid)
-      .get()
-  ).data();
+  // const customerRecord = (
+  //   await admin
+  //     .firestore()
+  //     .collection(config.customersCollectionPath)
+  //     .doc(uid)
+  //     .get()
+  // ).data();
 
-  const email = customerRecord.email;
-  let livemode = true;
-  if (email.includes('nerdic-coder.com')) {
-    livemode = false;
-  }
+  // const email = customerRecord.email;
+  // let livemode = true;
+  // if (email.includes('nerdic-coder.com')) {
+  //   livemode = false;
+  // }
   const stripeSource = livemode ? stripe : stripeTest;
   // Retrieve latest subscription status and write it to the Firestore
   const subscription = await stripeSource.subscriptions.retrieve(subscriptionId, {
@@ -643,6 +647,7 @@ const manageSubscriptionStatusChange = async (
 
   logs.firestoreDocCreated('subscriptions', subscription.id);
 
+  console.log('subscription.status', subscription.status);
   // Update their custom claims
   if (role) {
     try {
@@ -654,8 +659,6 @@ const manageSubscriptionStatusChange = async (
         await admin
           .auth()
           .setCustomUserClaims(uid, { ...customClaims, stripeRole: role });
-        // Add 20 points for each successful renewal (every month)
-        await addPointsToUser(uid, 20);
       } else {
         logs.userCustomClaimSet(uid, 'stripeRole', 'null');
         await admin
@@ -667,12 +670,18 @@ const manageSubscriptionStatusChange = async (
       return;
     }
   }
+  
+  if (['trialing', 'active'].includes(subscription.status) && createAction) {
+    // Add 20 points for each successful renewal (every month)
+    await addPointsToUser(uid, 20);
+  }
 
   // NOTE: This is a costly operation and should happen at the very end.
   // Copy the billing deatils to the customer object.
   if (createAction && subscription.default_payment_method) {
     await copyBillingDetailsToCustomer(
-      subscription.default_payment_method as Stripe.PaymentMethod
+      subscription.default_payment_method as Stripe.PaymentMethod,
+      livemode,
     );
   }
 
@@ -740,8 +749,6 @@ const insertPaymentRecord = async (
     throw new Error('User not found!');
   }
   const customerDoc = customersSnap.docs[0];
-  console.log('payment.status', payment.status);
-  console.log('checkoutSession', checkoutSession);
   if (checkoutSession) {
     const stripeSource = checkoutSession.livemode ? stripe : stripeTest;
     const lineItems = await stripeSource.checkout.sessions.listLineItems(
@@ -823,6 +830,7 @@ export const handleWebhookEvents = functions.https.onRequest(
       'payment_intent.canceled',
       'payment_intent.payment_failed',
     ]);
+    const livemode: boolean | undefined = req.body?.livemode;
     let event: Stripe.Event;
 
     // Instead of getting the `Stripe.Event`
@@ -830,24 +838,23 @@ export const handleWebhookEvents = functions.https.onRequest(
     // use the Stripe webhooks API to make sure
     // this webhook call came from a trusted source
     try {
-      event = stripe.webhooks.constructEvent(
-        req.rawBody,
-        req.headers['stripe-signature'],
-        config.stripeWebhookSecret
-      );
-    } catch (error) {
-      logs.badWebhookSecret(error);
-      try {
+      if (livemode === true) {
+        event = stripe.webhooks.constructEvent(
+          req.rawBody,
+          req.headers['stripe-signature'],
+          config.stripeWebhookSecret
+        );
+      } else {
         event = stripeTest.webhooks.constructEvent(
           req.rawBody,
           req.headers['stripe-signature'],
           config.stripeTestWebhookSecret
         );
-      } catch (error) {
-        logs.badWebhookSecret(error);
-        resp.status(401).send('Webhook Error: Invalid Secret');
-        return;
       }
+    } catch (error) {
+      logs.badWebhookSecret(error);
+      resp.status(401).send('Webhook Error: Invalid Secret');
+      return;
     }
 
     if (relevantEvents.has(event.type)) {
@@ -879,7 +886,8 @@ export const handleWebhookEvents = functions.https.onRequest(
             await manageSubscriptionStatusChange(
               subscription.id,
               subscription.customer as string,
-              event.type === 'customer.subscription.created'
+              false,
+              livemode,
             );
             break;
           case 'checkout.session.completed':
@@ -892,7 +900,8 @@ export const handleWebhookEvents = functions.https.onRequest(
               await manageSubscriptionStatusChange(
                 subscriptionId,
                 checkoutSession.customer as string,
-                true
+                true,
+                livemode,
               );
             } else {
               const stripeSource = checkoutSession.livemode ? stripe : stripeTest;
@@ -957,7 +966,6 @@ export const handleWebhookEvents = functions.https.onRequest(
               event.type
             );
         }
-
         if (eventChannel) {
           await eventChannel.publish({
             type: `com.stripe.v1.${event.type}`,
