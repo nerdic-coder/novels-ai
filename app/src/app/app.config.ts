@@ -9,6 +9,7 @@ import { DOCUMENT } from '@angular/common';
 import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
 import { getFirestore, provideFirestore } from '@angular/fire/firestore';
 import { provideAuth, getAuth } from '@angular/fire/auth';
+import { environment } from '../environments/environment.loader';
 
 const scrollConfig: InMemoryScrollingOptions = {
   scrollPositionRestoration: 'top',
@@ -29,7 +30,7 @@ export const appConfig: ApplicationConfig = {
     },
     provideFirebaseApp(() => initializeApp({
       apiKey: 'AIzaSyBzegpGaNrC-KHupiuNXnjI2XxkoaXzm2o',
-      authDomain: 'novels-ai.com',
+      authDomain: environment.authDomain,
       databaseURL: 'https://ai-audiobook.firebaseio.com',
       projectId: 'ai-audiobook',
     })),
