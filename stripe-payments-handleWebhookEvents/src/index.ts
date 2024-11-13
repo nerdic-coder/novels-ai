@@ -544,7 +544,7 @@ async function addPointsToUser(uid: string, points: number) {
 const manageSubscriptionStatusChange = async (
   subscriptionId: string,
   customerId: string,
-  createAction: boolean,
+  creditUser: boolean,
   livemode: boolean,
 ): Promise<void> => {
   // Get customer's UID from Firestore
@@ -671,14 +671,14 @@ const manageSubscriptionStatusChange = async (
     }
   }
   
-  if (['trialing', 'active'].includes(subscription.status) && createAction) {
+  if (['trialing', 'active'].includes(subscription.status) && creditUser) {
     // Add 20 points for each successful renewal (every month)
     await addPointsToUser(uid, 20);
   }
 
   // NOTE: This is a costly operation and should happen at the very end.
   // Copy the billing deatils to the customer object.
-  if (createAction && subscription.default_payment_method) {
+  if (creditUser && subscription.default_payment_method) {
     await copyBillingDetailsToCustomer(
       subscription.default_payment_method as Stripe.PaymentMethod,
       livemode,
@@ -886,7 +886,7 @@ export const handleWebhookEvents = functions.https.onRequest(
             await manageSubscriptionStatusChange(
               subscription.id,
               subscription.customer as string,
-              false,
+              event.type === 'customer.subscription.updated',
               livemode,
             );
             break;
@@ -900,7 +900,7 @@ export const handleWebhookEvents = functions.https.onRequest(
               await manageSubscriptionStatusChange(
                 subscriptionId,
                 checkoutSession.customer as string,
-                true,
+                false,
                 livemode,
               );
             } else {

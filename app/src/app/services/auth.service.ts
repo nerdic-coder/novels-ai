@@ -1,7 +1,15 @@
 import { inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { 
-  Auth, authState, browserLocalPersistence, connectAuthEmulator, createUserWithEmailAndPassword, getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signInWithEmailAndPassword, signInWithRedirect, 
+  Auth,
+  authState,
+  browserLocalPersistence,
+  createUserWithEmailAndPassword,
+  getRedirectResult,
+  GoogleAuthProvider,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  signInWithRedirect, 
 } from '@angular/fire/auth';
 import { setPersistence } from 'firebase/auth';
 import { map, Observable } from 'rxjs';
@@ -15,10 +23,12 @@ export class AuthService {
   private router = inject(Router);
 
   constructor() {
-    // connectAuthEmulator(this.auth, "http://127.0.0.1:9099", { disableWarnings: true });
-    
-    // Handle redirect result immediately on construction
-    this.handleRedirectResult();
+    // Only check redirect result if the user is not already authenticated
+    authState(this.auth).subscribe(async (user) => {
+      if (!user) {
+        await this.handleRedirectResult();
+      }
+    });
     
     onAuthStateChanged(this.auth, (user) => {
       if (user) {
@@ -57,8 +67,6 @@ export class AuthService {
     try {
       await setPersistence(this.auth, browserLocalPersistence);
       await signInWithRedirect(this.auth, provider);
-      // Handle redirect result after redirect
-      await this.handleRedirectResult();
     } catch (error) {
       console.error('Login error:', error);
     }
