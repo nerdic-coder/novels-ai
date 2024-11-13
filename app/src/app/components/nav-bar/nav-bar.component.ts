@@ -1,10 +1,11 @@
-import { Component, inject, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { 
   Auth,
   AuthModule,
   signOut,
+  sendPasswordResetEmail,
 } from '@angular/fire/auth';
 import { AuthService } from '../../services/auth.service';
 import { Router, RouterModule } from '@angular/router';
@@ -13,6 +14,7 @@ import { StoreService } from '../../services/store.service';
 import { AlertService } from '../../services/alert.service';
 import { ConfirmationModalComponent } from '../confirmation-modal/confirmation-modal.component';
 import { SubscriptionBenefitsModalComponent } from '../subscription-benefits-modal/subscription-benefits-modal.component';
+import { ModalService } from '../../services/modal.service';
 
 @Component({
   selector: 'app-nav-bar',
@@ -26,18 +28,22 @@ export class NavBarComponent implements OnInit {
 
   email: string = '';
   password: string = '';
+  resetEmail: string = '';
   isGoogleLoginDisabled: boolean = false;
   paymentInProgress = false;
   googleSignInButtonText: string = 'Google Login';
   isSubscribed = false;
   @ViewChild('cancelSubscriptionModal') cancelSubscriptionModal!: ConfirmationModalComponent;
   @ViewChild('subscriptionBenefitsModal') subscriptionBenefitsModal!: SubscriptionBenefitsModalComponent;
+  @ViewChild('signinModal') signinModal!: ElementRef;
+  @ViewChild('resetPasswordModal') resetPasswordModal!: ElementRef;
 
   constructor(
     private authService: AuthService,
     private storeService: StoreService,
     private router: Router,
     private alertService: AlertService,
+    private modalService: ModalService,
   ) {}
 
   async ngOnInit() {
@@ -60,6 +66,9 @@ export class NavBarComponent implements OnInit {
   async emailLogin() {
     const success = await this.authService.loginWithEmail(this.email, this.password);
     if (success) {
+      this.email = '';
+      this.password = '';
+      this.resetEmail = '';
       this.router.navigate(['/novels']);
     } else {
       this.alertService.error('Failed to login');
@@ -116,4 +125,29 @@ export class NavBarComponent implements OnInit {
     this.cancelSubscriptionModal.show();
   }
 
+  async openResetPasswordModal() {
+    // Hide the sign-in modal, then show the reset password modal
+    await this.modalService.hideModal(this.signinModal);
+    this.modalService.showModal(this.resetPasswordModal);
+  }
+
+  async resetPassword() {
+    if (!this.resetEmail) {
+      this.alertService.error('Please enter an email address!');
+      console.error('Please enter an email address');
+      return;
+    }
+    try {
+      await sendPasswordResetEmail(this.auth, this.resetEmail);
+      console.log('Password reset email sent');
+      this.alertService.info('Password reset email sent!');
+      
+      this.email = '';
+      this.password = '';
+      this.resetEmail = '';
+    } catch (error) {
+      console.error('Error sending password reset email:', error);
+      this.alertService.error('Error sending password reset email!');
+    }
+  }
 }

@@ -19,6 +19,8 @@ export class RegisterComponent {
   email: string = '';
   password: string = '';
   confirmPassword: string = '';
+  isGoogleLoginDisabled: boolean = false;
+  googleSignInButtonText: string = 'Google Instant Signup';
 
   constructor(private authService: AuthService, private router: Router, private alertService: AlertService) {}
   
@@ -37,6 +39,20 @@ export class RegisterComponent {
       this.router.navigate(['/novels']);
     } else {
       this.alertService.error('Registration failed!');
+    }
+  }
+
+  async googleLogin() {
+    try {
+      this.isGoogleLoginDisabled = true;
+      this.googleSignInButtonText = 'Loading...';
+      await this.authService.loginWithGoogle();
+    } catch (error) {
+      console.error('Error signing in', error);
+      this.alertService.error('Error signing in!');
+    } finally {
+      this.isGoogleLoginDisabled = false;
+      this.googleSignInButtonText = 'Google Instant Signup';
     }
   }
 }
