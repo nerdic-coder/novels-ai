@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { 
   Auth,
   authState,
-  browserSessionPersistence,
+  browserLocalPersistence,
   createUserWithEmailAndPassword,
   getRedirectResult,
   GoogleAuthProvider,
@@ -65,7 +65,7 @@ export class AuthService {
   async loginWithGoogle() {
     const provider = new GoogleAuthProvider();
     try {
-      await setPersistence(this.auth, browserSessionPersistence);
+      await setPersistence(this.auth, browserLocalPersistence);
       await signInWithRedirect(this.auth, provider);
     } catch (error) {
       console.error('Login error:', error);
