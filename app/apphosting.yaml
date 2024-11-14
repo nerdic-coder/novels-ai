@@ -13,7 +13,3 @@ env:
     secret: sentryAuthToken
     availability:
       - BUILD
-  - variable: SENTRY_TEST
-    value: TEST-SENTRY
-    availability:
-      - BUILD
