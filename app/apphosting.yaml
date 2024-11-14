@@ -21,5 +21,3 @@ env:
   # See https://firebase.google.com/docs/app-hosting/configure#secret-parameters
   - variable: SENTRY_AUTH_TOKEN
     secret: sentryAuthToken
-    availability:
-    -   BUILD
