@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "firebase-app-hosting-angular": {
+    "novels-ai-frontend": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -17,9 +17,10 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/firebase-app-hosting-angular",
+            "outputPath": "dist/novels-ai-frontend",
             "index": "src/index.html",
             "browser": "src/main.ts",
+            "sourceMap": true,
             "polyfills": [
               "zone.js"
             ],
@@ -71,10 +72,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "firebase-app-hosting-angular:build:production"
+              "buildTarget": "novels-ai-frontend:build:production"
             },
             "development": {
-              "buildTarget": "firebase-app-hosting-angular:build:development"
+              "buildTarget": "novels-ai-frontend:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -82,7 +83,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "buildTarget": "firebase-app-hosting-angular:build"
+            "buildTarget": "novels-ai-frontend:build"
           }
         },
         "test": {

@@ -1,13 +1,14 @@
 {
-  "name": "firebase-app-hosting-angular",
+  "name": "novels-ai-frontend",
   "version": "1.0.0",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
+    "build": "ng build && npm run sentry:sourcemaps",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "serve:ssr:firebase-app-hosting-angular": "LOCAL=true node dist/firebase-app-hosting-angular/server/server.mjs"
+    "serve:ssr:novels-ai-frontend": "LOCAL=true node dist/novels-ai-frontend/server/server.mjs",
+    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org the-nerdic-coder --project novels-ai ./dist/novels-ai-frontend && sentry-cli sourcemaps upload --org the-nerdic-coder --project novels-ai ./dist/novels-ai-frontend"
   },
   "private": true,
   "dependencies": {
@@ -22,12 +23,14 @@
     "@angular/platform-server": "^18.2.9",
     "@angular/router": "^18.2.9",
     "@angular/ssr": "^18.2.10",
+    "@sentry/angular": "^8.38.0",
+    "@sentry/cli": "^2.38.2",
     "@types/howler": "2.2.12",
     "bootstrap": "5.3.3",
     "express": "^4.21.1",
     "firebase": "^10.14.1",
-    "firebase-app-hosting-angular": "file:",
     "howler": "2.2.4",
+    "novels-ai-frontend": "file:",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "uuid": "^9.0.1",
