@@ -8,7 +8,7 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "serve:ssr:novels-ai-frontend": "LOCAL=true node dist/novels-ai-frontend/server/server.mjs",
-    "sentry:sourcemaps": "export SENTRY_AUTH_TOKEN=${SENTRY_AUTH_TOKEN} && sentry-cli sourcemaps inject --org the-nerdic-coder --project novels-ai ./dist/novels-ai-frontend && sentry-cli sourcemaps upload --org the-nerdic-coder --project novels-ai ./dist/novels-ai-frontend"
+    "sentry:sourcemaps": "echo ${SENTRY_TEST} && sentry-cli sourcemaps inject --org the-nerdic-coder --project novels-ai ./dist/novels-ai-frontend && sentry-cli sourcemaps upload --org the-nerdic-coder --project novels-ai ./dist/novels-ai-frontend"
   },
   "private": true,
   "dependencies": {
