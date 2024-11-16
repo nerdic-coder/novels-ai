@@ -29,7 +29,8 @@
             "assets": [
               "src/favicon.ico",
               "src/site.webmanifest",
-              "src/assets"
+              "src/assets",
+              "src/signin_helpers"
             ],
             "styles": [
               "src/styles.scss"
@@ -98,7 +99,8 @@
             "assets": [
               "src/favicon.ico",
               "src/site.webmanifest",
-              "src/assets"
+              "src/assets",
+              "src/signin_helpers"
             ],
             "styles": [
               "src/styles.scss"
