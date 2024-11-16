@@ -29,7 +29,7 @@
             "assets": [
               "src/favicon.ico",
               "src/site.webmanifest",
-              "src/assets",
+              "src/__",
               "src/signin_helpers"
             ],
             "styles": [
@@ -99,7 +99,7 @@
             "assets": [
               "src/favicon.ico",
               "src/site.webmanifest",
-              "src/assets",
+              "src/__",
               "src/signin_helpers"
             ],
             "styles": [
