@@ -34,10 +34,6 @@
                 "input": "src/__",
                 "output": "__"
               },
-              {
-                "input": "src/__/auth/handler",
-                "output": "__/auth/handler"
-              },
               "src/assets"
             ],
             "styles": [
@@ -111,10 +107,6 @@
                 "glob": "**/*",
                 "input": "src/__",
                 "output": "__"
-              },
-              {
-                "input": "src/__/auth/handler",
-                "output": "__/auth/handler"
               },
               "src/assets"
             ],
