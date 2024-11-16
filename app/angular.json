@@ -29,7 +29,11 @@
             "assets": [
               "src/favicon.ico",
               "src/site.webmanifest",
-              "src/__",
+              {
+                "glob": "**/*",
+                "input": "src/__",
+                "output": "__"
+              },
               "src/assets"
             ],
             "styles": [

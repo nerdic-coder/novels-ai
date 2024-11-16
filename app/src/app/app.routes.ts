@@ -50,8 +50,8 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/payment-history/payment-history.component').then(c => c.PaymentHistoryComponent)
   },
   {
-    path: '__/auth',
-    children: [] // Leave empty to not handle these routes in Angular
+    path: '__/auth/handler',
+    children: [], // This route should be handled by Firebase Auth
   },
   {
     path: '**',
