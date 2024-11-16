@@ -30,7 +30,7 @@
               "src/favicon.ico",
               "src/site.webmanifest",
               "src/__",
-              "src/signin_helpers"
+              "src/assets"
             ],
             "styles": [
               "src/styles.scss"
@@ -100,7 +100,7 @@
               "src/favicon.ico",
               "src/site.webmanifest",
               "src/__",
-              "src/signin_helpers"
+              "src/assets"
             ],
             "styles": [
               "src/styles.scss"

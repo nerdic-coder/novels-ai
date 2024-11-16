@@ -52,5 +52,7 @@ export const routes: Routes = [
   {
     path: '**',
     loadComponent: () => import('./pages/not-found/not-found.component').then(c => c.NotFoundComponent)
-  }
+  },
+  // Exclude /__/auth/** from Angular routing
+  { path: '**', redirectTo: '', pathMatch: 'full' },
 ];
