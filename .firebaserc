@@ -2,6 +2,19 @@
   "projects": {
     "default": "ai-audiobook"
   },
+  "targets": {
+    "ai-audiobook": {
+      "hosting": {
+        "ai-audiobook": [
+          "ai-audiobook"
+        ],
+        "novels-ai-beta": [
+          "novels-ai-beta"
+        ]
+      }
+    }
+  },
+  "etags": {},
   "functions": {
     "region": "europe-central2"
   }
