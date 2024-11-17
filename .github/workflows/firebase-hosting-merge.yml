@@ -27,7 +27,7 @@ jobs:
       # Step 5: Send sourcemaps to Sentry
       - name: Send sourcemaps to Sentry
         working-directory: ./app
-        run: sentry:sourcemaps
+        run: npm run sentry:sourcemaps
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
       # Step 6: Deploy to Firebase Hosting
