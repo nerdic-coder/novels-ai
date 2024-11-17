@@ -17,7 +17,7 @@
     },
     {
       "target": "novels-ai-beta",
-      "public": "app/dist",
+      "public": "app/dist/novels-ai-frontend",
       "ignore": [
         "firebase.json",
         "**/.*",

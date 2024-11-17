@@ -11,6 +11,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      # Step 2: Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+      # Step 3: Navigate to Angular app directory and install dependencies
+      - name: Install dependencies in /app
+        working-directory: ./app
+        run: npm ci
+      # Step 4: Build the Angular app
+      - name: Build Angular app
+        working-directory: ./app
+        run: npm run build
+      # Step 5: Deploy to Firebase Hosting
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
