@@ -24,7 +24,13 @@ jobs:
       - name: Build Angular app
         working-directory: ./app
         run: npm run build
-      # Step 5: Deploy to Firebase Hosting
+      # Step 5: Send sourcemaps to Sentry
+      - name: Send sourcemaps to Sentry
+        working-directory: ./app
+        run: sentry:sourcemaps
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+      # Step 6: Deploy to Firebase Hosting
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
