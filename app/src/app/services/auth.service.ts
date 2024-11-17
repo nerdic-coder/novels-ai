@@ -8,6 +8,7 @@ import {
   getRedirectResult,
   GoogleAuthProvider,
   onAuthStateChanged,
+  reauthenticateWithCredential,
   signInWithEmailAndPassword,
   signInWithRedirect, 
 } from '@angular/fire/auth';
@@ -32,7 +33,6 @@ export class AuthService {
     
     onAuthStateChanged(this.auth, (user) => {
       if (user) {
-        console.log('Logged in', user);
         this.router.navigate(['/novels']);
       } else {
         // Handle user logout (e.g., clear user-specific data)
@@ -44,7 +44,6 @@ export class AuthService {
     try {
       const result = await getRedirectResult(this.auth);
       if (result) {
-        console.log("Login successful", result.user);
         this.router.navigate(['/novels']);
       }
     } catch (error) {
@@ -72,12 +71,24 @@ export class AuthService {
     }
   }
 
+  async getEmailCredential(email: string, password: string) {
+    const { EmailAuthProvider } = await import('firebase/auth');
+    return EmailAuthProvider.credential(email, password);
+  }
+
+  async reauthenticateWithCredential(credential: any) {
+    if (!this.auth.currentUser) {
+      throw new Error('No user is currently signed in');
+    }
+    return reauthenticateWithCredential(this.auth.currentUser, credential);
+  }
+
   async loginWithEmail(email: string, password: string) {
     try {
       await signInWithEmailAndPassword(this.auth, email, password);
       return true;
     } catch (error) {
-      console.log(error);
+      console.error(error);
       return false;
     }
   }
@@ -87,7 +98,7 @@ export class AuthService {
       await createUserWithEmailAndPassword(this.auth, email, password);
       return true;
     } catch (error) {
-      console.log('Error creating user:', error);
+      console.error('Error creating user:', error);
       return false;
     }
   }

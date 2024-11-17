@@ -20,7 +20,20 @@
             (click)="subscribe()"
             [disabled]="paymentInProgress">Subscribe (€6.99/mo)</button>
         }
-        <button type="button" class="btn btn-secondary" (click)="logout()">Logout</button>
+        <div class="dropdown">
+          <button #accountDropdown class="btn btn-secondary dropdown-toggle" type="button" (click)="toggleAccountDropdown()" aria-expanded="false">
+            Account
+          </button>
+          <ul #dropdownMenu class="dropdown-menu dropdown-menu-end" data-bs-theme="dark">
+            <li><span class="dropdown-item-text">{{ userEmail }}</span></li>
+            @if (isEmailProvider) {
+              <li><a class="dropdown-item" [routerLink]="['/change-password']">Change Password</a></li>
+            }
+            <li><a class="dropdown-item" [routerLink]="['/payment-history']">Payment History</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><button class="dropdown-item" (click)="logout()">Logout</button></li>
+          </ul>
+        </div>
       </div>
     }
     @else {
@@ -99,3 +112,4 @@
 </div>
 <app-confirmation-modal #cancelSubscriptionModal title="Cancel Subscription"></app-confirmation-modal>
 <app-subscription-benefits-modal #subscriptionBenefitsModal></app-subscription-benefits-modal>
+

@@ -1,4 +1,5 @@
-import { Component, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, inject, OnInit, ViewChild, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { 
@@ -6,6 +7,7 @@ import {
   AuthModule,
   signOut,
   sendPasswordResetEmail,
+  updatePassword,
 } from '@angular/fire/auth';
 import { AuthService } from '../../services/auth.service';
 import { Router, RouterModule } from '@angular/router';
@@ -25,7 +27,7 @@ import { ModalService } from '../../services/modal.service';
 })
 export class NavBarComponent implements OnInit {
   private auth = inject(Auth);
-
+  
   email: string = '';
   password: string = '';
   resetEmail: string = '';
@@ -33,10 +35,17 @@ export class NavBarComponent implements OnInit {
   paymentInProgress = false;
   googleSignInButtonText: string = 'Google Login';
   isSubscribed = false;
+  userEmail: string = '';
+  isEmailProvider = false;
   @ViewChild('cancelSubscriptionModal') cancelSubscriptionModal!: ConfirmationModalComponent;
   @ViewChild('subscriptionBenefitsModal') subscriptionBenefitsModal!: SubscriptionBenefitsModalComponent;
   @ViewChild('signinModal') signinModal!: ElementRef;
   @ViewChild('resetPasswordModal') resetPasswordModal!: ElementRef;
+  @ViewChild('changePasswordModal') changePasswordModal!: ElementRef;
+  @ViewChild('accountDropdown') accountDropdown!: ElementRef;
+  @ViewChild('dropdownMenu') dropdownMenu!: ElementRef;
+  private dropdownInstance: any;
+  private platformId = inject(PLATFORM_ID);
 
   constructor(
     private authService: AuthService,
@@ -53,6 +62,26 @@ export class NavBarComponent implements OnInit {
     this.storeService.subscriptionStatus$.subscribe(status => {
       this.isSubscribed = status;
     });
+    
+    // Get user email and provider
+    const user = this.auth.currentUser;
+    if (user) {
+      this.userEmail = user.email || '';
+      this.isEmailProvider = user.providerData.some(provider => provider.providerId === 'password');
+    }
+
+  }
+
+  async ngAfterViewInit() {
+    if (isPlatformBrowser(this.platformId)) {
+      // Initialize dropdown after a short delay to ensure DOM is ready
+      const { Dropdown } = await import('bootstrap');
+      if (this.accountDropdown?.nativeElement) {
+        this.dropdownInstance = new Dropdown(this.accountDropdown.nativeElement, {
+          autoClose: true
+        });
+      }
+    }
   }
 
   isAuthenticated(): boolean {
@@ -129,6 +158,29 @@ export class NavBarComponent implements OnInit {
     // Hide the sign-in modal, then show the reset password modal
     await this.modalService.hideModal(this.signinModal);
     this.modalService.showModal(this.resetPasswordModal);
+  }
+
+
+  async toggleAccountDropdown() {
+    if (isPlatformBrowser(this.platformId)) {
+      // Initialize dropdown after a short delay to ensure DOM is ready
+      const { Dropdown } = await import('bootstrap');
+      if (!this.dropdownInstance && this.accountDropdown?.nativeElement) {
+        this.dropdownInstance = new Dropdown(this.accountDropdown.nativeElement, {
+          autoClose: true
+        });
+      }
+    }
+
+    if (this.dropdownInstance) {
+      // Get user email and provider
+      const user = this.auth.currentUser;
+      if (user) {
+        this.userEmail = user.email || '';
+        this.isEmailProvider = user.providerData.some(provider => provider.providerId === 'password');
+      }
+      this.dropdownInstance.toggle();
+    }
   }
 
   async resetPassword() {

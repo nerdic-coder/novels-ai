@@ -50,6 +50,11 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/payment-history/payment-history.component').then(c => c.PaymentHistoryComponent)
   },
   {
+    path: 'change-password',
+    canActivate: [AuthGuard],
+    loadComponent: () => import('./pages/change-password/change-password.component').then(c => c.ChangePasswordComponent)
+  },
+  {
     path: '__/auth/handler',
     children: [], // This route should be handled by Firebase Auth
   },
