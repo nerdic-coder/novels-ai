@@ -29,11 +29,6 @@
             "assets": [
               "src/favicon.ico",
               "src/site.webmanifest",
-              {
-                "glob": "**/*",
-                "input": "src/__",
-                "output": "__"
-              },
               "src/assets"
             ],
             "styles": [
@@ -103,11 +98,6 @@
             "assets": [
               "src/favicon.ico",
               "src/site.webmanifest",
-              {
-                "glob": "**/*",
-                "input": "src/__",
-                "output": "__"
-              },
               "src/assets"
             ],
             "styles": [
