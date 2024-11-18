@@ -770,7 +770,7 @@ const insertPaymentRecord = async (
       console.log('payment.status', payment.status);
       if (payment.status === 'succeeded') {
         if (item.price.id === 'price_1MvLYABPvg43OlrWhK03okqu' ||
-            item.price.id === 'price_1QK3rEBPvg43OlrWCaP4YQ0w' ||
+            item.price.id === 'price_1MvO0jBPvg43OlrWpKdsLptb' ||
             item.description === '10 points to use to create Novels AI chapters.' ||
             item.description === '10 Novels AI points') {
           const points = customersSnap.docs[0].data()?.points || 0;
