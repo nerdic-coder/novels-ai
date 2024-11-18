@@ -91,8 +91,9 @@ export class NovelsComponent implements OnInit, AfterViewInit {
 
     // Subscribe to real-time updates on the user's document
     onSnapshot(currentUserDoc, (doc: any) => {
-      if (doc.exists) {
-        let points = doc.data().points;
+      if (doc.exists()) {
+        const data = doc.data();
+        let points = data?.points;
         if (points === undefined) {
             points = 2;
         }
