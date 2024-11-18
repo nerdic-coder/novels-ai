@@ -7,7 +7,6 @@ import {
   AuthModule,
   signOut,
   sendPasswordResetEmail,
-  updatePassword,
 } from '@angular/fire/auth';
 import { AuthService } from '../../services/auth.service';
 import { Router, RouterModule } from '@angular/router';
@@ -53,9 +52,18 @@ export class NavBarComponent implements OnInit {
     private router: Router,
     private alertService: AlertService,
     private modalService: ModalService,
-  ) {}
+  ) {
+    // Subscribe to auth state changes
+    this.auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        // Reset dropdown instance when user logs in
+        this.dropdownInstance = null;
+      }
+    });
+  }
 
   async ngOnInit() {
+    console.log('ngOnInit');
     // Initialize subscription status
     await this.storeService.isSubscribed();
     // Monitor subscription status changes
@@ -73,6 +81,7 @@ export class NavBarComponent implements OnInit {
   }
 
   async ngAfterViewInit() {
+    console.log('ngAfterViewInit');
     if (isPlatformBrowser(this.platformId)) {
       // Initialize dropdown after a short delay to ensure DOM is ready
       const { Dropdown } = await import('bootstrap');
@@ -118,7 +127,16 @@ export class NavBarComponent implements OnInit {
     }
   }
 
-  async logout() {
+  async logout(dropdownToggle: HTMLElement) {
+
+    // Close the dropdown
+    if (isPlatformBrowser(this.platformId)) {
+      // Initialize dropdown after a short delay to ensure DOM is ready
+      const { Dropdown } = await import('bootstrap');
+      const dropdown = Dropdown.getOrCreateInstance(dropdownToggle);
+      dropdown.hide();
+    }
+
     await signOut(this.auth);
     this.router.navigate(['/']);
   }
@@ -163,9 +181,13 @@ export class NavBarComponent implements OnInit {
 
   async toggleAccountDropdown() {
     if (isPlatformBrowser(this.platformId)) {
-      // Initialize dropdown after a short delay to ensure DOM is ready
+      // Always create a new instance when toggling
       const { Dropdown } = await import('bootstrap');
-      if (!this.dropdownInstance && this.accountDropdown?.nativeElement) {
+      if (this.accountDropdown?.nativeElement) {
+        // Dispose of existing instance if it exists
+        if (this.dropdownInstance) {
+          this.dropdownInstance.dispose();
+        }
         this.dropdownInstance = new Dropdown(this.accountDropdown.nativeElement, {
           autoClose: true
         });
