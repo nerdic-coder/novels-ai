@@ -125,6 +125,7 @@ export class StoreService {
 
   async startSubscription(): Promise<boolean> {
     try {
+      console.log('SUBSCRIPTION_PRICE_ID', environment.SUBSCRIPTION_PRICE_ID);
       const usersCollection = collection(this.firestore, 'users');
       const currentUserDoc = doc(usersCollection, this.auth.currentUser?.uid);
       const checkoutsCollection = collection(currentUserDoc, 'checkout_sessions');
