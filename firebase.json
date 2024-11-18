@@ -2,7 +2,7 @@
   "hosting": [
     {
       "target": "ai-audiobook",
-      "public": "frontend",
+      "public": "app/dist/novels-ai-frontend/browser",
       "ignore": [
         "firebase.json",
         "**/.*",
