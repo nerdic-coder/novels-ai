@@ -51,6 +51,13 @@
       </div>
     </div>
     <div class="mb-3">
+      <label for="location" class="form-label">Location:</label>
+      <textarea class="form-control" id="location" name="location" [(ngModel)]="location" rows="2"></textarea>
+      <div class="form-text text-light">
+        Describe where the story takes place. This can be a specific place name or a visual description of the environment.
+      </div>
+    </div>
+    <div class="mb-3">
       <label class="form-label">Characters:</label>
       @for (character of characters; track $index) {
         <div class="row mb-2">

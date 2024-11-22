@@ -16,7 +16,7 @@ functions.http('generate', async (req, res) => {
   let chapters;
   try {
     res.set('Access-Control-Allow-Origin', '*');
-    res.set('Access-Control-Allow-Headers', 'Authorization, Content-Type');
+    res.set('Access-Control-Allow-Headers', 'Authorization, Content-Type, baggage, sentry-trace');
     res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     if (req.method === 'OPTIONS') {
       res.status(204).send('');
@@ -58,6 +58,7 @@ functions.http('generate', async (req, res) => {
     const genre = req.query.genre || req.body.genre || '';
     const style = req.query.style || req.body.style || '';
     const plot = req.query.plot || req.body.plot || '';
+    const location = req.query.location || req.body.location || '';
     const pov = req.query.pov || req.body.pov || '';
     const image = req.body.image || '';
 
@@ -82,6 +83,10 @@ functions.http('generate', async (req, res) => {
 
     if (plot) {
       story += 'The main plotline of the story is "{{plot}}". ';
+    }
+
+    if (location) {
+      story += 'The story takes place in/at "{{location}}". ';
     }
 
     if (pov) {
@@ -115,6 +120,7 @@ functions.http('generate', async (req, res) => {
       chapters,
       title,
       plot,
+      location,
       povDescription,
     };
 
@@ -140,6 +146,7 @@ functions.http('generate', async (req, res) => {
       genre,
       style,
       plot,
+      location,
       voice,
       pov,
     );
@@ -193,7 +200,7 @@ functions.http('generate', async (req, res) => {
 
 functions.http('delete', async (req, res) => {
   res.set('Access-Control-Allow-Origin', '*');
-  res.set('Access-Control-Allow-Headers', 'Authorization, Content-Type');
+  res.set('Access-Control-Allow-Headers', 'Authorization, Content-Type, baggage, sentry-trace');
   res.set('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
   if (req.method === 'OPTIONS') {
     res.status(204).send('');
@@ -253,7 +260,7 @@ functions.http('delete', async (req, res) => {
 functions.http('add-chapter', async (req, res) => {
   console.log('called!', req.method);
   res.set('Access-Control-Allow-Origin', '*');
-  res.set('Access-Control-Allow-Headers', 'Authorization, Content-Type');
+  res.set('Access-Control-Allow-Headers', 'Authorization, Content-Type, baggage');
   res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   if (req.method === 'OPTIONS') {
     res.status(204).send('');

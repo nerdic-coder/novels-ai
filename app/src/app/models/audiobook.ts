@@ -7,6 +7,7 @@ export interface Audiobook {
   pov?: string;  // Point of View
   voice?: string;  // Reference to a voice type (potentially a key in a map)
   starring?: string;
+  location?: string;  // Description of story location
   chapters?: Chapter[];  // A list of chapters with URLs to the audio files
   createdDate?: Date;
   status?: 'progress' | 'error' | 'completed';  // To represent the status of the audiobook
@@ -20,6 +21,7 @@ export interface AudiobookRequest {
   pov?: string;  // Point of View
   voice?: string;  // Reference to a voice type (potentially a key in a map)
   starring?: string;
+  location?: string;  // Description of story location
   image?: string | ArrayBuffer | null;
 }
 

@@ -10,6 +10,7 @@ export default async function storeMetadata(
   genre,
   style,
   plot,
+  location,
   voice,
   pov,
 ) {
@@ -43,6 +44,7 @@ export default async function storeMetadata(
     genre,
     style,
     plot,
+    location,
     voice,
     pov,
     status: 'progress',

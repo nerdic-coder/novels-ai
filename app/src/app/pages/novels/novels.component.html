@@ -118,6 +118,10 @@
         <div class="col-4"><strong>Plot:</strong></div>
         <div class="col-8">{{ selectedAudiobook?.plot }}</div>
       </div>
+      <div class="row mb-2" *ngIf="selectedAudiobook?.location">
+        <div class="col-4"><strong>Location:</strong></div>
+        <div class="col-8">{{ selectedAudiobook?.location }}</div>
+      </div>
       <div class="row mb-2" *ngIf="selectedAudiobook?.pov">
         <div class="col-4"><strong>Point of View:</strong></div>
         <div class="col-8">{{ getNarrationType(selectedAudiobook?.pov) }}</div>

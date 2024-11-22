@@ -39,6 +39,7 @@ export class CreateComponent {
   genre: string = '';
   style: string = '';
   plot: string = '';
+  location: string = '';
   pov: string = '';
   selectedVoice = 'onyx'; // Default selected value, change this based on your logic
   characters: Array<{name: string; description: string}> = [{name: '', description: ''}];
@@ -146,6 +147,7 @@ export class CreateComponent {
         title: this.title,
         style: this.style,
         plot: this.plot,
+        location: this.location,
         starring: this.combineCharacters(),
         image: this.imageInput ? this.imageInput : null
       };
