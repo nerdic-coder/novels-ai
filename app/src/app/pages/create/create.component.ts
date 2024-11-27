@@ -67,7 +67,7 @@ export class CreateComponent {
     // Subscribe to real-time updates on the user's document
     onSnapshot(currentUserDoc, (doc: any) => {
       if (doc.exists) {
-        let points = doc.data().points;
+        let points = doc.data()?.points ?? 0;
         if (points === undefined) {
             points = 2;
         }
