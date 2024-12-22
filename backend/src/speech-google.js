@@ -5,7 +5,7 @@ const client = new textToSpeech.TextToSpeechClient();
 const storage = new Storage();
 const bucket = storage.bucket('generated-books');
 
-export default function generateSpeech(text, filename, metadata, last, messages, voice) {
+export default function generateSpeechGoogle(text, filename, metadata, last, messages, voice) {
   const request = {
     input: {
       text,

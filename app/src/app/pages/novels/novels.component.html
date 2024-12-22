@@ -61,29 +61,39 @@
   <div *ngIf="canLoadMore" class="d-grid gap-2" style="margin-bottom: 15px;">
     <input type="button" value="Load more..." class="btn btn-primary" (click)="loadMoreNovels()" [disabled]="!canLoadMore">
   </div>
-  <div class="mb-3 d-grid gap-2">
-    <input type="submit" value="Create new novel" class="btn btn-primary" [routerLink]="['/create']">
-  </div>
-  <div class="d-grid gap-2" style="margin-bottom: 15px;">
-    @if (!isSubscribed) {
-      <button 
-        type="button"
-        class="btn btn-info"
-        (click)="subscribe()"
-        [disabled]="paymentInProgress">Subscribe (€6.99/mo)</button>
-    } @else {
-      <button 
-        type="button"
-        class="btn btn-info"
-        (click)="subscriptionDetails()"
-        [disabled]="paymentInProgress">Subscription Details</button>
-    }
-    <input 
-      type="button"
-      class="btn btn-success"
-      value="Buy 10 credit for 5 euro"
-      (click)="buyPoints()"
-      [disabled]="paymentInProgress">
+  <div class="row g-3 mb-4">
+    <div class="col-md-4">
+      <div class="d-grid">
+        <input type="submit" value="Create new novel" class="btn btn-primary btn-lg h-100" [routerLink]="['/create']">
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="d-grid">
+        @if (!isSubscribed) {
+          <button 
+            type="button"
+            class="btn btn-info btn-lg h-100"
+            (click)="subscribe()"
+            [disabled]="paymentInProgress">Subscribe (€6.99/mo)</button>
+        } @else {
+          <button 
+            type="button"
+            class="btn btn-info btn-lg h-100"
+            (click)="subscriptionDetails()"
+            [disabled]="paymentInProgress">Subscription Details</button>
+        }
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="d-grid">
+        <input 
+          type="button"
+          class="btn btn-success btn-lg h-100"
+          value="Buy 10 credits (€5)"
+          (click)="buyPoints()"
+          [disabled]="paymentInProgress">
+      </div>
+    </div>
   </div>
 
 </div>
@@ -128,7 +138,7 @@
       </div>
       <div class="row mb-2" *ngIf="selectedAudiobook?.voice">
         <div class="col-4"><strong>Voice:</strong></div>
-        <div class="col-8">{{ getVoice(selectedAudiobook?.voice) }}</div>
+        <div class="col-8">{{ getVoice(selectedAudiobook?.voice)?.name }}</div>
       </div>
       <div class="row mb-2" *ngIf="selectedAudiobook?.starring">
         <div class="col-4"><strong>Starring:</strong></div>

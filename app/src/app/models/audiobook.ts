@@ -43,10 +43,20 @@ export const narrationTypes = new Map([
   ['detached', 'Detached Narrator']
 ]);
 
-export const voices = new Map([
-    ['onyx', 'Paul'],
-    ['alloy', 'Sophia'],
-    ['nova', 'Kate'],
-    ['shimmer', 'Eve'],
-    ['fable', 'Orion'],
+export interface Voice {
+  name: string;
+  subscriberOnly: boolean;
+}
+
+export const voices = new Map<string, Voice>([
+    ['onyx', { name: 'Paul', subscriberOnly: false }],
+    ['alloy', { name: 'Sophia', subscriberOnly: false }],
+    ['nova', { name: 'Kate', subscriberOnly: false }],
+    ['shimmer', { name: 'Eve', subscriberOnly: false }],
+    ['fable', { name: 'Orion', subscriberOnly: false }],
+    ['Roger', { name: 'Roger', subscriberOnly: true }],
+    ['Sarah', { name: 'Sarah', subscriberOnly: true }],
+    ['Laura', { name: 'Laura', subscriberOnly: true }], 
+    ['Charlie', { name: 'Charlie', subscriberOnly: true }], 
+    ['Callum', { name: 'Callum', subscriberOnly: true }], 
 ]);

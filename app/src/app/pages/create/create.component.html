@@ -12,8 +12,11 @@
       <label for="voice" class="form-label">Voice:</label>
       <select class="form-select" aria-label="Voice" id="selectedVoice" name="selectedVoice" [(ngModel)]="selectedVoice">
         @for (voice of voicesArray; track voice) {
-          <option [value]="voice[0]" [selected]="voice[0] === selectedVoice">
-            {{ voice[1] }}
+          <option 
+            [value]="voice[0]" 
+            [selected]="voice[0] === selectedVoice"
+            [disabled]="voice[1].subscriberOnly && !(storeService.subscriptionStatus$ | async)">
+            {{ voice[1].name }}{{ voice[1].subscriberOnly ? ' (Subscriber Only)' : '' }}
           </option>
         }
       </select>

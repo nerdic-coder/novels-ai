@@ -3,9 +3,13 @@ import { Storage } from '@google-cloud/storage';
 import { v4 } from 'uuid';
 import Handlebars from 'handlebars';
 import admin from './admin.js';
+
 import createChatResponse from './chat.js';
-import generateSpeechAI from './speech2.js';
+import generateSpeechElevenLabs from './speech-elevenlabs.js';
+import generateSpeechOpenAI from './speech-openai.js';
 import storeMetadata, { spendUserPoints } from './store.js';
+
+import voices from './voices.js';
 
 functions.http('generate', async (req, res) => {
   let metadata;
@@ -174,14 +178,26 @@ functions.http('generate', async (req, res) => {
       role: 'assistant',
       content: completion.choices[0].message.content,
     });
-    generateSpeechAI(
-      completion.choices[0].message.content,
-      `${uid}/${requestId}/chapter-1`,
-      metadata,
-      lastChapter,
-      messagesWithoutImage,
-      voice,
-    );
+    const voiceInfo = voices.get(voice);
+    if (voiceInfo.service === 'elevenlabs') {
+      await generateSpeechElevenLabs(
+        completion.choices[0].message.content,
+        `${uid}/${requestId}/chapter-1`,
+        metadata,
+        lastChapter,
+        messagesWithoutImage,
+        voice,
+      );
+    } else {
+      await generateSpeechOpenAI(
+        completion.choices[0].message.content,
+        `${uid}/${requestId}/chapter-1`,
+        metadata,
+        lastChapter,
+        messagesWithoutImage,
+        voice,
+      );
+    }
 
     res.send(requestId);
   } catch (error) {
@@ -323,17 +339,19 @@ functions.http('add-chapter', async (req, res) => {
       role: 'assistant',
       content: completion.choices[0].message.content,
     });
-    if (voice.includes('en-US-')) {
-      generateSpeechAI(
+    const voiceInfo = voices.get(voice);
+    let extension;
+    if (voiceInfo.service === 'elevenlabs') {
+      extension = await generateSpeechElevenLabs(
         completion.choices[0].message.content,
         `${uid}/${audiobookData.requestId}/chapter-${chapter}`,
         audiobookRef,
         true,
         messages,
-        'alloy',
+        voice,
       );
     } else {
-      generateSpeechAI(
+      extension = await generateSpeechOpenAI(
         completion.choices[0].message.content,
         `${uid}/${audiobookData.requestId}/chapter-${chapter}`,
         audiobookRef,
@@ -346,7 +364,7 @@ functions.http('add-chapter', async (req, res) => {
     const audioBucketUrl = `https://storage.googleapis.com/generated-books/${uid}/${audiobookData.requestId}/`;
     chapters.push({
       chapterId: chapter,
-      chapterUrl: `${audioBucketUrl}chapter-${chapter}.wav`,
+      chapterUrl: `${audioBucketUrl}chapter-${chapter}.${extension}`,
     });
 
     audiobookRef.update({

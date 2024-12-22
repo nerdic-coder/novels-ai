@@ -20,7 +20,7 @@ import {
   startAfter,
 } from '@angular/fire/firestore';
 import { environment } from '../../../environments/environment.loader';
-import { Audiobook, Chapter, narrationTypes, voices } from '../../models/audiobook';
+import { Audiobook, Chapter, narrationTypes, Voice, voices } from '../../models/audiobook';
 import { StoreService } from '../../services/store.service';
 import { AudioService } from '../../services/audio.service';
 import { AlertService } from '../../services/alert.service';
@@ -203,7 +203,7 @@ export class NovelsComponent implements OnInit, AfterViewInit {
     return pov ? narrationTypes.get(pov) : undefined;
   }
 
-  getVoice(voice: string | undefined): string | undefined {
+  getVoice(voice: string | undefined): Voice | undefined {
     return voice ? voices.get(voice) : undefined;
   }
 

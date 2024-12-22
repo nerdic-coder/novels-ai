@@ -1,4 +1,5 @@
 import admin from './admin.js';
+import voices from './voices.js';
 
 export default async function storeMetadata(
   uid,
@@ -16,10 +17,12 @@ export default async function storeMetadata(
 ) {
   const audioBucketUrl = `https://storage.googleapis.com/generated-books/${uid}/${requestId}/`;
   const chaptersData = [];
+  const voiceInfo = voices.get(voice);
+  const extension = voiceInfo.service === 'elevenlabs' ? 'mp3' : 'wav';
   for (let index = 1; index <= chapters; index += 1) {
     chaptersData.push({
       chapterId: index,
-      chapterUrl: `${audioBucketUrl}chapter-${index}.wav`,
+      chapterUrl: `${audioBucketUrl}chapter-${index}.${extension}`,
     });
   }
   // Create a reference to the Firestore collection for the user

@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { AudiobookRequest, narrationTypes, voices } from '../../models/audiobook';
+import { AudiobookRequest, narrationTypes, Voice, voices } from '../../models/audiobook';
 import { 
   Auth,
   signOut
@@ -32,7 +32,7 @@ export class CreateComponent {
   paymentInProgress = false;
   creationInProgress = false;
 
-  voicesArray = Array.from(voices.entries());
+  voicesArray: [string, Voice][] = [];
   narrationTypesArray  = Array.from(narrationTypes.entries());
 
   title: string = '';
@@ -43,25 +43,23 @@ export class CreateComponent {
   pov: string = '';
   selectedVoice = 'onyx'; // Default selected value, change this based on your logic
   characters: Array<{name: string; description: string}> = [{name: '', description: ''}];
-
-  addCharacter() {
-    this.characters.push({name: '', description: ''});
-  }
-
-  removeCharacter(index: number) {
-    this.characters.splice(index, 1);
-  }
-
-  private combineCharacters(): string {
-    return this.characters
-      .filter(char => char.name.trim() || char.description.trim())
-      .map(char => `${char.name}${char.description ? ` - ${char.description}` : ''}`)
-      .join(', ');
-  }
   imageInput: any;
 
-  constructor(private storeService: StoreService, private router: Router) {
-    
+  constructor(public storeService: StoreService, private router: Router) {
+    // Subscribe to subscription status
+    this.storeService.subscriptionStatus$.subscribe(isSubscribed => {
+      // Show all voices but handle availability in the template
+      this.voicesArray = Array.from(voices.entries());
+      
+      // If selected voice is subscriber-only and user is not subscribed, switch to default
+      if (this.selectedVoice) {
+        const selectedVoiceData = voices.get(this.selectedVoice);
+        if (selectedVoiceData?.subscriberOnly && !isSubscribed) {
+          this.selectedVoice = 'onyx'; // Default to non-subscriber voice
+        }
+      }
+    });
+
     const usersCollection = collection(this.firestore, 'users');
     const currentUserDoc = doc(usersCollection, this.auth.currentUser?.uid);
     // Subscribe to real-time updates on the user's document
@@ -76,6 +74,21 @@ export class CreateComponent {
     }, (error) => {
       console.error(`Error getting user document: ${error}`);
     });
+  }
+
+  addCharacter() {
+    this.characters.push({name: '', description: ''});
+  }
+
+  removeCharacter(index: number) {
+    this.characters.splice(index, 1);
+  }
+
+  private combineCharacters(): string {
+    return this.characters
+      .filter(char => char.name.trim() || char.description.trim())
+      .map(char => `${char.name}${char.description ? ` - ${char.description}` : ''}`)
+      .join(', ');
   }
 
   async buyPoints() {

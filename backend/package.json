@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "test": "vitest",
-    "start": "functions-framework --target=generate",
+    "start": "env-cmd functions-framework --target=generate",
     "start:chapter": "functions-framework --target=add-chapter --port 8082",
     "start:delete": "functions-framework --target=delete --port 8081",
     "lint": "eslint src/**/*.js"
@@ -14,22 +14,23 @@
   "author": "The Nerdic Coder",
   "license": "UNLICENSED",
   "dependencies": {
-    "@google-cloud/functions-framework": "^3.4.2",
-    "@google-cloud/storage": "^6.12.0",
-    "@google-cloud/text-to-speech": "^5.4.0",
+    "@google-cloud/functions-framework": "^3.4.4",
+    "@google-cloud/storage": "^7.14.0",
+    "@google-cloud/text-to-speech": "^5.7.0",
     "ai-audiobook-backend": "file:",
-    "express": "^4.19.2",
-    "firebase-admin": "^11.5.0",
-    "handlebars": "^4.7.7",
-    "openai": "^4.55.7",
-    "uuid": "^10.0.0"
+    "elevenlabs": "^1.50.2",
+    "express": "^4.21.2",
+    "firebase-admin": "^13.0.2",
+    "handlebars": "^4.7.8",
+    "openai": "^4.77.0",
+    "uuid": "^11.0.3"
   },
   "devDependencies": {
     "env-cmd": "^10.1.0",
-    "eslint": "^8.36.0",
+    "eslint": "^9.17.0",
     "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-plugin-import": "^2.27.5",
-    "vite": "^5.4.2",
-    "vitest": "^2.0.5"
+    "eslint-plugin-import": "^2.31.0",
+    "vite": "^6.0.5",
+    "vitest": "^2.1.8"
   }
 }
