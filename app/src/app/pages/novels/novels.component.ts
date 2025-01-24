@@ -54,6 +54,7 @@ export class NovelsComponent implements OnInit, AfterViewInit {
   @ViewChild('subscriptionBenefitsModal') subscriptionBenefitsModal!: SubscriptionBenefitsModalComponent;
   @ViewChild('addChapterModal') addChapterModal!: ConfirmationModalComponent;
   isSubscribed = false;
+  isExporting = false;
 
   constructor(
     private storeService: StoreService, 
@@ -304,7 +305,7 @@ export class NovelsComponent implements OnInit, AfterViewInit {
   }
 
   async exportToITunes(audiobook: Audiobook) {
-    console.log('export!');
+    this.isExporting = true;
     try {
       console.log('Exporting audiobook:', audiobook);
       const options: AudiobookExportOptions = {
@@ -344,6 +345,8 @@ export class NovelsComponent implements OnInit, AfterViewInit {
     } catch (error: any) {
       console.error('Export failed:', error);
       this.alertService.error(`Export failed!`);
+    } finally {
+      this.isExporting = false;
     }
   }
 }

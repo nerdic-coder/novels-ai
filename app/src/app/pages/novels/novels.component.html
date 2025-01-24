@@ -185,8 +185,8 @@
             type="button"
             class="btn btn-primary me-2 mb-2"
             (click)="exportToITunes(selectedAudiobook!)"
-            [disabled]="!isSubscribed || !selectedAudiobook?.chapters?.length">
-            Export to iTunes
+            [disabled]="!isSubscribed || !selectedAudiobook?.chapters?.length || isExporting">
+            {{ isExporting ? 'Exporting...' : 'Export to iTunes' }}
           </button>
         </div>
       </div>
