@@ -37,9 +37,11 @@ functions.http('exportAudiobook', async (req, res) => {
       return res.status(400).send('Missing audiobookId');
     }
 
-    // Check subscription status
-    const userDoc = await admin.firestore().collection('users').doc(uid).get();
-    if (!userDoc.exists || !userDoc.data().isSubscribed) {
+    // Check subscription status - same logic as store.service.ts
+    const subscriptionsRef = admin.firestore().collection('users').doc(uid).collection('subscriptions');
+    const q = subscriptionsRef.where('status', 'in', ['trialing', 'active']);
+    const snapshot = await q.get();
+    if (snapshot.empty) {
       return res.status(403).send('Subscription required for exporting');
     }
 
