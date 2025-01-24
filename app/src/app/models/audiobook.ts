@@ -28,6 +28,23 @@ export interface AudiobookRequest {
 export interface Chapter {
   chapterId: number;
   chapterUrl: string;  // URL to the audio file for each chapter
+  title?: string;
+  startTime?: number;  // Start time in milliseconds
+  duration?: number;   // Duration in milliseconds
+}
+
+export interface iTunesMetadata {
+  artist?: string;
+  albumArtist?: string;
+  composer?: string;
+  copyright?: string;
+  releaseDate?: Date;
+  genre?: string;
+  description?: string;
+  longDescription?: string;
+  trackNumber?: number;
+  totalTracks?: number;
+  coverArt?: string;
 }
 
 export const narrationTypes = new Map([

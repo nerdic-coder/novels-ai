@@ -23,4 +23,11 @@ steps:
     '--entry-point', 'add-chapter', '--memory', '1024MB', '--region', 'europe-central2'
   ]
 
+# Deploy export
+- name: 'gcr.io/cloud-builders/gcloud'
+  args: ['functions', 'deploy', 'export', 
+    '--trigger-http', '--gen2', '--runtime', 'nodejs20', '--source', './export',
+    '--entry-point', 'exportAudiobook', '--memory', '256MB', '--region', 'europe-west2'
+  ]
+
 timeout: '1600s' # Adjust the timeout to your needs

@@ -50,6 +50,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/payment-history/payment-history.component').then(c => c.PaymentHistoryComponent)
   },
   {
+    path: 'publish-guide',
+    loadComponent: () => import('./pages/publish-guide/publish-guide.component').then(c => c.PublishGuideComponent)
+  },
+  {
     path: 'change-password',
     canActivate: [AuthGuard],
     loadComponent: () => import('./pages/change-password/change-password.component').then(c => c.ChangePasswordComponent)

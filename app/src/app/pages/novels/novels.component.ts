@@ -22,7 +22,7 @@ import {
 import { environment } from '../../../environments/environment.loader';
 import { Audiobook, Chapter, narrationTypes, Voice, voices } from '../../models/audiobook';
 import { StoreService } from '../../services/store.service';
-import { AudioService } from '../../services/audio.service';
+import { AudiobookExportOptions, AudioService } from '../../services/audio.service';
 import { AlertService } from '../../services/alert.service';
 import { ConfirmationModalComponent } from '../../components/confirmation-modal/confirmation-modal.component';
 import { SubscriptionBenefitsModalComponent } from '../../components/subscription-benefits-modal/subscription-benefits-modal.component';
@@ -60,7 +60,7 @@ export class NovelsComponent implements OnInit, AfterViewInit {
     private router: Router, 
     private audioService: AudioService, 
     private alertService: AlertService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
   ) {
     // Get the audiobooks collection for the current user
     const usersCollection = collection(this.firestore, 'users');
@@ -301,5 +301,49 @@ export class NovelsComponent implements OnInit, AfterViewInit {
       if (!success) {
         this.paymentInProgress = false;
       }
+  }
+
+  async exportToITunes(audiobook: Audiobook) {
+    console.log('export!');
+    try {
+      console.log('Exporting audiobook:', audiobook);
+      const options: AudiobookExportOptions = {
+        format: 'm4b',
+        quality: 128, // 128kbps
+        includeChapters: true,
+        metadata: {
+          artist: audiobook.starring,
+          albumArtist: 'Novels AI', 
+          genre: audiobook.genre,
+          description: audiobook.plot,
+          releaseDate: audiobook.createdDate // Already a Date object
+        }
+      };
+
+      console.log('Calling audioService.exportToITunes...');
+      const blob = await this.audioService.exportToITunes(audiobook, options);
+      console.log('Received blob:', blob, 'Size:', blob?.size, 'Type:', blob?.type);
+      
+      if (!(blob instanceof Blob)) {
+        console.error('Invalid blob received:', blob);
+        throw new Error('Invalid audio blob received');
+      }
+      
+      console.log('Creating download link...');
+      const url = window.URL.createObjectURL(blob);
+      console.log('Object URL created:', url);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${audiobook.title || 'audiobook'}.m4b`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+
+      this.alertService.success('Audiobook exported successfully!');
+    } catch (error: any) {
+      console.error('Export failed:', error);
+      this.alertService.error(`Export failed!`);
+    }
   }
 }

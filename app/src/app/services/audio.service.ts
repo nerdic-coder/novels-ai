@@ -1,6 +1,10 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { Chapter, Audiobook } from '../models/audiobook';
+import { Chapter, Audiobook, iTunesMetadata } from '../models/audiobook';
+import { environment } from '../../environments/environment';
+import { 
+  Auth,
+} from '@angular/fire/auth';
 
 export interface AudioPlayerState {
   currentNovel: Audiobook | null;
@@ -9,10 +13,19 @@ export interface AudioPlayerState {
   isPlaying: boolean;
 }
 
+export interface AudiobookExportOptions {
+  format: 'm4b';
+  quality?: number; // 64kbps, 128kbps, etc
+  metadata?: iTunesMetadata;
+  includeChapters: boolean;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class AudioService {
+  private auth = inject(Auth);
+  
   private state = new BehaviorSubject<AudioPlayerState>({
     currentNovel: null,
     currentChapter: null,
@@ -92,4 +105,34 @@ export class AudioService {
       state.isPlaying
     );
   }
+
+  async exportToITunes(audiobook: Audiobook, options: AudiobookExportOptions): Promise<Blob> {
+    if (!audiobook.chapters || audiobook.chapters.length === 0) {
+      throw new Error('Audiobook has no chapters to export');
+    }
+
+    // Call cloud function
+    const result = await fetch(environment.API_URL_EXPORT_AUDIOBOOK, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${await this.auth.currentUser?.getIdToken()}`
+      },
+      body: JSON.stringify({ audiobookId: audiobook.id })
+    });
+
+    if (!result.ok) {
+      const error = await result.json();
+      throw new Error(error.message || 'Export failed');
+    }
+
+    const { downloadUrl, fileName } = await result.json();
+    
+    // Download generated file
+    const response = await fetch(downloadUrl);
+    if (!response.ok) throw new Error('Failed to download exported file');
+    
+    return new Blob([await response.blob()], { type: 'audio/m4b' });
+  }
+
 }

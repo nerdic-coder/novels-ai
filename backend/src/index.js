@@ -8,7 +8,6 @@ import createChatResponse from './chat.js';
 import generateSpeechElevenLabs from './speech-elevenlabs.js';
 import generateSpeechOpenAI from './speech-openai.js';
 import storeMetadata, { spendUserPoints } from './store.js';
-
 import voices from './voices.js';
 
 functions.http('generate', async (req, res) => {

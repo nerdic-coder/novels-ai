@@ -181,6 +181,13 @@
             (click)="deleteAudiobook(selectedAudiobook!.id)">
             Delete
           </button>
+          <button
+            type="button"
+            class="btn btn-primary me-2 mb-2"
+            (click)="exportToITunes(selectedAudiobook!)"
+            [disabled]="!isSubscribed || !selectedAudiobook?.chapters?.length">
+            Export to iTunes
+          </button>
         </div>
       </div>
     </div>

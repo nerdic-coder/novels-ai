@@ -1,0 +1,21 @@
+{
+  "name": "export-audiobook",
+  "version": "1.0.0",
+  "main": "src/export-audiobook.js",
+  "type": "module",
+  "scripts": {
+    "test": "vitest",
+    "start": "env-cmd functions-framework --target=exportAudiobook --port 8083",
+    "lint": "eslint src/**/*.js"
+  },
+  "dependencies": {
+    "@google-cloud/functions-framework": "^3.4.4",
+    "export-audiobook": "file:",
+    "ffmpeg-static": "^5.2.0",
+    "firebase-admin": "^13.0.2",
+    "uuid": "^11.0.3"
+  },
+  "devDependencies": {
+    "env-cmd": "^10.1.0"
+  }
+}
