@@ -63,17 +63,47 @@
     <div class="mb-3">
       <label class="form-label">Characters:</label>
       @for (character of characters; track $index) {
-        <div class="row mb-2">
-          <div class="col">
-            <input type="text" class="form-control" [name]="'characterName' + $index" [(ngModel)]="character.name" placeholder="Character name">
-          </div>
-          <div class="col">
-            <input type="text" class="form-control" [name]="'characterDesc' + $index" [(ngModel)]="character.description" placeholder="Character description">
-          </div>
-          <div class="col-auto">
-            <button type="button" class="btn btn-danger" (click)="removeCharacter($index)" [disabled]="characters.length === 1">
-              <i class="bi bi-trash"></i>
-            </button>
+        <div class="card mb-3 p-3 bg-dark">
+          <div class="row g-3">
+            <!-- Name and Link on first row -->
+            <div class="col-md-6">
+              <input type="text" class="form-control" 
+                     [(ngModel)]="character.name" 
+                     name="characterName{{$index}}"
+                     placeholder="Character name">
+            </div>
+            <div class="col-md-6">
+              <input type="url" class="form-control" 
+                     [(ngModel)]="character.link" 
+                     name="characterLink{{$index}}"
+                     placeholder="Wiki page URL (optional)">
+            </div>
+            
+            <!-- Description on second row -->
+            <div class="col-12">
+              <textarea class="form-control" rows="2"
+                        [(ngModel)]="character.description" 
+                        name="characterDesc{{$index}}"
+                        placeholder="Character description"></textarea>
+            </div>
+            
+            <!-- Image upload and delete button on third row -->
+            <div class="col-md-9">
+              <input type="file" class="form-control" 
+                     (change)="onCharacterImageSelected($event, $index)"
+                     accept="image/*"
+                     placeholder="Select character's image">
+              <div class="form-text text-light" *ngIf="!characters[$index].image">
+                Select character's image (optional)
+              </div>
+            </div>
+            <div class="col-md-3 text-end">
+              <button type="button" class="btn btn-danger" 
+                      (click)="removeCharacter($index)" 
+                      [disabled]="characters.length === 1">
+                <i class="bi bi-trash"></i> Remove
+              </button>
+            </div>
           </div>
         </div>
       }

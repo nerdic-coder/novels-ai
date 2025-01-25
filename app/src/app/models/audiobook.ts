@@ -20,7 +20,13 @@ export interface AudiobookRequest {
   plot?: string;
   pov?: string;  // Point of View
   voice?: string;  // Reference to a voice type (potentially a key in a map)
-  starring?: string;
+  starring?: Array<{
+    name: string;
+    description: string;
+    link?: string;
+    image?: string;
+    aiProfile?: string;
+  }>;
   location?: string;  // Description of story location
   image?: string | ArrayBuffer | null;
 }

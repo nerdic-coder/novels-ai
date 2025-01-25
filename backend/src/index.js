@@ -3,12 +3,48 @@ import { Storage } from '@google-cloud/storage';
 import { v4 } from 'uuid';
 import Handlebars from 'handlebars';
 import admin from './admin.js';
+import sanitizeHtml from 'sanitize-html';
 
 import createChatResponse from './chat.js';
 import generateSpeechElevenLabs from './speech-elevenlabs.js';
 import generateSpeechOpenAI from './speech-openai.js';
 import storeMetadata, { spendUserPoints } from './store.js';
 import voices from './voices.js';
+import fetch from 'node-fetch';
+
+async function fetchAndSanitizeWikiContent(url) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10000);
+
+  try {
+    console.log(`Fetching wiki content from: ${url}`);
+    const response = await fetch(url, { signal: controller.signal });
+    if (!response.ok) return '';
+    
+    const html = await response.text();
+    
+    // First pass: keep only paragraph tags
+    const cleanHtml = sanitizeHtml(html, {
+      allowedTags: ['p'],
+      allowedAttributes: {},
+      textFilter: (text) => 
+        text.replace(/\s+/g, ' ') // Collapse whitespace
+    });
+
+    // Second pass: remove all HTML tags
+    const textContent = sanitizeHtml(cleanHtml, {
+      allowedTags: [],
+      allowedAttributes: {}
+    }).trim();
+
+    return textContent;
+  } catch (error) {
+    console.error('Error fetching wiki content:', error);
+    return '';
+  } finally {
+    clearTimeout(timeout);
+  }
+}
 
 functions.http('generate', async (req, res) => {
   let metadata;
@@ -57,7 +93,60 @@ functions.http('generate', async (req, res) => {
       return;
     }
 
-    const starring = req.query.starring || req.body.starring ? `${req.query.starring || req.body.starring}` : '';
+    let starring = req.body.starring || [];
+    // Handle legacy string format if needed
+    if (typeof starring === 'string') {
+      try {
+        starring = JSON.parse(starring);
+      } catch {
+        starring = [];
+      }
+    }
+
+    for (const character of starring) {
+      console.log('Processing character:', character.name);
+      const { name, description = '', link, image } = character;
+      
+      let wikiContent = '';
+      if (link) {
+        wikiContent = await fetchAndSanitizeWikiContent(link);
+      }
+
+      const characterPrompt = Handlebars.compile(
+        `Analyze this character for story generation, only reply with a description no more than 80 words:
+        Name: {{name}}
+        Description: {{description}}`
+      )({
+        name: name.trim(),
+        description: `${description} ${wikiContent}`.trim()
+      });
+
+      const characterMessages = [{
+        role: 'user',
+        content: characterPrompt
+      }];
+
+      if (image) {
+        characterMessages.push({
+          role: 'user',
+          content: [
+            { type: 'text', text: 'Character appearance reference:' },
+            {
+              type: 'image_url',
+              image_url: {
+                url: image,
+              },
+            },
+          ],
+        });
+      }
+
+      // Get character analysis from OpenAI
+      const charCompletion = await createChatResponse(characterMessages, uid);
+      
+      // Add AI-generated profile to character object
+      character.aiProfile = charCompletion.choices[0].message.content;
+    }
     const genre = req.query.genre || req.body.genre || '';
     const style = req.query.style || req.body.style || '';
     const plot = req.query.plot || req.body.plot || '';
@@ -79,7 +168,7 @@ functions.http('generate', async (req, res) => {
     if (style) {
       story += 'Should have the same style as the author "{{style}}". ';
     }
-
+    
     if (starring) {
       story += 'The story is starring "{{starring}}". ';
     }
@@ -119,7 +208,9 @@ functions.http('generate', async (req, res) => {
     const context = {
       genre,
       style,
-      starring,
+      starring: starring.map(char => 
+        `${char.name}${char.description ? ` - ${char.description}` : ''}${char.aiProfile ? ` [Profile: ${char.aiProfile}]` : ''}`
+      ).join(', '),
       chapters,
       title,
       plot,
@@ -128,11 +219,15 @@ functions.http('generate', async (req, res) => {
     };
 
     const messages = [];
+
+
+    // Add main story prompt
     messages.push({
       role: 'system',
-      content: `: You are a ${genre} author. Your task is to
-      write ${genre} stories in a rich and intriguing language in a very slow pace building the
-      story. Consider splitting up long sentences with sentence breaking punctuation.`,
+      content: `You are a {{genre}} author. Your task is to
+      write {{genre}} stories in a rich and intriguing language in a slow pace building the
+      story. Consider splitting up long sentences with sentence breaking punctuation.
+      {{#if style}}Style inspired by: {{style}}{{/if}}`,
     });
     messages.push({
       role: 'user',
@@ -145,7 +240,7 @@ functions.http('generate', async (req, res) => {
       title,
       chapters,
       messages,
-      starring,
+      context.starring,
       genre,
       style,
       plot,
@@ -200,16 +295,34 @@ functions.http('generate', async (req, res) => {
 
     res.send(requestId);
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Generate Error:', {
+      error: error.message,
+      stack: error.stack,
+      uid,
+      chapters,
+      metadata: metadata?.id,
+      userPoints
+    });
+    
     if (metadata) {
-      metadata.update({
+      await metadata.update({
         status: 'error',
+        error: error.message
       });
     }
-    if (errorAfterPointDeduction) {
-      await userRef.update({ points: userPoints + chapters });
+    
+    if (errorAfterPointDeduction && userRef) {
+      console.log(`Restoring ${chapters} points to user ${uid}`);
+      await userRef.update({ 
+        points: admin.firestore.FieldValue.increment(chapters) 
+      });
     }
-    res.status(401).send('Unauthorized');
+    
+    res.status(500).json({
+      error: 'Generation failed',
+      message: error.message,
+      pointsRestored: errorAfterPointDeduction ? chapters : 0
+    });
   }
 });
 

@@ -42,7 +42,19 @@ export class CreateComponent {
   location: string = '';
   pov: string = '';
   selectedVoice = 'onyx'; // Default selected value, change this based on your logic
-  characters: Array<{name: string; description: string}> = [{name: '', description: ''}];
+  characters: Array<{name: string; description: string; link?: string; image?: string}> = [{name: '', description: ''}];
+
+  onCharacterImageSelected(event: Event, index: number) {
+    const fileInput = event.target as HTMLInputElement;
+    if (fileInput.files && fileInput.files.length > 0) {
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        this.characters[index].image = reader.result as string;
+      };
+    }
+  }
   imageInput: any;
 
   constructor(public storeService: StoreService, private router: Router) {
@@ -82,13 +94,6 @@ export class CreateComponent {
 
   removeCharacter(index: number) {
     this.characters.splice(index, 1);
-  }
-
-  private combineCharacters(): string {
-    return this.characters
-      .filter(char => char.name.trim() || char.description.trim())
-      .map(char => `${char.name}${char.description ? ` - ${char.description}` : ''}`)
-      .join(', ');
   }
 
   async buyPoints() {
@@ -161,7 +166,7 @@ export class CreateComponent {
         style: this.style,
         plot: this.plot,
         location: this.location,
-        starring: this.combineCharacters(),
+        starring: this.characters.filter(char => char.name.trim() || char.description.trim()),
         image: this.imageInput ? this.imageInput : null
       };
     
