@@ -326,6 +326,95 @@ functions.http('generate', async (req, res) => {
   }
 });
 
+functions.http('manageTemplate', async (req, res) => {
+  try {
+    res.set('Access-Control-Allow-Origin', '*');
+    res.set('Access-Control-Allow-Headers', 'Authorization, Content-Type, baggage, sentry-trace');
+    res.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    if (req.method === 'OPTIONS') {
+      res.status(204).send('');
+      return;
+    }
+    if (!req.get('Authorization') || !req.get('Authorization').startsWith('Bearer ')) {
+      res.status(401).send('Unauthorized');
+      return;
+    }
+    const idToken = req.get('Authorization')?.split('Bearer ')[1];
+    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    const uid = decodedToken.uid;
+    
+    const templateId = req.params[0] || v4();
+
+    // Handle GET request
+    if (req.method === 'GET') {
+      const doc = await admin.firestore().collection('users').doc(uid)
+        .collection('templates').doc(templateId).get();
+      
+      if (!doc.exists) {
+        return res.status(404).json({ error: 'Template not found' });
+      }
+      
+      return res.json({
+        id: doc.id,
+        ...doc.data(),
+        updatedAt: doc.data().updatedAt?.toDate()
+      });
+    }
+
+    const templateData = {
+      ...req.body,
+      uid,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp()
+    };
+
+    if (req.method === 'DELETE') {
+      await admin.firestore().collection('users').doc(uid)
+        .collection('templates').doc(templateId).delete();
+      return res.json({ success: true });
+    }
+
+    await admin.firestore().collection('users').doc(uid)
+      .collection('templates').doc(templateId)
+      .set(templateData, { merge: true });
+    
+    res.json({ id: templateId, ...templateData });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+functions.http('getTemplates', async (req, res) => {
+  try {
+    res.set('Access-Control-Allow-Origin', '*');
+    res.set('Access-Control-Allow-Headers', 'Authorization, Content-Type, baggage, sentry-trace');
+    res.set('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    if (req.method === 'OPTIONS') {
+      res.status(204).send('');
+      return;
+    }
+    if (!req.get('Authorization') || !req.get('Authorization').startsWith('Bearer ')) {
+      res.status(401).send('Unauthorized');
+      return;
+    }
+    const idToken = req.get('Authorization')?.split('Bearer ')[1];
+    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    const uid = decodedToken.uid;
+    
+    const snapshot = await admin.firestore().collection('users').doc(uid)
+      .collection('templates').get();
+    
+    const templates = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      updatedAt: doc.data().updatedAt?.toDate()
+    }));
+
+    res.json(templates);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 functions.http('delete', async (req, res) => {
   res.set('Access-Control-Allow-Origin', '*');
   res.set('Access-Control-Allow-Headers', 'Authorization, Content-Type, baggage, sentry-trace');

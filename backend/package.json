@@ -9,6 +9,8 @@
     "start": "env-cmd functions-framework --target=generate",
     "start:chapter": "functions-framework --target=add-chapter --port 8082",
     "start:delete": "functions-framework --target=delete --port 8081",
+    "start:managetemplate": "env-cmd functions-framework --target=manageTemplate --port 8084",
+    "start:template": "env-cmd functions-framework --target=getTemplates --port 8085",
     "lint": "eslint src/**/*.js"
   },
   "author": "The Nerdic Coder",

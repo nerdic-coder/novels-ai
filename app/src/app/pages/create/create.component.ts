@@ -1,5 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { AudiobookRequest, narrationTypes, Voice, voices } from '../../models/audiobook';
+import { PromptTemplate } from '../../models/template';
+declare var bootstrap: any;
 import { 
   Auth,
   signOut
@@ -56,6 +58,13 @@ export class CreateComponent {
     }
   }
   imageInput: any;
+  templates: PromptTemplate[] = [];
+  selectedTemplateId: string | null = null;
+  newTemplateName: string = '';
+
+  async ngOnInit() {
+    await this.loadTemplates();
+  }
 
   constructor(public storeService: StoreService, private router: Router) {
     // Subscribe to subscription status
@@ -179,5 +188,136 @@ export class CreateComponent {
       // Re-enable the submit button
       this.creationInProgress = false;
     }
+  }
+
+  async loadTemplates() {
+    const token = await this.auth.currentUser?.getIdToken();
+    const response = await fetch(environment.API_URL_GET_TEMPLATES, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    this.templates = await response.json();
+  }
+
+  loadingTemplate = false;
+
+  async loadTemplate() {
+    if (!this.selectedTemplateId) return;
+    
+    this.loadingTemplate = true;
+    try {
+      const token = await this.auth.currentUser?.getIdToken();
+      const response = await fetch(`${environment.API_URL_TEMPLATES}${this.selectedTemplateId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to load template: ${response.statusText}`);
+      }
+      
+      const template = await response.json();
+      
+      // Reset form before loading new values
+      this.characters = [{name: '', description: ''}];
+      
+      // Assign template values
+      this.title = template.title || '';
+      this.genre = template.genre || '';
+      this.style = template.style || '';
+      this.plot = template.plot || '';
+      this.location = template.location || '';
+      this.pov = template.pov || '';
+      this.selectedVoice = template.selectedVoice || 'onyx';
+      this.characters = template.characters?.length 
+        ? template.characters 
+        : [{name: '', description: ''}];
+    } catch (error) {
+      console.error('Error loading template:', error);
+      this.alertService.error('Failed to load template. Please try again.');
+      this.selectedTemplateId = null;
+    } finally {
+      this.loadingTemplate = false;
+    }
+  }
+
+  openSaveTemplateModal() {
+    this.newTemplateName = '';
+    
+    // Prefill name if updating existing template
+    if (this.selectedTemplateId) {
+      const selectedTemplate = this.templates.find(t => t.id === this.selectedTemplateId);
+      if (selectedTemplate) {
+        this.newTemplateName = selectedTemplate.name;
+      }
+    }
+
+    const modal = new bootstrap.Modal(document.getElementById('templateNameModal'));
+    modal.show();
+  }
+
+  async saveTemplate() {
+    const templateData = {
+      name: this.newTemplateName,
+      title: this.title,
+      genre: this.genre,
+      style: this.style,
+      plot: this.plot,
+      location: this.location,
+      pov: this.pov,
+      selectedVoice: this.selectedVoice,
+      characters: this.characters
+    };
+
+    const token = await this.auth.currentUser?.getIdToken();
+    const url = this.selectedTemplateId 
+      ? `${environment.API_URL_TEMPLATES}${this.selectedTemplateId}`
+      : environment.API_URL_TEMPLATES;
+
+    await fetch(url, {
+      method: this.selectedTemplateId ? 'PUT' : 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(templateData)
+    });
+
+    await this.loadTemplates();
+    const modal = bootstrap.Modal.getInstance(document.getElementById('templateNameModal'));
+    modal.hide();
+  }
+
+  async deleteTemplate() {
+    if (!this.selectedTemplateId) return;
+
+    const confirm = window.confirm('Delete this template permanently?');
+    if (!confirm) return;
+
+    const token = await this.auth.currentUser?.getIdToken();
+    await fetch(`${environment.API_URL_TEMPLATES}${this.selectedTemplateId}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    await this.loadTemplates();
+    this.selectedTemplateId = null;
+  }
+
+  clearForm() {
+    const confirmClear = window.confirm('Are you sure you want to clear all form fields?');
+    if (!confirmClear) return;
+
+    // Reset all form fields
+    this.title = '';
+    this.genre = '';
+    this.style = '';
+    this.plot = '';
+    this.location = '';
+    this.pov = '';
+    this.selectedVoice = 'onyx';
+    this.characters = [{name: '', description: ''}];
+    this.imageInput = null;
+    this.selectedTemplateId = null;
+    
+    this.alertService.success('Form cleared successfully');
   }
 }

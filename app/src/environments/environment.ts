@@ -2,9 +2,11 @@ export const environment = {
   production: false,
   authDomain: 'beta.novels-ai.com',
   API_URL_ADD_CHAPTER: 'https://add-chapter-i3rsqvn75a-lm.a.run.app/',
-  API_URL_GENERATE_NEW_NOVEL: 'https://generate-audiobook-i3rsqvn75a-lm.a.run.app/',
+  API_URL_GENERATE_NEW_NOVEL: 'http://localhost:8080/',
   API_URL_REMOVE_NOVEL: 'https://delete-audiobook-i3rsqvn75a-lm.a.run.app/',
-  API_URL_EXPORT_AUDIOBOOK: 'https://export-i3rsqvn75a-nw.a.run.app',
+  API_URL_EXPORT_AUDIOBOOK: 'https://export-i3rsqvn75a-nw.a.run.app/',
+  API_URL_TEMPLATES: 'http://localhost:8084/',
+  API_URL_GET_TEMPLATES: 'http://localhost:8085/',
   
   STORIES_PER_PAGE: 5,
   NEW_USER_POINTS: 1,
