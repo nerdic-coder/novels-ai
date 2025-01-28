@@ -5,8 +5,8 @@ export const environment = {
   API_URL_GENERATE_NEW_NOVEL: 'https://generate-audiobook-i3rsqvn75a-lm.a.run.app/',
   API_URL_REMOVE_NOVEL: 'https://delete-audiobook-i3rsqvn75a-lm.a.run.app/',
   API_URL_EXPORT_AUDIOBOOK: 'https://export-i3rsqvn75a-nw.a.run.app/',
-  API_URL_TEMPLATES: 'https://europe-central2-ai-audiobook.cloudfunctions.net/manageTemplate',
-  API_URL_GET_TEMPLATES: 'https://europe-central2-ai-audiobook.cloudfunctions.net/getTemplates',
+  API_URL_TEMPLATES: 'https://europe-central2-ai-audiobook.cloudfunctions.net/manageTemplate/',
+  API_URL_GET_TEMPLATES: 'https://europe-central2-ai-audiobook.cloudfunctions.net/getTemplates/',
   
   STORIES_PER_PAGE: 5,
   NEW_USER_POINTS: 1,
