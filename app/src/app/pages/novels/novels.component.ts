@@ -1,8 +1,10 @@
 import { Component, ElementRef, inject, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { OffcanvasService } from '../../services/offcanvas.service';
 import { BehaviorSubject, firstValueFrom } from 'rxjs';
+import { ChapterDirectionsModalComponent } from '../../components/chapter-directions-modal/chapter-directions-modal.component';
 import { 
   Auth,
   signOut
@@ -30,7 +32,14 @@ import { SubscriptionBenefitsModalComponent } from '../../components/subscriptio
 @Component({
   selector: 'app-novels',
   standalone: true,
-  imports: [CommonModule, RouterModule, ConfirmationModalComponent, SubscriptionBenefitsModalComponent],
+  imports: [
+    CommonModule,
+    RouterModule,
+    ChapterDirectionsModalComponent,
+    ConfirmationModalComponent,
+    SubscriptionBenefitsModalComponent,
+    FormsModule
+  ],
   templateUrl: './novels.component.html',
   styleUrl: './novels.component.scss'
 })
@@ -52,9 +61,10 @@ export class NovelsComponent implements OnInit, AfterViewInit {
   @ViewChild('cancelSubscriptionModal') cancelSubscriptionModal!: ConfirmationModalComponent;
   @ViewChild('deleteModal') deleteModal!: ConfirmationModalComponent;
   @ViewChild('subscriptionBenefitsModal') subscriptionBenefitsModal!: SubscriptionBenefitsModalComponent;
-  @ViewChild('addChapterModal') addChapterModal!: ConfirmationModalComponent;
+  @ViewChild('addChapterModal') addChapterModal!: ChapterDirectionsModalComponent;
   isSubscribed = false;
   isExporting = false;
+  newChapterDirections: string = '';
 
   constructor(
     private storeService: StoreService, 
@@ -241,39 +251,68 @@ export class NovelsComponent implements OnInit, AfterViewInit {
     this.deleteModal.show();
   }
 
-  async addChapter(audiobookId: string) {
-    this.addChapterModal.message = "Are you sure you want to add a new chapter for 1 point?";
-    this.addChapterModal.confirmed.subscribe(async () => {
-      const requestBody = new URLSearchParams();
-        requestBody.append('audiobookId', audiobookId);
+  isAddingChapter = false;
 
-        const token = await this.auth.currentUser?.getIdToken();
-        fetch(environment.API_URL_ADD_CHAPTER, {
-            method: 'POST',
-            headers: {
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: requestBody.toString(),
-        })
-        .then(response => response.text())
-        .then(async data => {
-            if (data === 'Unauthorized') {
-              this.alertService.error('Your session have expired!');
-              await signOut(this.auth);
-              this.router.navigate(['/']);
-            } else if (data === 'Internal Server Error') {
-              this.alertService.error('Adding chapter failed, please try again!');
-            } else if (data === 'Insufficient points') {
-              this.alertService.error('You do not have enough credit to add a new chapter.');
-            }
-        })
-        .catch(error => {
-            console.error(error);
-            this.alertService.error('Adding chapter failed, please try again!');
-        });
-    });
-    this.addChapterModal.show();
+  onChapterDirectionsConfirmed(event: { audiobookId: string, directions: string }) {
+    this.addChapter(event.audiobookId, event.directions);
+  }
+
+  async addChapter(audiobookId: string, directions: string = '') {
+    if (!audiobookId || this.isAddingChapter) return;
+    this.isAddingChapter = true;
+    
+    try {
+      const requestBody = new URLSearchParams();
+      requestBody.append('audiobookId', audiobookId);
+      
+      if (directions) {
+        requestBody.append('directions', directions);
+      }
+
+      const token = await this.auth.currentUser?.getIdToken();
+      const response = await fetch(environment.API_URL_ADD_CHAPTER, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: requestBody.toString(),
+      });
+
+      const data = await response.text();
+      if (data === 'Unauthorized') {
+        this.alertService.error('Your session has expired!');
+        await signOut(this.auth);
+        this.router.navigate(['/']);
+      } 
+      else if (data === 'Insufficient points') {
+        this.alertService.error('You do not have enough credit to add a new chapter.');
+      }
+      else if (!response.ok) {
+        throw new Error('Failed to add chapter');
+      }
+      
+      // Update local state for immediate UI feedback
+      const updatedAudiobook = this.audiobooks.find(a => a.id === audiobookId);
+      if (updatedAudiobook) {
+        const newChapterNumber = (updatedAudiobook.chapters?.length || 0) + 1;
+        updatedAudiobook.chapters = [
+          ...(updatedAudiobook.chapters || []),
+          {
+            chapterId: newChapterNumber,
+            chapterUrl: '',
+            title: `Chapter ${newChapterNumber}`
+          }
+        ];
+        this.audiobooks$.next([...this.audiobooks]);
+      }
+
+    } catch (error) {
+      console.error(error);
+      this.alertService.error('Adding chapter failed. Please try again.');
+    } finally {
+      this.isAddingChapter = false;
+    }
   }
 
   async buyPoints() {

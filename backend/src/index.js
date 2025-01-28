@@ -424,7 +424,29 @@ functions.http('delete', async (req, res) => {
     return;
   }
   if (!req.get('Authorization') || !req.get('Authorization').startsWith('Bearer ')) {
-    res.status(401).send('Unauthorized');
+    console.error('Error adding chapter:', {
+      error: error.message,
+      stack: error.stack,
+      audiobookId,
+      uid
+    });
+    
+    if (audiobookRef) {
+      await audiobookRef.update({
+        status: 'error',
+        error: error.message
+      });
+    }
+    
+    if (errorAfterPointDeduction) {
+      console.log('Restoring 1 point to user');
+      await userRef.update({ points: userPoints + 1 });
+    }
+    
+    res.status(500).json({
+      error: 'Chapter addition failed',
+      message: error.message
+    });
     return;
   }
   // Get the ID token from the Authorization header
@@ -475,9 +497,9 @@ functions.http('delete', async (req, res) => {
 });
 
 functions.http('add-chapter', async (req, res) => {
-  console.log('called!', req.method);
+  console.log('Add Chapter Request:', req.method, req.body);
   res.set('Access-Control-Allow-Origin', '*');
-  res.set('Access-Control-Allow-Headers', 'Authorization, Content-Type, baggage');
+  res.set('Access-Control-Allow-Headers', 'Authorization, Content-Type, baggage, sentry-trace');
   res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   if (req.method === 'OPTIONS') {
     res.status(204).send('');
@@ -530,9 +552,12 @@ functions.http('add-chapter', async (req, res) => {
     const { chapters } = audiobookData;
     const { voice } = audiobookData;
 
+    const directions = req.query.directions || req.body.directions || '';
     messages.push({
       role: 'user',
-      content: `Now write chapter ${chapter} of the story`,
+      content: directions 
+        ? `Now write chapter ${chapter} of the story. Follow these directions: ${directions}`
+        : `Now write chapter ${chapter} of the story`
     });
 
     const completion = await createChatResponse(messages, uid);

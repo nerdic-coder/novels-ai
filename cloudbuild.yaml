@@ -30,4 +30,19 @@ steps:
     '--entry-point', 'exportAudiobook', '--memory', '256MB', '--region', 'europe-west2'
   ]
 
+# Deploy manageTemplate
+- name: 'gcr.io/cloud-builders/gcloud'
+  args: ['functions', 'deploy', 'manageTemplate', 
+    '--trigger-http', '--gen2', '--runtime', 'nodejs20', '--source', './backend',
+    '--entry-point', 'manageTemplate', '--memory', '256MB', '--region', 'europe-central2'
+  ]
+
+  # Deploy getTemplates
+- name: 'gcr.io/cloud-builders/gcloud'
+  args: ['functions', 'deploy', 'getTemplates', 
+    '--trigger-http', '--gen2', '--runtime', 'nodejs20', '--source', './backend',
+    '--entry-point', 'getTemplates', '--memory', '256MB', '--region', 'europe-central2'
+  ]
+
+
 timeout: '1600s' # Adjust the timeout to your needs

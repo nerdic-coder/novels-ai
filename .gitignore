@@ -108,3 +108,5 @@ backend/ai-audiobook-firebase-adminsdk-hjlc4-16ff552b6c.json
 secret/ai-audiobook-admin-key
 ADMIN_SECRET
 .aider*
+
+*D*  # Ignore files with only line break changes

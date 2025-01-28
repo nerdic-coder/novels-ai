@@ -47,7 +47,13 @@
             </div>
             <div class="mt-2 me-1">
               @if (audiobook.status !== 'error') {
-                <button type="button" class="btn btn-sm btn-success" (click)="addChapter(audiobook.id); $event.stopPropagation()" [disabled]="points < 1">Extend</button>
+                <button 
+                  type="button" 
+                  class="btn btn-sm btn-success" 
+                  (click)="addChapterModal.show(audiobook.id); $event.stopPropagation()" 
+                  [disabled]="points < 1 || isAddingChapter">
+                  {{ isAddingChapter ? 'Adding...' : 'Extend' }}
+                </button>
               }
               @if (audiobook.status === 'error') {
                 <button type="button" class="btn btn-sm btn-danger" (click)="deleteAudiobook(audiobook.id)">Delete</button>
@@ -98,7 +104,10 @@
 
 </div>
 <app-confirmation-modal #deleteModal title="Delete Book"></app-confirmation-modal>
-<app-confirmation-modal #addChapterModal title="Add Chapter"></app-confirmation-modal>
+<app-chapter-directions-modal 
+  #addChapterModal 
+  (confirmed)="onChapterDirectionsConfirmed($event)">
+</app-chapter-directions-modal>
 <app-confirmation-modal #cancelSubscriptionModal title="Subscription Details"></app-confirmation-modal>
 <app-subscription-benefits-modal #subscriptionBenefitsModal></app-subscription-benefits-modal>
 <!-- Offcanvas for Audiobook Details -->
@@ -171,7 +180,7 @@
           <button 
             type="button" 
             class="btn btn-success me-2 mb-2" 
-            (click)="addChapter(selectedAudiobook!.id)" 
+            (click)="addChapterModal.show(selectedAudiobook!.id)" 
             [disabled]="points < 1">
             Extend
           </button>
