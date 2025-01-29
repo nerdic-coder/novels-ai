@@ -95,6 +95,11 @@ export class NovelsComponent implements OnInit, AfterViewInit {
           this.audiobooks = this.audiobooks.filter(audiobook => audiobook.id !== changedAudiobook.id);
         }
 
+        // Update selectedAudiobook if it's the changed one
+        if (this.selectedAudiobook?.id === changedAudiobook.id) {
+          this.selectedAudiobook = changedAudiobook;
+        }
+        
         // Emit the updated array to the audiobooks$ observable
         this.audiobooks$.next(this.audiobooks);
       });
