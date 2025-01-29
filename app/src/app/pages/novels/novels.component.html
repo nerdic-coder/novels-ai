@@ -149,25 +149,27 @@
       </div>
       <div class="row mb-2">
         <div class="col-12">
-          <button 
-            type="button" 
-            class="btn btn-success me-2 mb-2" 
-            (click)="addChapterModal.show(selectedAudiobook!.id)" 
-            [disabled]="points < 1">
-            Extend
-          </button>
+          @if (selectedAudiobook?.status !== 'error') {
+            <button 
+              type="button" 
+              class="btn btn-success me-2 mb-2" 
+              (click)="addChapterModal.show(selectedAudiobook!.id)" 
+              [disabled]="points < 1">
+              Extend
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary me-2 mb-2"
+              (click)="exportToITunes(selectedAudiobook!)"
+              [disabled]="!isSubscribed || !selectedAudiobook?.chapters?.length || isExporting">
+              {{ isExporting ? 'Exporting...' : 'Export to iTunes' }}
+            </button>
+          }
           <button 
             type="button" 
             class="btn btn-danger me-2 mb-2" 
             (click)="deleteAudiobook(selectedAudiobook!.id)">
             Delete
-          </button>
-          <button
-            type="button"
-            class="btn btn-primary me-2 mb-2"
-            (click)="exportToITunes(selectedAudiobook!)"
-            [disabled]="!isSubscribed || !selectedAudiobook?.chapters?.length || isExporting">
-            {{ isExporting ? 'Exporting...' : 'Export to iTunes' }}
           </button>
         </div>
       </div>
