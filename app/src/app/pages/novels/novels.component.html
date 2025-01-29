@@ -125,6 +125,52 @@
   </div>
   <div class="offcanvas-body">
     <div class="container-fluid p-0">
+      <div class="row mb-3" *ngIf="selectedAudiobook?.chapters">
+        <div class="col-12">
+          <strong>Chapters:</strong>
+          <div>
+            <ng-container *ngFor="let chapter of selectedAudiobook!.chapters; let idx = index">
+              <button 
+                type="button" 
+                class="btn btn-secondary btn-sm me-2 mb-2 mt-2"
+                (click)="onPlayPauseChapter(selectedAudiobook!, chapter)"
+                [disabled]="selectedAudiobook!.status === 'progress' && idx === selectedAudiobook!.chapters!.length - 1">
+                <i *ngIf="selectedAudiobook!.status === 'progress' && idx === selectedAudiobook!.chapters!.length - 1" 
+                   class="bi bi-arrow-repeat spin" 
+                   style="font-size: 1rem;"></i>
+                <i *ngIf="!(selectedAudiobook!.status === 'progress' && idx === selectedAudiobook!.chapters!.length - 1)"
+                   class="bi"
+                   [class.bi-play-circle]="!isPlayingCurrentChapter(selectedAudiobook!, chapter)"
+                   [class.bi-pause-circle]="isPlayingCurrentChapter(selectedAudiobook!, chapter)"></i> {{idx + 1}}
+              </button>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+      <div class="row mb-2">
+        <div class="col-12">
+          <button 
+            type="button" 
+            class="btn btn-success me-2 mb-2" 
+            (click)="addChapterModal.show(selectedAudiobook!.id)" 
+            [disabled]="points < 1">
+            Extend
+          </button>
+          <button 
+            type="button" 
+            class="btn btn-danger me-2 mb-2" 
+            (click)="deleteAudiobook(selectedAudiobook!.id)">
+            Delete
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary me-2 mb-2"
+            (click)="exportToITunes(selectedAudiobook!)"
+            [disabled]="!isSubscribed || !selectedAudiobook?.chapters?.length || isExporting">
+            {{ isExporting ? 'Exporting...' : 'Export to iTunes' }}
+          </button>
+        </div>
+      </div>
       <div class="row mb-2" *ngIf="selectedAudiobook?.style">
         <div class="col-4"><strong>Author Style:</strong></div>
         <div class="col-8">{{ selectedAudiobook?.style }}</div>
@@ -152,52 +198,6 @@
       <div class="row mb-2" *ngIf="selectedAudiobook?.starring">
         <div class="col-4"><strong>Starring:</strong></div>
         <div class="col-8">{{ selectedAudiobook?.starring }}</div>
-      </div>
-      <div class="row mb-3" *ngIf="selectedAudiobook?.chapters">
-        <div class="col-12">
-          <strong>Chapters:</strong>
-          <div>
-            <ng-container *ngFor="let chapter of selectedAudiobook!.chapters; let idx = index">
-              <button 
-                type="button" 
-                class="btn btn-secondary btn-sm me-2 mb-2 mt-2"
-                (click)="onPlayPauseChapter(selectedAudiobook!, chapter)"
-                [disabled]="selectedAudiobook!.status === 'progress' && idx === selectedAudiobook!.chapters!.length - 1">
-                <i *ngIf="selectedAudiobook!.status === 'progress' && idx === selectedAudiobook!.chapters!.length - 1" 
-                   class="bi bi-arrow-repeat spin" 
-                   style="font-size: 1rem;"></i>
-                <i *ngIf="!(selectedAudiobook!.status === 'progress' && idx === selectedAudiobook!.chapters!.length - 1)"
-                   class="bi"
-                   [class.bi-play-circle]="!isPlayingCurrentChapter(selectedAudiobook!, chapter)"
-                   [class.bi-pause-circle]="isPlayingCurrentChapter(selectedAudiobook!, chapter)"></i> {{idx + 1}}
-              </button>
-            </ng-container>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-12">
-          <button 
-            type="button" 
-            class="btn btn-success me-2 mb-2" 
-            (click)="addChapterModal.show(selectedAudiobook!.id)" 
-            [disabled]="points < 1">
-            Extend
-          </button>
-          <button 
-            type="button" 
-            class="btn btn-danger me-2 mb-2" 
-            (click)="deleteAudiobook(selectedAudiobook!.id)">
-            Delete
-          </button>
-          <button
-            type="button"
-            class="btn btn-primary me-2 mb-2"
-            (click)="exportToITunes(selectedAudiobook!)"
-            [disabled]="!isSubscribed || !selectedAudiobook?.chapters?.length || isExporting">
-            {{ isExporting ? 'Exporting...' : 'Export to iTunes' }}
-          </button>
-        </div>
       </div>
     </div>
   </div>
