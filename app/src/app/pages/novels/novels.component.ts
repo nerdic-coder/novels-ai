@@ -296,15 +296,20 @@ export class NovelsComponent implements OnInit, AfterViewInit {
       const updatedAudiobook = this.audiobooks.find(a => a.id === audiobookId);
       if (updatedAudiobook) {
         const newChapterNumber = (updatedAudiobook.chapters?.length || 0) + 1;
+        const newChapter = {
+          chapterId: newChapterNumber,
+          chapterUrl: '',
+          title: `Chapter ${newChapterNumber}`
+        };
         updatedAudiobook.chapters = [
           ...(updatedAudiobook.chapters || []),
-          {
-            chapterId: newChapterNumber,
-            chapterUrl: '',
-            title: `Chapter ${newChapterNumber}`
-          }
+          newChapter
         ];
+        // Update both the audiobooks list and selectedAudiobook if it's the same book
         this.audiobooks$.next([...this.audiobooks]);
+        if (this.selectedAudiobook?.id === audiobookId) {
+          this.selectedAudiobook = {...updatedAudiobook};
+        }
       }
 
     } catch (error) {
