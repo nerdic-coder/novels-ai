@@ -22,29 +22,60 @@ export default async function generateSpeechOpenAI(
 
   while (attempts < MAX_RETRIES) {
     try {
-      const request = {
-        model: 'tts-1',
-        voice: voice || 'alloy',
-        input,
-        response_format: 'wav',
-      };
-
-      const mp3 = await openai.audio.speech.create(request);
-
-      // Ensure we have a valid response before proceeding
-      if (!mp3) {
-        throw new Error('Empty response from OpenAI API');
+      // Split input into chunks of 4000 characters (leaving some margin)
+      const MAX_CHARS = 4000;
+      const chunks = [];
+      let remaining = input;
+      
+      while (remaining.length > 0) {
+        // Find last period or punctuation before MAX_CHARS
+        let splitIndex = MAX_CHARS;
+        if (remaining.length > MAX_CHARS) {
+          const lastPeriod = remaining.lastIndexOf('.', MAX_CHARS);
+          const lastQuestion = remaining.lastIndexOf('?', MAX_CHARS);
+          const lastExclamation = remaining.lastIndexOf('!', MAX_CHARS);
+          splitIndex = Math.max(lastPeriod, lastQuestion, lastExclamation);
+          if (splitIndex === -1) splitIndex = MAX_CHARS;
+        } else {
+          splitIndex = remaining.length;
+        }
+        
+        chunks.push(remaining.substring(0, splitIndex + 1));
+        remaining = remaining.substring(splitIndex + 1).trim();
       }
 
-      const arrayBuffer = await mp3.arrayBuffer();
-      if (!arrayBuffer || arrayBuffer.byteLength === 0) {
-        throw new Error('Empty array buffer received');
+      // Process each chunk and collect the buffers
+      const buffers = [];
+      for (const chunk of chunks) {
+        const request = {
+          model: 'tts-1',
+          voice: voice || 'alloy',
+          input: chunk,
+          response_format: 'wav',
+        };
+
+        const mp3 = await openai.audio.speech.create(request);
+
+        // Ensure we have a valid response before proceeding
+        if (!mp3) {
+          throw new Error('Empty response from OpenAI API');
+        }
+
+        const arrayBuffer = await mp3.arrayBuffer();
+        if (!arrayBuffer || arrayBuffer.byteLength === 0) {
+          throw new Error('Empty array buffer received');
+        }
+
+        const buffer = Buffer.from(arrayBuffer);
+        if (buffer.length === 0) {
+          throw new Error('Empty buffer after conversion');
+        }
+
+        buffers.push(buffer);
       }
 
-      const buffer = Buffer.from(arrayBuffer);
-      if (buffer.length === 0) {
-        throw new Error('Empty buffer after conversion');
-      }
+      // Merge all buffers into one
+      const buffer = Buffer.concat(buffers);
 
       return await uploadToStorage(buffer, filename, metadata, last, messages);
     } catch (error) {
