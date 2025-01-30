@@ -27,7 +27,7 @@ steps:
 - name: 'gcr.io/cloud-builders/gcloud'
   args: ['functions', 'deploy', 'export', 
     '--trigger-http', '--gen2', '--runtime', 'nodejs20', '--source', './export',
-    '--entry-point', 'exportAudiobook', '--memory', '256MB', '--region', 'europe-west2'
+    '--entry-point', 'exportAudiobook', '--memory', '512MB', '--region', 'europe-west2'
   ]
 
 # Deploy manageTemplate

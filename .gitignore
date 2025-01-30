@@ -110,3 +110,4 @@ ADMIN_SECRET
 .aider*
 
 *D*  # Ignore files with only line break changes
+backend/admin.json

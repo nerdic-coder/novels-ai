@@ -2,6 +2,14 @@
 
 An app that creates audiobooks with AI
 
+## Locally login to google cloud
+
+gcloud init
+gcloud auth login
+gcloud auth application-default login
+gcloud config set project ai-audiobook
+ls -l ~/.config/gcloud/application_default_credentials.json
+
 ## Run frontend locally
 
 `firebase emulators:start` to test frontend locally from the root folder of this project.
