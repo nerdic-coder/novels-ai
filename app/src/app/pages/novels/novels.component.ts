@@ -247,10 +247,18 @@ export class NovelsComponent implements OnInit, AfterViewInit {
           } else if (data === 'Internal Server Error') {
             this.alertService.error('Deleting Audiobook failed, please try again!');
           }
+          // Close the offcanvas if it's open
+          if (this.offcanvasInstance) {
+            this.offcanvasInstance.hide();
+          }
       })
       .catch(error => {
           console.error(error);
           this.alertService.error('Deleting Audiobook failed, please try again!');
+          // Close the offcanvas if it's open
+          if (this.offcanvasInstance) {
+            this.offcanvasInstance.hide();
+          }
       });
     });
     this.deleteModal.show();
