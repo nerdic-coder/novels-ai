@@ -424,9 +424,7 @@ functions.http('delete', async (req, res) => {
     return;
   }
   if (!req.get('Authorization') || !req.get('Authorization').startsWith('Bearer ')) {
-    console.error('Error adding chapter:', {
-      error: error.message,
-      stack: error.stack,
+    console.error('Error deleting novel, unauthorized:', {
       audiobookId,
       uid
     });
@@ -434,18 +432,13 @@ functions.http('delete', async (req, res) => {
     if (audiobookRef) {
       await audiobookRef.update({
         status: 'error',
-        error: error.message
+        error: 'Error deleting novel, unauthorized.'
       });
     }
     
-    if (errorAfterPointDeduction) {
-      console.log('Restoring 1 point to user');
-      await userRef.update({ points: userPoints + 1 });
-    }
-    
     res.status(500).json({
-      error: 'Chapter addition failed',
-      message: error.message
+      error: 'Novel deletion failed',
+      message: 'Error delete novel, unauthorized.'
     });
     return;
   }
