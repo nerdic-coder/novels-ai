@@ -28,6 +28,7 @@
             <li><span class="dropdown-item-text">{{ userEmail }}</span></li>
             @if (isEmailProvider) {
               <li><a class="dropdown-item" [routerLink]="['/change-password']">Change Password</a></li>
+              <li><a class="dropdown-item" [routerLink]="['/voice-creator']">Voice Creator</a></li>
             }
             <li><a class="dropdown-item" [routerLink]="['/payment-history']">Payment History</a></li>
             <li><hr class="dropdown-divider"></li>
