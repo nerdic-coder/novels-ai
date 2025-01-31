@@ -28,8 +28,18 @@ import { environment } from '../../../environments/environment.loader';
                     class="form-control bg-secondary text-white"
                     rows="3"
                     required
-                    placeholder="Example: 'A deep, resonant voice with a British accent'"
+                    minlength="20"
+                    maxlength="1000"
+                    placeholder="Example: 'A deep, resonant voice with a British accent (20-1000 characters required)'"
                   ></textarea>
+                  <div class="form-text text-end">
+                    {{ voiceDescription.length }}/1000 characters
+                  </div>
+                  @if (voiceDescription.length < 20 && voiceDescription.length > 0) {
+                    <div class="text-danger mt-1">
+                      Description must be at least 20 characters
+                    </div>
+                  }
                 </div>
 
                 <div class="mb-3">
@@ -88,20 +98,32 @@ export class VoiceCreatorComponent {
   }
 
   async onSubmit() {
-    if (!this.voiceDescription || !this.sampleText) return;
+    const desc = this.voiceDescription.trim();
+    const text = this.sampleText.trim();
+    
+    // Client-side validation
+    if (!desc || !text) {
+      this.alertService.error('Both fields are required');
+      return;
+    }
+    
+    if (desc.length < 20 || desc.length > 1000) {
+      this.alertService.error('Voice description must be between 20 and 1000 characters');
+      return;
+    }
 
     this.isGenerating = true;
     try {
       const response = await this.http.post(environment.API_URL_CREATE_VOICE, {
-        voice_description: this.voiceDescription,
-        text: this.sampleText
+        voice_description: desc,
+        text: text
       }).toPromise();
 
       this.previews = (response as any).previews;
       this.alertService.success('Voice preview generated successfully!');
     } catch (error) {
       console.error('Voice creation failed:', error);
-      this.alertService.error('Failed to generate voice preview. Please try again.');
+      this.alertService.error(error.error?.message || 'Failed to generate voice preview. Please try again.');
     } finally {
       this.isGenerating = false;
     }
