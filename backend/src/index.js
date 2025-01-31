@@ -442,6 +442,12 @@ functions.http('createVoice', async (req, res) => {
       return;
     }
 
+    const textContent = text.trim();
+    if (textContent.length < 100 || textContent.length > 1000) {
+      res.status(400).send('Sample text must be between 100 and 1000 characters');
+      return;
+    }
+
     const client = new ElevenLabsClient({
       apiKey: process.env.ELEVENLABS_API_KEY,
     });

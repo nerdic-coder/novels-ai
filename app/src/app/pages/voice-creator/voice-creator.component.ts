@@ -51,8 +51,18 @@ import { environment } from '../../../environments/environment.loader';
                     class="form-control bg-secondary text-white"
                     rows="5"
                     required
-                    placeholder="Enter text to generate voice preview (max 500 characters)"
+                    minlength="100"
+                    maxlength="1000"
+                    placeholder="Enter text to generate voice preview (100-1000 characters required)"
                   ></textarea>
+                  <div class="form-text text-end">
+                    {{ sampleText.length }}/1000 characters
+                  </div>
+                  @if (sampleText.length < 100 && sampleText.length > 0) {
+                    <div class="text-danger mt-1">
+                      Sample text must be at least 100 characters
+                    </div>
+                  }
                 </div>
 
                 <button 
@@ -109,6 +119,11 @@ export class VoiceCreatorComponent {
     
     if (desc.length < 20 || desc.length > 1000) {
       this.alertService.error('Voice description must be between 20 and 1000 characters');
+      return;
+    }
+
+    if (text.length < 100 || text.length > 1000) {
+      this.alertService.error('Sample text must be between 100 and 1000 characters');
       return;
     }
 
