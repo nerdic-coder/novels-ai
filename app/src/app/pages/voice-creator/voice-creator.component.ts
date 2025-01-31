@@ -3,6 +3,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { AlertService } from '../../services/alert.service';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { environment } from '../../../environments/environment.loader';
 
 @Component({
   selector: 'app-voice-creator',
@@ -71,7 +72,7 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
       </div>
     </div>
   `,
-  styleUrl: './voice-creator.component.scss'
+  // styleUrl: './voice-creator.component.scss'
 })
 export class VoiceCreatorComponent {
   private http = inject(HttpClient);
@@ -91,7 +92,7 @@ export class VoiceCreatorComponent {
 
     this.isGenerating = true;
     try {
-      const response = await this.http.post('/createVoice', {
+      const response = await this.http.post(environment.API_URL_CREATE_VOICE, {
         voice_description: this.voiceDescription,
         text: this.sampleText
       }).toPromise();
