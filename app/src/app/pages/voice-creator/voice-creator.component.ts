@@ -2,13 +2,13 @@ import { Component, inject } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { AlertService } from '../../services/alert.service';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { Auth } from '@angular/fire/auth';
 import { environment } from '../../../environments/environment.loader';
 
 @Component({
   selector: 'app-voice-creator',
   standalone: true,
-  imports: [FormsModule, ReactiveFormsModule, RouterModule, HttpClientModule],
+  imports: [FormsModule, ReactiveFormsModule, RouterModule],
   template: `
     <div class="container mt-4">
       <div class="row justify-content-center">
@@ -85,7 +85,7 @@ import { environment } from '../../../environments/environment.loader';
   // styleUrl: './voice-creator.component.scss'
 })
 export class VoiceCreatorComponent {
-  private http = inject(HttpClient);
+  private auth = inject(Auth);
   private alertService = inject(AlertService);
 
   voiceDescription = '';
@@ -114,16 +114,30 @@ export class VoiceCreatorComponent {
 
     this.isGenerating = true;
     try {
-      const response = await this.http.post(environment.API_URL_CREATE_VOICE, {
-        voice_description: desc,
-        text: text
-      }).toPromise();
+      const idToken = await this.auth.currentUser?.getIdToken();
+      
+      const response = await fetch(environment.API_URL_CREATE_VOICE, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${idToken}`
+        },
+        body: JSON.stringify({
+          voice_description: desc,
+          text: text
+        })
+      });
 
-      this.previews = (response as any).previews;
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error?.message || 'Voice creation failed');
+      }
+
+      this.previews = (await response.json()).previews;
       this.alertService.success('Voice preview generated successfully!');
     } catch (error: any) {
       console.error('Voice creation failed:', error);
-      this.alertService.error(error.error?.message || 'Failed to generate voice preview. Please try again.');
+      this.alertService.error(error.message || 'Failed to generate voice preview. Please try again.');
     } finally {
       this.isGenerating = false;
     }
