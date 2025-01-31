@@ -121,7 +121,7 @@ export class VoiceCreatorComponent {
 
       this.previews = (response as any).previews;
       this.alertService.success('Voice preview generated successfully!');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Voice creation failed:', error);
       this.alertService.error(error.error?.message || 'Failed to generate voice preview. Please try again.');
     } finally {
