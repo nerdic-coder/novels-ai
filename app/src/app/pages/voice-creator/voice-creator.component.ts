@@ -144,15 +144,25 @@ export class VoiceCreatorComponent {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error?.message || 'Voice creation failed');
+        const errorResponse = await response.json();
+        const errorToThrow = new Error(errorResponse.message);
+        // Attach additional error details
+        (errorToThrow as any).details = errorResponse.detail;
+        throw errorToThrow;
       }
 
       this.previews = (await response.json()).previews;
       this.alertService.success('Voice preview generated successfully!');
     } catch (error: any) {
       console.error('Voice creation failed:', error);
-      this.alertService.error(error.message || 'Failed to generate voice preview. Please try again.');
+      let message = error.message;
+      
+      // If we have a detailed error from backend response
+      if (error.details) {
+        message = error.details.message || message;
+      }
+      
+      this.alertService.error(message);
     } finally {
       this.isGenerating = false;
     }

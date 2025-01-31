@@ -461,9 +461,14 @@ functions.http('createVoice', async (req, res) => {
     
   } catch (error) {
     console.error('Voice creation error:', error);
+    
+    // Extract ElevenLabs error details
+    const elevenLabsError = error.detail?.message || error.message;
+    
     res.status(500).json({
       error: 'Voice creation failed',
-      message: error.message
+      message: elevenLabsError,  // Forward the specific error
+      status: error.detail?.status || 'error' // Include status if available
     });
   }
 });
