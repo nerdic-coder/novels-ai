@@ -59,6 +59,11 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/change-password/change-password.component').then(c => c.ChangePasswordComponent)
   },
   {
+    path: 'voice-creator',
+    canActivate: [AuthGuard],
+    loadComponent: () => import('./pages/voice-creator/voice-creator.component').then(c => c.VoiceCreatorComponent)
+  },
+  {
     path: '__/auth/handler',
     children: [], // This route should be handled by Firebase Auth
   },
