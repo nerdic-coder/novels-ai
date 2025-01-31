@@ -4,6 +4,7 @@ import { v4 } from 'uuid';
 import Handlebars from 'handlebars';
 import admin from './admin.js';
 import sanitizeHtml from 'sanitize-html';
+import { ElevenLabsClient } from "elevenlabs";
 
 import createChatResponse from './chat.js';
 import generateSpeechElevenLabs from './speech-elevenlabs.js';
@@ -412,6 +413,52 @@ functions.http('getTemplates', async (req, res) => {
     res.json(templates);
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+});
+
+functions.http('createVoice', async (req, res) => {
+  try {
+    res.set('Access-Control-Allow-Origin', '*');
+    res.set('Access-Control-Allow-Headers', 'Authorization, Content-Type, baggage, sentry-trace');
+    res.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    
+    if (req.method === 'OPTIONS') {
+      res.status(204).send('');
+      return;
+    }
+    
+    if (!req.get('Authorization')?.startsWith('Bearer ')) {
+      res.status(401).send('Unauthorized');
+      return;
+    }
+
+    const idToken = req.get('Authorization').split('Bearer ')[1];
+    await admin.auth().verifyIdToken(idToken); // Verify but don't need UID here
+    
+    const { voice_description, text } = req.body;
+    
+    if (!voice_description?.trim() || !text?.trim()) {
+      res.status(400).send('Both voice_description and text are required');
+      return;
+    }
+
+    const client = new ElevenLabsClient({
+      apiKey: process.env.ELEVENLABS_API_KEY,
+    });
+
+    const response = await client.textToVoice.createPreviews({
+      voice_description: voice_description.trim(),
+      text: text.trim()
+    });
+
+    res.json(response);
+    
+  } catch (error) {
+    console.error('Voice creation error:', error);
+    res.status(500).json({
+      error: 'Voice creation failed',
+      message: error.message
+    });
   }
 });
 
