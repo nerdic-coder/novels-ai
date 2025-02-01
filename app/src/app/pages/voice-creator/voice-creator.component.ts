@@ -1,4 +1,5 @@
 import { Component, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { AlertService } from '../../services/alert.service';
@@ -8,7 +9,7 @@ import { environment } from '../../../environments/environment.loader';
 @Component({
   selector: 'app-voice-creator',
   standalone: true,
-  imports: [FormsModule, ReactiveFormsModule, RouterModule],
+  imports: [FormsModule, ReactiveFormsModule, RouterModule, CommonModule],
   template: `
     <div class="container mt-4">
       <div class="row justify-content-center">
