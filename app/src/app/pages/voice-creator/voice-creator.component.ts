@@ -18,7 +18,8 @@ import { environment } from '../../../environments/environment.loader';
               <h4 class="mb-0">Custom Voice Creator</h4>
             </div>
             <div class="card-body">
-              <form (ngSubmit)="onSubmit()" #voiceForm="ngForm">
+              <!-- Form - Only show when no previews -->
+              <form *ngIf="showForm" (ngSubmit)="onSubmit()" #voiceForm="ngForm">
                 <div class="mb-3">
                   <label for="voiceDescription" class="form-label">Voice Description</label>
                   <textarea
@@ -74,15 +75,33 @@ import { environment } from '../../../environments/environment.loader';
                 </button>
               </form>
 
-              <div *ngIf="previews.length > 0" class="mt-4">
-                <h5>Generated Previews:</h5>
-                <div *ngFor="let preview of previews" class="mb-3">
-                  <audio controls class="w-100">
-                    <source [src]="getAudioSrc(preview.audio_base_64)" [type]="preview.media_type">
-                    Your browser does not support the audio element.
-                  </audio>
-                  <div class="mt-2 text-muted">
-                    Duration: {{ preview.duration_secs }} seconds
+              <!-- Preview Section - Show after successful generation -->
+              <div *ngIf="previews.length > 0">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                  <h5>Generated Voice Previews</h5>
+                  <button class="btn btn-sm btn-outline-secondary" 
+                          (click)="resetForm()">
+                    Create New Voice
+                  </button>
+                </div>
+                
+                <div class="preview-list">
+                  <div *ngFor="let preview of previews" class="preview-item mb-4">
+                    <div class="card bg-secondary text-white">
+                      <div class="card-body">
+                        <audio controls class="w-100">
+                          <source [src]="getAudioSrc(preview.audio_base_64)" 
+                                  [type]="preview.media_type">
+                          Your browser does not support the audio element.
+                        </audio>
+                        <div class="mt-2">
+                          <small class="text-muted">
+                            Duration: {{ preview.duration_secs | number:'1.1-1' }} seconds<br>
+                            Voice ID: {{ preview.generated_voice_id }}
+                          </small>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -102,9 +121,17 @@ export class VoiceCreatorComponent {
   sampleText = '';
   isGenerating = false;
   previews: any[] = [];
+  showForm = true;
 
   getAudioSrc(base64Data: string): string {
     return `data:audio/mpeg;base64,${base64Data}`;
+  }
+
+  resetForm() {
+    this.showForm = true;
+    this.voiceDescription = '';
+    this.sampleText = '';
+    this.previews = [];
   }
 
   async onSubmit() {
@@ -152,6 +179,7 @@ export class VoiceCreatorComponent {
       }
 
       this.previews = (await response.json()).previews;
+      this.showForm = false; // Hide form on success
       this.alertService.success('Voice preview generated successfully!');
     } catch (error: any) {
       console.error('Voice creation failed:', error);
