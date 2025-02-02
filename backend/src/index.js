@@ -643,8 +643,8 @@ functions.http('add-chapter', async (req, res) => {
     });
     const voiceInfo = voices.get(voice);
     let extension;
-    if (voiceInfo.service === 'elevenlabs') {
-      extension = await generateSpeechElevenLabs(
+    if (voiceInfo && voiceInfo.service === 'openai') {
+      extension = await generateSpeechOpenAI(
         completion.choices[0].message.content,
         `${uid}/${audiobookData.requestId}/chapter-${chapter}`,
         audiobookRef,
@@ -653,7 +653,7 @@ functions.http('add-chapter', async (req, res) => {
         voice,
       );
     } else {
-      extension = await generateSpeechOpenAI(
+      extension = await generateSpeechElevenLabs(
         completion.choices[0].message.content,
         `${uid}/${audiobookData.requestId}/chapter-${chapter}`,
         audiobookRef,
