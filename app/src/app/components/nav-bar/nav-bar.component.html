@@ -28,8 +28,8 @@
             <li><span class="dropdown-item-text">{{ userEmail }}</span></li>
             @if (isEmailProvider) {
               <li><a class="dropdown-item" [routerLink]="['/change-password']" (click)="closeDropdown()">Change Password</a></li>
-              <li><a class="dropdown-item" [routerLink]="['/voice-creator']" (click)="closeDropdown()">Voice Creator</a></li>
             }
+            <li><a class="dropdown-item" [routerLink]="['/voice-creator']" (click)="closeDropdown()">Voice Creator</a></li>
             <li><a class="dropdown-item" [routerLink]="['/payment-history']" (click)="closeDropdown()">Payment History</a></li>
             <li><hr class="dropdown-divider"></li>
             <li><button class="dropdown-item" (click)="closeDropdown(); logout(accountDropdown)">Logout</button></li>
