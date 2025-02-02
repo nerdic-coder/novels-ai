@@ -1,0 +1,3 @@
+- Use types everywhere possible.
+- Use fetch and auth token for calls from the angular app.
+- Cleanup unused parameters, variables and imports.

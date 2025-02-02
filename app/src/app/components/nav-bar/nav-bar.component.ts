@@ -127,15 +127,13 @@ export class NavBarComponent implements OnInit {
     }
   }
 
-  async logout(dropdownToggle: HTMLElement) {
-
-    // Close the dropdown
-    if (isPlatformBrowser(this.platformId)) {
-      // Initialize dropdown after a short delay to ensure DOM is ready
-      const { Dropdown } = await import('bootstrap');
-      const dropdown = Dropdown.getOrCreateInstance(dropdownToggle);
-      dropdown.hide();
+  closeDropdown() {
+    if (this.dropdownInstance) {
+      this.dropdownInstance.hide();
     }
+  }
+
+  async logout(dropdownToggle: HTMLElement) {
 
     await signOut(this.auth);
     this.router.navigate(['/']);

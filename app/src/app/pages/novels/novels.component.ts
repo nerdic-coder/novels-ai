@@ -1,4 +1,6 @@
-import { Component, ElementRef, inject, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, ElementRef, inject, OnInit, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
+import { Subscription } from 'rxjs';
+import { VoiceService } from '../../services/voice.service';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -48,7 +50,10 @@ export class NovelsComponent implements OnInit, AfterViewInit {
   private storiesShown = environment.STORIES_PER_PAGE;
   private audiobooksRef;
   private offcanvasService = inject(OffcanvasService);
+  private voiceService = inject(VoiceService);
   private offcanvasInstance: any = null;
+  private voicesSubscription?: Subscription;
+  customVoices: any[] = [];
   firestore: Firestore = inject(Firestore);
   lastVisibleDocument: any = null;  // Track the last document in the previous query
   audiobooks: Audiobook[] = [];
@@ -121,6 +126,10 @@ export class NovelsComponent implements OnInit, AfterViewInit {
   }
 
   async ngOnInit() {
+    // Load custom voices
+    this.voicesSubscription = this.voiceService.watchVoices().subscribe(voices => {
+      this.customVoices = voices;
+    });
     
     // Check subscription status when component initializes
     this.isSubscribed = await this.storeService.isSubscribed();
@@ -219,8 +228,27 @@ export class NovelsComponent implements OnInit, AfterViewInit {
     return pov ? narrationTypes.get(pov) : undefined;
   }
 
-  getVoice(voice: string | undefined): Voice | undefined {
-    return voice ? voices.get(voice) : undefined;
+  getVoice(voiceId: string | undefined): Voice | any {
+    if (!voiceId) return undefined;
+    
+    // Check custom voices first
+    const customVoice = this.customVoices.find(v => v.voiceId === voiceId);
+    if (customVoice) {
+      return {
+        id: customVoice.voiceId,
+        name: customVoice.voiceName,
+        custom: true
+      };
+    }
+    
+    // Fall back to default voices
+    return voices.get(voiceId);
+  }
+
+  ngOnDestroy() {
+    if (this.voicesSubscription) {
+      this.voicesSubscription.unsubscribe();
+    }
   }
 
   async deleteAudiobook(audiobookId: string) {

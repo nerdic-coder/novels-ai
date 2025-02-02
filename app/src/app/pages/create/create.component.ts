@@ -18,6 +18,7 @@ import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AlertService } from '../../services/alert.service';
+import { VoiceService } from '../../services/voice.service';
 
 @Component({
   selector: 'app-create',
@@ -33,6 +34,8 @@ export class CreateComponent {
   points = 0;
   paymentInProgress = false;
   creationInProgress = false;
+  baseVoices: [string, any][] = [];
+  customVoices: [string, any][] = [];
 
   voicesArray: [string, Voice][] = [];
   narrationTypesArray  = Array.from(narrationTypes.entries());
@@ -64,13 +67,25 @@ export class CreateComponent {
 
   async ngOnInit() {
     await this.loadTemplates();
+    await this.loadCustomVoices();
   }
 
-  constructor(public storeService: StoreService, private router: Router) {
+  async loadCustomVoices() {
+    try {
+      const custom = await this.voiceService.listVoices();
+      this.customVoices = custom.map((v: { voiceId: any; voiceName: string; }) => [v.voiceId, { name: `${v.voiceName}`, subscriberOnly: false }]);
+      this.voicesArray = [...this.baseVoices, ...this.customVoices];
+    } catch (error) {
+      console.error("Error loading custom voices:", error);
+    }
+  }
+
+  constructor(public storeService: StoreService, private router: Router, private voiceService: VoiceService) {
     // Subscribe to subscription status
     this.storeService.subscriptionStatus$.subscribe(isSubscribed => {
-      // Show all voices but handle availability in the template
-      this.voicesArray = Array.from(voices.entries());
+      // Set base voices
+      this.baseVoices = Array.from(voices.entries());
+      this.voicesArray = [...this.baseVoices, ...this.customVoices];
       
       // If selected voice is subscriber-only and user is not subscribed, switch to default
       if (this.selectedVoice) {

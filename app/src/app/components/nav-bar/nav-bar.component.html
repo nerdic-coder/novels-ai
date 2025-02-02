@@ -27,12 +27,12 @@
           <ul #dropdownMenu class="dropdown-menu dropdown-menu-end" data-bs-theme="dark">
             <li><span class="dropdown-item-text">{{ userEmail }}</span></li>
             @if (isEmailProvider) {
-              <li><a class="dropdown-item" [routerLink]="['/change-password']">Change Password</a></li>
-              <li><a class="dropdown-item" [routerLink]="['/voice-creator']">Voice Creator</a></li>
+              <li><a class="dropdown-item" [routerLink]="['/change-password']" (click)="closeDropdown()">Change Password</a></li>
+              <li><a class="dropdown-item" [routerLink]="['/voice-creator']" (click)="closeDropdown()">Voice Creator</a></li>
             }
-            <li><a class="dropdown-item" [routerLink]="['/payment-history']">Payment History</a></li>
+            <li><a class="dropdown-item" [routerLink]="['/payment-history']" (click)="closeDropdown()">Payment History</a></li>
             <li><hr class="dropdown-divider"></li>
-            <li><button class="dropdown-item" (click)="logout(accountDropdown)">Logout</button></li>
+            <li><button class="dropdown-item" (click)="closeDropdown(); logout(accountDropdown)">Logout</button></li>
           </ul>
         </div>
       </div>

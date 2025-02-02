@@ -1,3 +1,4 @@
+// AI
 import functions from '@google-cloud/functions-framework';
 import { Storage } from '@google-cloud/storage';
 import { v4 } from 'uuid';
@@ -274,8 +275,8 @@ functions.http('generate', async (req, res) => {
       content: completion.choices[0].message.content,
     });
     const voiceInfo = voices.get(voice);
-    if (voiceInfo.service === 'elevenlabs') {
-      await generateSpeechElevenLabs(
+    if (voiceInfo && voiceInfo.service === 'openai') {
+      await generateSpeechOpenAI(
         completion.choices[0].message.content,
         `${uid}/${requestId}/chapter-1`,
         metadata,
@@ -284,7 +285,7 @@ functions.http('generate', async (req, res) => {
         voice,
       );
     } else {
-      await generateSpeechOpenAI(
+      await generateSpeechElevenLabs(
         completion.choices[0].message.content,
         `${uid}/${requestId}/chapter-1`,
         metadata,
@@ -433,7 +434,24 @@ functions.http('createVoice', async (req, res) => {
     }
 
     const idToken = req.get('Authorization').split('Bearer ')[1];
-    await admin.auth().verifyIdToken(idToken); // Verify but don't need UID here
+    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    const uid = decodedToken.uid;
+    const userRef = admin.firestore().collection('users').doc(uid);
+    // Check subscription status - same logic as store.service.ts
+    const subscriptionsRef = admin.firestore().collection('users').doc(uid).collection('subscriptions');
+    const q = subscriptionsRef.where('status', 'in', ['trialing', 'active']);
+    const snapshot = await q.get();
+    if (snapshot.empty) {
+      return res.status(403).json({ error: 'Subscription required for voice creation' });
+    }
+    const userPoints = await spendUserPoints(userRef, 1);
+    let errorAfterPointDeduction = true;
+    if (!process.env.devMode) {
+      if (userPoints < 1 || userPoints <= 0) {
+        res.status(400).send('Insufficient points');
+        return;
+      }
+    }
     
     const { voice_description, text } = req.body;
     
@@ -461,6 +479,13 @@ functions.http('createVoice', async (req, res) => {
     
   } catch (error) {
     console.error('Voice creation error:', error);
+    
+    if (errorAfterPointDeduction && userRef) {
+      console.log(`Restoring 1 point to user ${uid}`);
+      await userRef.update({
+        points: admin.firestore.FieldValue.increment(1)
+      });
+    }
     
     // Extract ElevenLabs error details
     const elevenLabsError = error.detail?.message || error.message;
@@ -662,3 +687,85 @@ functions.http('add-chapter', async (req, res) => {
     res.status(401).send('Unauthorized');
   }
 });
+
+functions.http('saveVoice', async (req, res) => {
+  res.set('Access-Control-Allow-Origin', '*');
+  res.set('Access-Control-Allow-Headers', 'Authorization, Content-Type, baggage, sentry-trace');
+  res.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  if (req.method === 'OPTIONS') {
+    res.status(204).send('');
+    return;
+  }
+  if (!req.get('Authorization')?.startsWith('Bearer ')) {
+    res.status(401).send('Unauthorized');
+    return;
+  }
+  const idToken = req.get('Authorization').split('Bearer ')[1];
+  const decodedToken = await admin.auth().verifyIdToken(idToken);
+  const uid = decodedToken.uid;
+  
+  // Check subscription status - same logic as store.service.ts
+  const subscriptionsRef = admin.firestore().collection('users').doc(uid).collection('subscriptions');
+  const q = subscriptionsRef.where('status', 'in', ['trialing', 'active']);
+  const snapshot = await q.get();
+  if (snapshot.empty) {
+    return res.status(403).json({ error: 'Subscription required for voice creation' });
+  }
+  const { voiceId, voiceName, voiceDescription, previewSound } = req.body;
+  if (!voiceId || !voiceName || !voiceDescription || !previewSound) {
+    res.status(400).send('Missing required fields');
+    return;
+  }
+  try {
+    const client = new ElevenLabsClient({
+      apiKey: process.env.ELEVENLABS_API_KEY,
+    });
+    const result = await client.textToVoice.createVoiceFromPreview({
+      voice_name: voiceName,
+      voice_description: voiceDescription,
+      generated_voice_id: voiceId,
+    });
+    const finalVoiceId = result.voice_id;
+    const customVoicesCollection = admin.firestore().collection('users').doc(uid).collection('customVoices');
+    const docRef = await customVoicesCollection.add({
+      voiceId: finalVoiceId,
+      voiceName,
+      voiceDescription, 
+      previewSound,
+      timestamp: admin.firestore.FieldValue.serverTimestamp()
+    });
+    res.status(200).json({ success: true, id: docRef.id });
+  } catch (error) {
+    console.error('Error saving voice:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+ functions.http('listVoices', async (req, res) => {
+   res.set('Access-Control-Allow-Origin', '*');
+   res.set('Access-Control-Allow-Headers', 'Authorization, Content-Type, baggage, sentry-trace');
+   res.set('Access-Control-Allow-Methods', 'GET, OPTIONS');
+   if (req.method === 'OPTIONS') {
+     res.status(204).send('');
+     return;
+   }
+   if (!req.get('Authorization') || !req.get('Authorization').startsWith('Bearer ')) {
+     res.status(401).send('Unauthorized');
+     return;
+   }
+   const idToken = req.get('Authorization').split('Bearer ')[1];
+   const decodedToken = await admin.auth().verifyIdToken(idToken);
+   const uid = decodedToken.uid;
+   
+   try {
+     const snapshot = await admin.firestore().collection('users').doc(uid).collection('customVoices').get();
+     const voices = [];
+     snapshot.forEach((doc) => {
+       voices.push({ id: doc.id, ...doc.data() });
+     });
+     res.json(voices);
+   } catch (error) {
+     console.error('Error listing voices:', error);
+     res.status(500).json({ error: error.message });
+   }
+ });

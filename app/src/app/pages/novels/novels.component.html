@@ -195,7 +195,15 @@
       </div>
       <div class="row mb-2" *ngIf="selectedAudiobook?.voice">
         <div class="col-4"><strong>Voice:</strong></div>
-        <div class="col-8">{{ getVoice(selectedAudiobook?.voice)?.name }}</div>
+        <div class="col-8">
+          <span *ngIf="getVoice(selectedAudiobook?.voice) as voice">
+            {{ voice.name }}
+            <span *ngIf="voice.custom" class="badge text-bg-info ms-2">Custom</span>
+          </span>
+          <span *ngIf="!getVoice(selectedAudiobook?.voice)" class="text-muted">
+            Unknown voice ({{ selectedAudiobook?.voice }})
+          </span>
+        </div>
       </div>
       <div class="row mb-2" *ngIf="selectedAudiobook?.starring">
         <div class="col-4"><strong>Starring:</strong></div>

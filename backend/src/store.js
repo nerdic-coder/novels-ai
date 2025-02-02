@@ -17,7 +17,13 @@ export default async function storeMetadata(
 ) {
   const audioBucketUrl = `https://storage.googleapis.com/generated-books/${uid}/${requestId}/`;
   const chaptersData = [];
-  const voiceInfo = voices.get(voice);
+  let voiceInfo = voices.get(voice);
+  if (!voiceInfo) {
+    voiceInfo = {
+      service: 'elevenlabs',
+      name: voice,
+    }
+  }
   const extension = voiceInfo.service === 'elevenlabs' ? 'mp3' : 'wav';
   for (let index = 1; index <= chapters; index += 1) {
     chaptersData.push({

@@ -11,6 +11,9 @@
     "start:delete": "env-cmd functions-framework --target=delete --port 8081",
     "start:managetemplate": "env-cmd functions-framework --target=manageTemplate --port 8084",
     "start:template": "env-cmd functions-framework --target=getTemplates --port 8085",
+    "start:createVoice": "env-cmd functions-framework --target=createVoice --port 8086",
+    "start:saveVoice": "env-cmd functions-framework --target=saveVoice --port 8087",
+    "start:listVoices": "env-cmd functions-framework --target=listVoices --port 8088",
     "lint": "eslint src/**/*.js"
   },
   "author": "The Nerdic Coder",
@@ -20,7 +23,7 @@
     "@google-cloud/storage": "^7.14.0",
     "@google-cloud/text-to-speech": "^5.7.0",
     "ai-audiobook-backend": "file:",
-    "elevenlabs": "^1.50.2",
+    "elevenlabs": "^1.50.4",
     "express": "^4.21.2",
     "firebase-admin": "^13.0.2",
     "handlebars": "^4.7.8",
