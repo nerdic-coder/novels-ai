@@ -8,8 +8,8 @@ export const environment = {
   API_URL_TEMPLATES: 'https://europe-central2-ai-audiobook.cloudfunctions.net/manageTemplate/',
   API_URL_GET_TEMPLATES: 'https://europe-central2-ai-audiobook.cloudfunctions.net/getTemplates/',
   API_URL_CREATE_VOICE: 'https://europe-central2-ai-audiobook.cloudfunctions.net/createVoice/',
-  API_URL_SAVE_VOICE: 'http://localhost:8087',
-  API_URL_LIST_VOICES: 'http://localhost:8088',
+  API_URL_SAVE_VOICE: 'https://europe-central2-ai-audiobook.cloudfunctions.net/saveVoice/',
+  API_URL_LIST_VOICES: 'https://europe-central2-ai-audiobook.cloudfunctions.net/listVoices/',
   
   STORIES_PER_PAGE: 5,
   NEW_USER_POINTS: 1,
