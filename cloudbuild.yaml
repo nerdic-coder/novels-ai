@@ -58,4 +58,11 @@ steps:
     '--entry-point', 'saveVoice', '--memory', '256MB', '--region', 'europe-central2'
   ]
 
+  # Deploy listVoices
+- name: 'gcr.io/cloud-builders/gcloud'
+  args: ['functions', 'deploy', 'listVoices', 
+    '--trigger-http', '--gen2', '--runtime', 'nodejs20', '--source', './backend',
+    '--entry-point', 'listVoices', '--memory', '256MB', '--region', 'europe-central2'
+  ]
+
 timeout: '1600s' # Adjust the timeout to your needs

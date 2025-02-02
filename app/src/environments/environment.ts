@@ -7,7 +7,7 @@ export const environment = {
   API_URL_EXPORT_AUDIOBOOK: 'https://export-i3rsqvn75a-nw.a.run.app/',
   API_URL_TEMPLATES: 'https://europe-central2-ai-audiobook.cloudfunctions.net/manageTemplate/',
   API_URL_GET_TEMPLATES: 'https://europe-central2-ai-audiobook.cloudfunctions.net/getTemplates/',
-  API_URL_CREATE_VOICE: 'http://localhost:8086',
+  API_URL_CREATE_VOICE: 'https://europe-central2-ai-audiobook.cloudfunctions.net/createVoice/',
   API_URL_SAVE_VOICE: 'http://localhost:8087',
   API_URL_LIST_VOICES: 'http://localhost:8088',
   
