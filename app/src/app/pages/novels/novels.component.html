@@ -2,7 +2,7 @@
   <h2>Novels</h2>
   <div class="alert alert-info" role="alert">
     You have <strong>{{points}}</strong> credits left to spend!<hr>
-    Each generated chapter costs 1 point.
+    Each generated chapter costs 1 credit.
   </div>
   <div *ngIf="(audiobooks$ | async)?.length === 0" class="alert alert-info" role="alert">No novels created yet!</div>
 
@@ -129,21 +129,39 @@
         <div class="col-12">
           <strong>Chapters:</strong>
           <div>
-            <ng-container *ngFor="let chapter of selectedAudiobook!.chapters; let idx = index">
-              <button 
-                type="button" 
-                class="btn btn-secondary btn-sm me-2 mb-2 mt-2"
-                (click)="onPlayPauseChapter(selectedAudiobook!, chapter)"
-                [disabled]="selectedAudiobook!.status === 'progress' && idx === selectedAudiobook!.chapters!.length - 1">
-                <i *ngIf="selectedAudiobook!.status === 'progress' && idx === selectedAudiobook!.chapters!.length - 1" 
-                   class="bi bi-arrow-repeat spin" 
-                   style="font-size: 1rem;"></i>
-                <i *ngIf="!(selectedAudiobook!.status === 'progress' && idx === selectedAudiobook!.chapters!.length - 1)"
-                   class="bi"
-                   [class.bi-play-circle]="!isPlayingCurrentChapter(selectedAudiobook!, chapter)"
-                   [class.bi-pause-circle]="isPlayingCurrentChapter(selectedAudiobook!, chapter)"></i> {{idx + 1}}
-              </button>
-            </ng-container>
+            <div *ngFor="let chapter of selectedAudiobook?.chapters || []; let idx = index" class="row g-1 mb-2">
+              <div class="col-12 d-flex justify-content-start align-items-center">
+                <span class="me-2">Chapter {{idx + 1}}:</span>
+                <button 
+                  type="button" 
+                  class="btn btn-secondary btn-sm me-2"
+                  (click)="onPlayPauseChapter(selectedAudiobook!, chapter)"
+                  [disabled]="selectedAudiobook?.status === 'progress' && idx === (selectedAudiobook?.chapters?.length || 0) - 1">
+                  <i *ngIf="selectedAudiobook?.status === 'progress' && idx === (selectedAudiobook?.chapters?.length || 0) - 1" 
+                     class="bi bi-arrow-repeat spin" 
+                     style="font-size: 1rem;"></i>
+                  <i *ngIf="!(selectedAudiobook?.status === 'progress' && idx === (selectedAudiobook?.chapters?.length || 0) - 1)"
+                     class="bi"
+                     [class.bi-play-circle]="!isPlayingCurrentChapter(selectedAudiobook!, chapter)"
+                     [class.bi-pause-circle]="isPlayingCurrentChapter(selectedAudiobook!, chapter)"></i>
+                </button>
+                <button 
+                  type="button" 
+                  class="btn btn-info btn-sm me-2"
+                  (click)="downloadChapterAudio(selectedAudiobook!, idx); $event.stopPropagation()"
+                  title="Download original audio">
+                  <i class="bi bi-download"></i>
+                </button>
+                <button 
+                  type="button" 
+                  class="btn btn-warning btn-sm"
+                  (click)="exportAudiobookVideo(selectedAudiobook!, idx); $event.stopPropagation()"
+                  [disabled]="!isSubscribed || isExporting"
+                  title="Export video">
+                  <i class="bi bi-camera-video"></i>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>

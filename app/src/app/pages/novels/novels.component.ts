@@ -1,4 +1,5 @@
 import { Component, ElementRef, inject, OnInit, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
 import { VoiceService } from '../../services/voice.service';
 import { CommonModule } from '@angular/common';
@@ -11,6 +12,7 @@ import {
   Auth,
   signOut
 } from '@angular/fire/auth';
+import { Dropdown } from 'bootstrap';
 import { 
   Firestore, 
   collection, 
@@ -63,6 +65,7 @@ export class NovelsComponent implements OnInit, AfterViewInit {
   points = 0;
   selectedAudiobook: Audiobook | null = null;
   @ViewChild('offcanvasElement') offcanvasElement!: ElementRef;
+  @ViewChild('downloadDropdown') downloadDropdown!: ElementRef;
   @ViewChild('cancelSubscriptionModal') cancelSubscriptionModal!: ConfirmationModalComponent;
   @ViewChild('deleteModal') deleteModal!: ConfirmationModalComponent;
   @ViewChild('subscriptionBenefitsModal') subscriptionBenefitsModal!: SubscriptionBenefitsModalComponent;
@@ -77,6 +80,7 @@ export class NovelsComponent implements OnInit, AfterViewInit {
     private audioService: AudioService, 
     private alertService: AlertService,
     private route: ActivatedRoute,
+    private domSanitizer: DomSanitizer,
   ) {
     // Get the audiobooks collection for the current user
     const usersCollection = collection(this.firestore, 'users');
@@ -197,6 +201,11 @@ export class NovelsComponent implements OnInit, AfterViewInit {
       this.offcanvasInstance = await this.offcanvasService.showOffcanvas(this.offcanvasElement);
     } else {
       this.offcanvasInstance.show();
+    }
+    
+    // Initialize dropdown after showing offcanvas
+    if (this.downloadDropdown?.nativeElement) {
+      new Dropdown(this.downloadDropdown.nativeElement);
     }
   }
 
@@ -432,6 +441,70 @@ export class NovelsComponent implements OnInit, AfterViewInit {
       this.alertService.error(`Export failed!`);
     } finally {
       this.isExporting = false;
+    }
+  }
+
+  async exportAudiobookVideo(audiobook: Audiobook, chapterIndex: number) {
+    this.isExporting = true;
+    try {
+      const token = await this.auth.currentUser?.getIdToken();
+      const response = await fetch(environment.API_URL_EXPORT_AUDIOBOOK_VIDEO, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          audiobookId: audiobook.id,
+          chapterIndex
+        })
+      });
+  
+      if (!response.ok) {
+        throw new Error('Export video failed');
+      }
+  
+      const data = await response.json();
+  
+      // Create a hidden <a> element with target="_blank"
+      const downloadLink = document.createElement('a');
+      downloadLink.href = data.downloadUrl;
+      downloadLink.target = '_blank'; // Open in a new window/tab
+      downloadLink.style.display = 'none'; // Hide the link
+      document.body.appendChild(downloadLink);
+  
+      // Programmatically click the link
+      downloadLink.click();
+  
+      // Clean up the link element
+      document.body.removeChild(downloadLink);
+  
+      this.alertService.success(
+        this.domSanitizer.bypassSecurityTrustHtml(
+          `Video exported successfully! <a href="${data.downloadUrl}" 
+           class="alert-link" 
+           download="chapter-video.mp4"
+           target="_blank"
+           style="cursor: pointer; text-decoration: underline;">
+           Click here if download didn't start</a>`
+        ),
+        30000
+      );
+    } catch (err: any) {
+      console.error(err);
+      this.alertService.error('Export video failed!');
+    } finally {
+      this.isExporting = false;
+    }
+  }
+  
+
+  downloadChapterAudio(audiobook: Audiobook, chapterIndex: number) {
+    const chapter = audiobook.chapters?.[chapterIndex];
+    if (chapter && chapter.chapterUrl) {
+      window.open(chapter.chapterUrl, '_blank');
+    } else {
+      this.alertService.error("Chapter audio not available");
     }
   }
 }

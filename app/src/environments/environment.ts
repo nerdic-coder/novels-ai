@@ -16,5 +16,5 @@ export const environment = {
   SUBSCRIPTION_PRICE_ID: 'price_1QK3rEBPvg43OlrWCaP4YQ0w',
   STRIPE_TEST_MODE: true,
   POINTS_PRICE_ID: 'price_1MvO0jBPvg43OlrWpKdsLptb',
+  API_URL_EXPORT_AUDIOBOOK_VIDEO: 'http://localhost:8089/',
 };
-// AI

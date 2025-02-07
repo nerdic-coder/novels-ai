@@ -18,9 +18,9 @@ data-bs-theme="dark">
           <div class="modal-body">
             <h6 class="mb-3">For just €6.99/month, you'll get:</h6>
             <ul class="list-group list-group-flush">
-              <li class="list-group-item bg-transparent">✨ 20 points every month automatically</li>
+              <li class="list-group-item bg-transparent">✨ 20 credits every month automatically</li>
               <li class="list-group-item bg-transparent">🚀 Priority access to new features</li>
-              <li class="list-group-item bg-transparent">🔄 Points roll over - never lose unused points</li>
+              <li class="list-group-item bg-transparent">🔄 Credits roll over - never lose unused credits</li>
             </ul>
           </div>
           <div class="modal-footer">

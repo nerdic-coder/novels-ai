@@ -12,8 +12,8 @@ import { AlertService, Alert } from '../../services/alert.service';
       <div
         class="alert alert-{{currentAlert.type}} alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-2"
         role="alert"
-        style="z-index: 1050;">
-        {{currentAlert.message}}
+        style="z-index: 1050;"
+        [innerHTML]="currentAlert.message">
         <button type="button" class="btn-close" (click)="clearAlert()" aria-label="Close"></button>
       </div>
     }

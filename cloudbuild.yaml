@@ -30,6 +30,13 @@ steps:
     '--entry-point', 'exportAudiobook', '--memory', '512MB', '--region', 'europe-west2'
   ]
 
+# Deploy export video
+- name: 'gcr.io/cloud-builders/gcloud'
+  args: ['functions', 'deploy', 'exportAudiobookVideo', 
+    '--trigger-http', '--gen2', '--runtime', 'nodejs20', '--source', './export',
+    '--entry-point', 'exportAudiobookVideo', '--memory', '512MB', '--region', 'europe-west2'
+  ]
+
 # Deploy manageTemplate
 - name: 'gcr.io/cloud-builders/gcloud'
   args: ['functions', 'deploy', 'manageTemplate', 
