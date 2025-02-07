@@ -26,6 +26,9 @@ import { ModalService } from '../../services/modal.service';
                 placeholder="Example: Introduce a new character, create a plot twist..."></textarea>
               <div class="form-text">Guide the AI's writing for this chapter</div>
             </div>
+            <div class="alert alert-info" role="alert">
+              Each generated chapter costs 1 credit.
+            </div>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
