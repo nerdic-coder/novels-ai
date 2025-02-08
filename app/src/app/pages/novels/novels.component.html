@@ -148,17 +148,24 @@
                 <button 
                   type="button" 
                   class="btn btn-info btn-sm me-2"
+                  data-bs-toggle="tooltip" data-bs-placement="top"
                   (click)="downloadChapterAudio(selectedAudiobook!, idx); $event.stopPropagation()"
-                  title="Download original audio">
+                  title="Download original audio file">
                   <i class="bi bi-download"></i>
                 </button>
                 <button 
                   type="button" 
                   class="btn btn-warning btn-sm"
+                  data-bs-toggle="tooltip" data-bs-placement="top"
                   (click)="exportAudiobookVideo(selectedAudiobook!, idx); $event.stopPropagation()"
                   [disabled]="!isSubscribed || isExporting"
-                  title="Export video">
-                  <i class="bi bi-camera-video"></i>
+                  title="Export chapter video with subtitles">
+                  <ng-container *ngIf="!isExporting; else loading">
+                    <i class="bi bi-camera-video"></i>
+                  </ng-container>
+                  <ng-template #loading>
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                  </ng-template>
                 </button>
               </div>
             </div>

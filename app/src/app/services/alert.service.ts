@@ -12,11 +12,15 @@ export interface Alert {
   providedIn: 'root'
 })
 export class AlertService {
-  private alertSubject = new Subject<Alert>();
+  private alertSubject = new Subject<Alert | null>();
   alert$ = this.alertSubject.asObservable();
 
   show(alert: Alert) {
-    this.alertSubject.next(alert);
+    // Clear any existing alert before showing the new one
+    this.alertSubject.next(null);
+    setTimeout(() => {
+      this.alertSubject.next(alert);
+    }, 10);
   }
 
   success(message: string | SafeHtml, timeout = 30000) {

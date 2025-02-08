@@ -446,6 +446,8 @@ export class NovelsComponent implements OnInit, AfterViewInit {
 
   async exportAudiobookVideo(audiobook: Audiobook, chapterIndex: number) {
     this.isExporting = true;
+    this.alertService.show({ type: 'info', message: '', timeout: 0 });
+    this.alertService.show({ type: 'info', message: `Generating video. This might take a few minutes...`, timeout: 10000 });
     try {
       const token = await this.auth.currentUser?.getIdToken();
       const response = await fetch(environment.API_URL_EXPORT_AUDIOBOOK_VIDEO, {
@@ -486,7 +488,9 @@ export class NovelsComponent implements OnInit, AfterViewInit {
            download="chapter-video.mp4"
            target="_blank"
            style="cursor: pointer; text-decoration: underline;">
-           Click here if download didn't start</a>`
+           Click here if download didn't start</a>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          `
         ),
         30000
       );
