@@ -10,7 +10,7 @@ export const environment = {
   API_URL_CREATE_VOICE: 'https://europe-central2-ai-audiobook.cloudfunctions.net/createVoice/',
   API_URL_SAVE_VOICE: 'https://europe-central2-ai-audiobook.cloudfunctions.net/saveVoice/',
   API_URL_LIST_VOICES: 'https://europe-central2-ai-audiobook.cloudfunctions.net/listVoices/',
-  API_URL_EXPORT_AUDIOBOOK_VIDEO: 'https://europe-central2-ai-audiobook.cloudfunctions.net/exportAudiobookVideo/',
+  API_URL_EXPORT_AUDIOBOOK_VIDEO: 'https://europe-west2-ai-audiobook.cloudfunctions.net/exportAudiobookVideo/',
   
   STORIES_PER_PAGE: 5,
   NEW_USER_POINTS: 1,
