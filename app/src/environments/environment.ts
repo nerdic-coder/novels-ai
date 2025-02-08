@@ -10,11 +10,11 @@ export const environment = {
   API_URL_CREATE_VOICE: 'https://europe-central2-ai-audiobook.cloudfunctions.net/createVoice/',
   API_URL_SAVE_VOICE: 'https://europe-central2-ai-audiobook.cloudfunctions.net/saveVoice/',
   API_URL_LIST_VOICES: 'https://europe-central2-ai-audiobook.cloudfunctions.net/listVoices/',
+  API_URL_EXPORT_AUDIOBOOK_VIDEO: 'https://europe-central2-ai-audiobook.cloudfunctions.net/exportAudiobookVideo/',
   
   STORIES_PER_PAGE: 5,
   NEW_USER_POINTS: 1,
   SUBSCRIPTION_PRICE_ID: 'price_1QK3rEBPvg43OlrWCaP4YQ0w',
   STRIPE_TEST_MODE: true,
   POINTS_PRICE_ID: 'price_1MvO0jBPvg43OlrWpKdsLptb',
-  API_URL_EXPORT_AUDIOBOOK_VIDEO: 'http://localhost:8089/',
 };
