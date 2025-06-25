@@ -370,14 +370,6 @@ export class NovelsComponent implements OnInit, AfterViewInit {
     }
   }
 
-  async buyPoints() {
-    this.paymentInProgress = true;
-    const success = await this.storeService.buyPoints();
-    if (!success) {
-      this.paymentInProgress = false;
-    }
-  }
-
   
   async subscribe() {
     this.subscriptionBenefitsModal.confirmed.subscribe(async () => {

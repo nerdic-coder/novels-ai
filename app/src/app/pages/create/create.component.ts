@@ -120,14 +120,6 @@ export class CreateComponent {
     this.characters.splice(index, 1);
   }
 
-  async buyPoints() {
-    this.paymentInProgress = true;
-    const success = await this.storeService.buyPoints();
-    if (!success) {
-      this.paymentInProgress = false;
-    }
-  }
-
   // Helper function to handle the POST request
   async postData(token: string | undefined, formData: any) {
     // POST request
