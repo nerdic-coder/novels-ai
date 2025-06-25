@@ -37,30 +37,8 @@ export class StoreService {
   }
 
   async cancelSubscription(): Promise<boolean> {
-    const uid = this.auth.currentUser?.uid;
-    if (!uid) {
-      this.alertService.error('You must be logged in to cancel your subscription');
-      return false;
-    }
-
-    try {
-      const subscriptionsRef = collection(this.firestore, 'users', uid, 'subscriptions');
-      const q = query(subscriptionsRef, where('status', 'in', ['trialing', 'active']));
-      const snapshot = await getDocs(q);
-      
-      if (snapshot.empty) {
-        this.alertService.error('No active subscription found');
-        return false;
-      }
-      
-      const portalSession = await this.createPortalSession();
-      window.location.href = portalSession.url;
-      return true;
-    } catch (error) {
-      console.error('Error canceling subscription:', error);
-      this.alertService.error('Failed to view subscription details. Contact us if issue remains!');
-      return false;
-    }
+    this.alertService.error('Due to the service shutting down, you can no longer manage your subscription.');
+    return false;
   }
 
   private async createPortalSession(): Promise<{ url: string }> {
@@ -124,33 +102,8 @@ export class StoreService {
   }
 
   async startSubscription(): Promise<boolean> {
-    try {
-      console.log('SUBSCRIPTION_PRICE_ID', environment.SUBSCRIPTION_PRICE_ID);
-      const usersCollection = collection(this.firestore, 'users');
-      const currentUserDoc = doc(usersCollection, this.auth.currentUser?.uid);
-      const checkoutsCollection = collection(currentUserDoc, 'checkout_sessions');
-      const subscriptionRef = await addDoc(checkoutsCollection, {
-        mode: "subscription",
-        price: environment.SUBSCRIPTION_PRICE_ID,
-        success_url: `${window.location.origin}/novels?subscription=success`,
-        cancel_url: `${window.location.origin}/novels?subscription=cancel`,
-      });
-
-      return new Promise((resolve) => {
-        onSnapshot(subscriptionRef, (doc: any) => {
-          if (doc.exists && doc.data().url) {
-            window.location.href = doc.data().url;
-            resolve(true);
-          } else if (doc.exists && doc.data().error) {
-            this.alertService.error('Payment could not be initiated, if error persist contact us!');
-            resolve(false);
-          }
-        });
-      });
-    } catch (error) {
-      this.alertService.error('Subscription could not be initiated, please try again!');
-      return false;
-    }
+    this.alertService.error('Due to the service shutting down, you can no longer start a new subscription.');
+    return false;
   }
 
   async getPoints(): Promise<number> {

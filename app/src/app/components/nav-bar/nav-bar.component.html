@@ -8,13 +8,6 @@
         <button type="button" class="btn btn-primary me-2" [routerLink]="['/create']">
           New Novel
         </button>
-        @if (!isSubscribed) {
-          <button 
-            type="button"
-            class="btn btn-info me-2 d-none d-md-inline"
-            (click)="subscribe()"
-            [disabled]="paymentInProgress">Subscribe (€6.99/mo)</button>
-        }
         <div class="dropdown">
           <button #accountDropdown class="btn btn-secondary dropdown-toggle" type="button" (click)="toggleAccountDropdown()" aria-expanded="false">
             Account

@@ -139,17 +139,6 @@ export class NavBarComponent implements OnInit {
     this.router.navigate(['/']);
   }
 
-  async subscribe() {
-    this.subscriptionBenefitsModal.confirmed.subscribe(async () => {
-      this.paymentInProgress = true;
-      const success = await this.storeService.startSubscription();
-      if (!success) {
-        this.paymentInProgress = false;
-      }
-    });
-    this.subscriptionBenefitsModal.show();
-  }
-
   async cancelSubscription() {
     this.cancelSubscriptionModal.message = "Are you sure you want to cancel your subscription?";
     this.cancelSubscriptionModal.confirmed.subscribe(async () => {

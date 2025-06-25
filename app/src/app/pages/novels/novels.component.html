@@ -75,12 +75,6 @@
     </div>
     <div class="col-md-4">
       <div class="d-grid">
-        @if (!isSubscribed) {
-          <button 
-            type="button"
-            class="btn btn-info btn-lg h-100"
-            (click)="subscribe()"
-            [disabled]="paymentInProgress">Subscribe (€6.99/mo)</button>
         } @else {
           <button 
             type="button"
