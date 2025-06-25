@@ -38,7 +38,7 @@
       </div>
     }
     @else {
-      <button type="button" class="btn btn-secondary me-3" [routerLink]="['/register']">Sign Up</button>
+      <button type="button" class="btn btn-secondary me-3" [routerLink]="['/login']">Sign In</button>
       <div class="d-flex">
         <button type="button" class="btn btn-primary me-3" id="navbar-signin-btn" data-bs-toggle="modal" data-bs-target="#signinModal">
           Email Login
@@ -79,7 +79,7 @@
           <button type="button" class="btn btn-link" (click)="openResetPasswordModal()" data-bs-dismiss="modal">Forgot Password?</button>
         </div>
         <div style="margin-top: 15px;">
-          <button type="button" class="btn btn-secondary w-100" [routerLink]="['/register']" data-bs-dismiss="modal">Not yet a member? Register here!</button>
+          <button type="button" class="btn btn-secondary w-100" [routerLink]="['/login']" data-bs-dismiss="modal">Already a member? Login here!</button>
         </div>
       </div>
     </div>
@@ -113,4 +113,3 @@
 </div>
 <app-confirmation-modal #cancelSubscriptionModal title="Cancel Subscription"></app-confirmation-modal>
 <app-subscription-benefits-modal #subscriptionBenefitsModal></app-subscription-benefits-modal>
-

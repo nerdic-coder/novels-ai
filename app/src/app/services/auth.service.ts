@@ -93,14 +93,5 @@ export class AuthService {
     }
   }
 
-  async registerWithEmail(email: string, password: string) {
-    try {
-      await createUserWithEmailAndPassword(this.auth, email, password);
-      return true;
-    } catch (error) {
-      console.error('Error creating user:', error);
-      return false;
-    }
-  }
 
 }
