@@ -26,13 +26,18 @@
       </div>
     }
     @else {
-      <button type="button" class="btn btn-secondary me-3" [routerLink]="['/login']">Sign In</button>
-      <div class="d-flex">
-        <button type="button" class="btn btn-primary me-3" id="navbar-signin-btn" data-bs-toggle="modal" data-bs-target="#signinModal">
-          Email Login
-        </button>
-        <button class="btn btn-primary" [disabled]="isGoogleLoginDisabled" (click)="googleLogin()">{{ googleSignInButtonText }}</button>
-      </div>
+      @if (serviceShutDown) {
+        <span class="navbar-text text-warning">Service is shut down. Login is disabled.</span>
+      }
+      @else {
+        <button type="button" class="btn btn-secondary me-3" [routerLink]="['/login']">Sign In</button>
+        <div class="d-flex">
+          <button type="button" class="btn btn-primary me-3" id="navbar-signin-btn" data-bs-toggle="modal" data-bs-target="#signinModal">
+            Email Login
+          </button>
+          <button class="btn btn-primary" [disabled]="isGoogleLoginDisabled" (click)="googleLogin()">{{ googleSignInButtonText }}</button>
+        </div>
+      }
     }
   </div>
 </nav>
