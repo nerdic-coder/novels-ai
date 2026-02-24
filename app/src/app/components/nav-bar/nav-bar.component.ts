@@ -34,6 +34,7 @@ export class NavBarComponent implements OnInit {
   paymentInProgress = false;
   googleSignInButtonText: string = 'Google Login';
   isSubscribed = false;
+  readonly serviceShutDown = true;
   userEmail: string = '';
   isEmailProvider = false;
   @ViewChild('cancelSubscriptionModal') cancelSubscriptionModal!: ConfirmationModalComponent;
@@ -102,6 +103,11 @@ export class NavBarComponent implements OnInit {
   }
 
   async emailLogin() {
+    if (this.serviceShutDown) {
+      this.alertService.info('Service is shut down. Login is disabled.');
+      return;
+    }
+
     const success = await this.authService.loginWithEmail(this.email, this.password);
     if (success) {
       this.email = '';
@@ -114,6 +120,11 @@ export class NavBarComponent implements OnInit {
   }
 
   async googleLogin() {
+    if (this.serviceShutDown) {
+      this.alertService.info('Service is shut down. Login is disabled.');
+      return;
+    }
+
     try {
       this.isGoogleLoginDisabled = true;
       this.googleSignInButtonText = 'Loading...';

@@ -9,6 +9,7 @@ import {
   GoogleAuthProvider,
   onAuthStateChanged,
   reauthenticateWithCredential,
+  signOut,
   signInWithEmailAndPassword,
   signInWithRedirect, 
 } from '@angular/fire/auth';
@@ -19,6 +20,7 @@ import { map, Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class AuthService {
+  private readonly serviceShutDown = true;
 
   private auth = inject(Auth);
   private router = inject(Router);
@@ -33,6 +35,11 @@ export class AuthService {
     
     onAuthStateChanged(this.auth, (user) => {
       if (user) {
+        if (this.serviceShutDown) {
+          signOut(this.auth);
+          this.router.navigate(['/']);
+          return;
+        }
         this.router.navigate(['/novels']);
       } else {
         // Handle user logout (e.g., clear user-specific data)
@@ -62,6 +69,11 @@ export class AuthService {
 
   // Login methods, logout, etc.
   async loginWithGoogle() {
+    if (this.serviceShutDown) {
+      console.info('Login disabled while service is shut down.');
+      return;
+    }
+
     const provider = new GoogleAuthProvider();
     try {
       await setPersistence(this.auth, browserLocalPersistence);
@@ -84,6 +96,11 @@ export class AuthService {
   }
 
   async loginWithEmail(email: string, password: string) {
+    if (this.serviceShutDown) {
+      console.info('Login disabled while service is shut down.');
+      return false;
+    }
+
     try {
       await signInWithEmailAndPassword(this.auth, email, password);
       return true;
